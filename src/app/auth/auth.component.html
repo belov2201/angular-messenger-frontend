@@ -1,24 +1,47 @@
-<p-card [style]="{ width: '22rem', overflow: 'hidden' }">
-  <ng-template #title>
-    <div class="title text-center mb-2">Авторизация</div>
-  </ng-template>
-  <div class="flex flex-col *:mb-4">
-    <p-floatlabel variant="on">
-      <input pInputText id="login" autocomplete="off" fluid variant="filled" />
-      <label for="login">Логин</label>
-    </p-floatlabel>
-    <p-floatlabel variant="on">
-      <input pInputText id="password" autocomplete="off" fluid variant="filled" />
-      <label for="password">Пароль</label>
-    </p-floatlabel>
-    <div class="subtitle text-right">
-      У вас нет аккаунта?
-      <a routerLink="/register" class="link">Зарегистрироваться</a>
+<form [formGroup]="authForm" (submit)="auth(formDirective)" #formDirective="ngForm">
+  <p-card [style]="{ width: '22rem', overflow: 'hidden' }">
+    <ng-template #title>
+      <div class="title text-center mb-2">Авторизация</div>
+    </ng-template>
+    <div class="flex flex-col *:mb-4">
+      <div class="*:first:mb-1">
+        <p-floatlabel variant="on">
+          <input
+            pInputText
+            id="login"
+            autocomplete="off"
+            fluid
+            variant="filled"
+            formControlName="login"
+          />
+          <label for="login">Логин</label>
+        </p-floatlabel>
+      </div>
+      <p-floatlabel variant="on">
+        <input
+          pInputText
+          type="password"
+          id="password"
+          autocomplete="off"
+          fluid
+          variant="filled"
+          formControlName="password"
+        />
+        <label for="password">Пароль</label>
+      </p-floatlabel>
+      <div class="subtitle text-right">
+        У вас нет аккаунта?
+        <a routerLink="/register" class="link">Зарегистрироваться</a>
+      </div>
     </div>
-  </div>
-  <ng-template #footer>
-    <div>
-      <p-button label="Войти" styleClass="w-full" size="small" />
-    </div>
-  </ng-template>
-</p-card>
+    <ng-template #footer>
+      <p-button
+        type="submit"
+        label="Войти"
+        styleClass="w-full"
+        size="small"
+        [disabled]="!authForm.valid"
+      />
+    </ng-template>
+  </p-card>
+</form>
