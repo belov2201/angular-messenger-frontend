@@ -1,2 +1,10 @@
 @import 'tailwindcss';
 @import 'tailwindcss-primeui';
+
+html,
+body {
+  height: 100vh;
+  background-color: var(--color-surface-0);
+  color: var(--color-surface-700);
+  -webkit-font-smoothing: antialiased;
+}
