@@ -5,6 +5,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+import { FloatLabelInputComponent } from '@app/shared/ui';
+import { validators } from '@app/shared/libs';
+import { FieldErrorValidationDirective } from '@app/core/form-validation';
 
 @Component({
   selector: 'app-auth',
@@ -15,6 +18,8 @@ import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from '@angular/f
     InputTextModule,
     FloatLabelModule,
     ReactiveFormsModule,
+    FloatLabelInputComponent,
+    FieldErrorValidationDirective,
   ],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.css',
@@ -28,8 +33,8 @@ export class AuthComponent {
 
   authForm = this.fb.group(
     {
-      login: [''],
-      password: [''],
+      login: ['', validators.login],
+      password: ['', validators.password],
     },
     { updateOn: 'change' },
   );

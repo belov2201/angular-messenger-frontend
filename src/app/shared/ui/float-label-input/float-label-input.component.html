@@ -1,0 +1,16 @@
+<div class="*:first:mb-1">
+  <p-floatlabel variant="on">
+    <input
+      pInputText
+      [id]="fieldId()"
+      [type]="inputType()"
+      [value]="value()"
+      (input)="inputValue($event)"
+      (blur)="onBlur()"
+      autocomplete="off"
+      variant="filled"
+      fluid
+    />
+    <label [for]="fieldId()">{{ label() }}</label>
+  </p-floatlabel>
+</div>

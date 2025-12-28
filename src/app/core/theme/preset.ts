@@ -17,7 +17,7 @@ export const Preset = definePreset(Aura, {
   css: `
 
   .subtitle {
-    color: var(--p-text-muted-color) !important;
+    color: var(--p-text-muted-color);
     font-size: 0.75rem;
   }
 
@@ -30,5 +30,10 @@ export const Preset = definePreset(Aura, {
     text-decoration: underline;
   }
     
+  .error-field-message {
+    font-size: 0.75rem;
+    padding-left: 0.75rem;
+    color: var(--p-surface-400);
+  }
 `,
 });

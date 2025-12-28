@@ -5,6 +5,7 @@ export const floatlabel: FloatLabelDesignTokens = {
     light: {
       root: {
         focusColor: '{surface.500}',
+        invalidColor: '{surface.500}',
       },
       on: {
         active: {

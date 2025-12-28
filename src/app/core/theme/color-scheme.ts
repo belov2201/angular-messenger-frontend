@@ -15,9 +15,12 @@ export const colorScheme = {
       950: '#ffffff',
     },
     primary: {
-      500: '#313c40',
-      600: '#39474c',
-      700: '#415157',
+      500: '#313c40', // основной цвет
+      600: '#39474c', // hover
+      700: '#415157', // focus
+    },
+    formField: {
+      invalidBorderColor: '{surface.300}',
     },
   },
 };
