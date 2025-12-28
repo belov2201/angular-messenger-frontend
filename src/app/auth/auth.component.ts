@@ -8,6 +8,7 @@ import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from '@angular/f
 import { FloatLabelInputComponent } from '@app/shared/ui';
 import { validators } from '@app/shared/libs';
 import { FieldErrorValidationDirective } from '@app/core/form-validation';
+import { AuthLayoutComponent } from '@app/shared/layouts';
 
 @Component({
   selector: 'app-auth',
@@ -20,13 +21,11 @@ import { FieldErrorValidationDirective } from '@app/core/form-validation';
     ReactiveFormsModule,
     FloatLabelInputComponent,
     FieldErrorValidationDirective,
+    AuthLayoutComponent,
   ],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    class: 'h-full flex justify-center items-center',
-  },
 })
 export class AuthComponent {
   fb = inject(FormBuilder);

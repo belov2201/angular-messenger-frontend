@@ -1,33 +1,35 @@
-<form [formGroup]="authForm" (submit)="auth(formDirective)" #formDirective="ngForm">
-  <p-card [style]="{ width: '22rem', overflow: 'hidden' }">
-    <ng-template #title>
-      <div class="title text-center mb-2">Авторизация</div>
-    </ng-template>
-    <div class="flex flex-col *:mb-4">
-      <div>
-        <app-float-label-input label="Логин" fieldId="login" formControlName="login" />
+<app-auth-layout>
+  <form [formGroup]="authForm" (submit)="auth(formDirective)" #formDirective="ngForm">
+    <p-card [style]="{ width: '22rem', overflow: 'hidden' }">
+      <ng-template #title>
+        <div class="title text-center mb-2">Авторизация</div>
+      </ng-template>
+      <div class="flex flex-col *:mb-4">
+        <div>
+          <app-float-label-input label="Логин" fieldId="login" formControlName="login" />
+        </div>
+        <div>
+          <app-float-label-input
+            label="Пароль"
+            inputType="password"
+            fieldId="password"
+            formControlName="password"
+          />
+        </div>
+        <div class="subtitle text-right">
+          У вас нет аккаунта?
+          <a routerLink="/register" class="link">Зарегистрироваться</a>
+        </div>
       </div>
-      <div>
-        <app-float-label-input
-          label="Пароль"
-          inputType="password"
-          fieldId="'password'"
-          formControlName="password"
+      <ng-template #footer>
+        <p-button
+          type="submit"
+          label="Войти"
+          styleClass="w-full"
+          size="small"
+          [disabled]="!authForm.valid"
         />
-      </div>
-      <div class="subtitle text-right">
-        У вас нет аккаунта?
-        <a routerLink="/register" class="link">Зарегистрироваться</a>
-      </div>
-    </div>
-    <ng-template #footer>
-      <p-button
-        type="submit"
-        label="Войти"
-        styleClass="w-full"
-        size="small"
-        [disabled]="!authForm.valid"
-      />
-    </ng-template>
-  </p-card>
-</form>
+      </ng-template>
+    </p-card>
+  </form>
+</app-auth-layout>

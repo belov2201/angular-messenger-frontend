@@ -24,9 +24,9 @@ export class FieldErrorValidationDirective implements OnInit {
   }
 
   handleErrorView() {
-    if (!this.control.touched) return;
-
     this.viewContainerRef.clear();
+
+    if (!this.control.touched) return;
 
     const errors = Object.keys(this.control.errors || {});
     if (errors.length === 0) return;
