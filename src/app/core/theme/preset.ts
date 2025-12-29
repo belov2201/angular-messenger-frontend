@@ -3,6 +3,8 @@ import { colorScheme } from './color-scheme';
 import { card } from './components/card';
 import { floatlabel } from './components/float-label';
 import { inputtext } from './components/input-text';
+import { progressspinner } from './components/progress-spinner';
+import { toast } from './components/toast';
 import Aura from '@primeuix/themes/aura';
 
 export const Preset = definePreset(Aura, {
@@ -13,6 +15,8 @@ export const Preset = definePreset(Aura, {
     card,
     floatlabel,
     inputtext,
+    progressspinner,
+    toast,
   },
   css: `
 

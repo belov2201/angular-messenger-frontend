@@ -1,12 +1,16 @@
+@if (isPendingAction()) {
+  <app-loader />
+}
+
 <app-auth-layout>
-  <form [formGroup]="registerForm" (submit)="register(formDirective)" #formDirective="ngForm">
+  <form [formGroup]="registerForm" (submit)="register()">
     <p-card [style]="{ width: '22rem', overflow: 'hidden' }">
       <ng-template #title>
         <div class="title text-center mb-2">Регистрация</div>
       </ng-template>
       <div class="flex flex-col *:mb-4">
         <div>
-          <app-float-label-input label="Логин" fieldId="login" formControlName="login" />
+          <app-float-label-input label="Логин" fieldId="username" formControlName="username" />
         </div>
         <div>
           <app-float-label-input

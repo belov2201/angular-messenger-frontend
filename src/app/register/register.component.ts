@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FieldErrorValidationDirective } from '@app/core/form-validation';
 import { validators } from '@app/shared/libs';
@@ -12,6 +12,8 @@ import { AuthLayoutComponent } from '@app/shared/layouts';
 import { comparePasswordValidator } from '@app/shared/libs/validators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { tap } from 'rxjs';
+import { RegisterDto, UserStore } from '@app/core/store/user';
+import { LoaderComponent } from '@app/shared/ui';
 
 @Component({
   selector: 'app-register',
@@ -25,6 +27,7 @@ import { tap } from 'rxjs';
     FloatLabelInputComponent,
     FieldErrorValidationDirective,
     AuthLayoutComponent,
+    LoaderComponent,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
@@ -32,10 +35,13 @@ import { tap } from 'rxjs';
 })
 export class RegisterComponent {
   fb = inject(FormBuilder);
+  userStore = inject(UserStore);
+
+  isPendingAction = this.userStore.isPendingAction;
 
   registerForm = this.fb.group(
     {
-      login: ['', validators.login],
+      username: ['', validators.username],
       password: ['', validators.password],
       repeatPassword: ['', [comparePasswordValidator]],
       firstName: ['', validators.firstName],
@@ -51,8 +57,8 @@ export class RegisterComponent {
     )
     .subscribe();
 
-  register(formDirective: FormGroupDirective) {
-    formDirective.resetForm();
-    (document.activeElement as HTMLElement)?.blur();
+  register() {
+    if (!this.registerForm.valid) return;
+    this.userStore.register(this.registerForm.value as RegisterDto);
   }
 }

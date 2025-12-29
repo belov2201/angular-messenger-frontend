@@ -32,7 +32,7 @@ export class AuthComponent {
 
   authForm = this.fb.group(
     {
-      login: ['', validators.login],
+      username: ['', validators.username],
       password: ['', validators.password],
     },
     { updateOn: 'change' },

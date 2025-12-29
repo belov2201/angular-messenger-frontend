@@ -1,7 +1,7 @@
 import { AbstractControl, ValidationErrors, Validators } from '@angular/forms';
 
 export const validators = {
-  login: [
+  username: [
     Validators.required,
     Validators.minLength(3),
     Validators.maxLength(16),
