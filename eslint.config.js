@@ -5,6 +5,7 @@ const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
 const prettierConfig = require('eslint-config-prettier');
 const prettierPlugin = require('eslint-plugin-prettier');
+const ngrx = require('@ngrx/eslint-plugin/v9');
 
 module.exports = defineConfig([
   {
@@ -14,6 +15,7 @@ module.exports = defineConfig([
       tseslint.configs.recommended,
       tseslint.configs.stylistic,
       angular.configs.tsRecommended,
+      ngrx.configs.all,
       prettierConfig,
     ],
     plugins: {
