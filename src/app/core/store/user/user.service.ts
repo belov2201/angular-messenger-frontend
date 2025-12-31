@@ -9,6 +9,10 @@ import { AuthDto, RegisterDto, UserDto } from './user.interface';
 export class UserService {
   private http = inject(HttpClient);
 
+  getUserData(): Observable<UserDto> {
+    return this.http.get<UserDto>('/user');
+  }
+
   auth(authDto: AuthDto): Observable<UserDto> {
     return this.http.post<UserDto>('/auth', authDto);
   }
