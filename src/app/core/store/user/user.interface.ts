@@ -9,6 +9,8 @@ export interface UserDto {
 
 export type UserEntity = UserDto;
 
+export type ParticipantDto = Omit<UserDto, 'inviteCode'>;
+
 export interface AuthDto {
   username: string;
   password: string;
