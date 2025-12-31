@@ -4,11 +4,13 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { RouterModule } from '@angular/router';
-import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
-import { FloatLabelInputComponent } from '@app/shared/ui';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FloatLabelInputComponent, LoaderComponent } from '@app/shared/ui';
 import { validators } from '@app/shared/libs';
 import { FieldErrorValidationDirective } from '@app/core/form-validation';
 import { AuthLayoutComponent } from '@app/shared/layouts';
+import { UserStore } from '@app/core/store/user';
+import { AuthDto } from '@app/core/store/user/user.interface';
 
 @Component({
   selector: 'app-auth',
@@ -22,6 +24,7 @@ import { AuthLayoutComponent } from '@app/shared/layouts';
     FloatLabelInputComponent,
     FieldErrorValidationDirective,
     AuthLayoutComponent,
+    LoaderComponent,
   ],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.css',
@@ -29,6 +32,9 @@ import { AuthLayoutComponent } from '@app/shared/layouts';
 })
 export class AuthComponent {
   fb = inject(FormBuilder);
+  userStore = inject(UserStore);
+
+  isPendingAction = this.userStore.isPendingAction;
 
   authForm = this.fb.group(
     {
@@ -38,8 +44,8 @@ export class AuthComponent {
     { updateOn: 'change' },
   );
 
-  auth(formDirective: FormGroupDirective) {
-    formDirective.resetForm();
-    (document.activeElement as HTMLElement)?.blur();
+  auth() {
+    if (!this.authForm.valid) return;
+    this.userStore.auth(this.authForm.value as AuthDto);
   }
 }

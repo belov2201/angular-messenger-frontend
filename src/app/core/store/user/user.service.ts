@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { RegisterDto } from './user.interface';
+import { AuthDto, RegisterDto, UserDto } from './user.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +9,11 @@ import { RegisterDto } from './user.interface';
 export class UserService {
   private http = inject(HttpClient);
 
-  register(createUserDto: RegisterDto): Observable<object> {
-    return this.http.post('/auth/register', createUserDto);
+  auth(authDto: AuthDto): Observable<UserDto> {
+    return this.http.post<UserDto>('/auth', authDto);
+  }
+
+  register(createUserDto: RegisterDto): Observable<void> {
+    return this.http.post<void>('/auth/register', createUserDto);
   }
 }

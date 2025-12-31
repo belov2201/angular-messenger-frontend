@@ -6,13 +6,15 @@ import { UserService } from './user.service';
 import { tapResponse } from '@ngrx/operators';
 import { AlertsService } from '../../alerts';
 import { Router } from '@angular/router';
-import { RegisterDto } from './user.interface';
+import { AuthDto, RegisterDto, UserEntity } from './user.interface';
 
 interface UserState {
+  user: UserEntity | null;
   isPendingAction: boolean;
 }
 
 const initialState: UserState = {
+  user: null,
   isPendingAction: false,
 };
 
@@ -26,6 +28,23 @@ export const UserStore = signalStore(
       alertService = inject(AlertsService),
       router = inject(Router),
     ) => ({
+      auth: rxMethod<AuthDto>(
+        pipe(
+          tap(() => patchState(store, { isPendingAction: true })),
+          switchMap((authDto) => {
+            return userService.auth(authDto).pipe(
+              tapResponse({
+                next: (user) => {
+                  patchState(store, { user });
+                  router.navigate(['/'], { replaceUrl: true });
+                },
+                error: () => alertService.showErrorAlert('Ошибка авторизации'),
+                finalize: () => patchState(store, { isPendingAction: false }),
+              }),
+            );
+          }),
+        ),
+      ),
       register: rxMethod<RegisterDto>(
         pipe(
           tap(() => patchState(store, { isPendingAction: true })),
