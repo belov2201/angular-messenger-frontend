@@ -9,10 +9,10 @@ import { ValidationErrorsService } from './validation-errors.service';
   selector: '[appFieldErrorValidation], [formControlName], [formControl]',
 })
 export class FieldErrorValidationDirective implements OnInit {
-  control = inject(NgControl);
-  viewContainerRef = inject(ViewContainerRef);
-  destroyRef = inject(DestroyRef);
-  validationErrorsService = inject(ValidationErrorsService);
+  private readonly control = inject(NgControl);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly validationErrorsService = inject(ValidationErrorsService);
 
   ngOnInit(): void {
     this.control.statusChanges
@@ -23,7 +23,7 @@ export class FieldErrorValidationDirective implements OnInit {
       .subscribe();
   }
 
-  handleErrorView() {
+  private handleErrorView() {
     this.viewContainerRef.clear();
 
     if (!this.control.touched) return;

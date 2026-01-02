@@ -30,10 +30,10 @@ import { AuthDto } from '@app/core/store/user/user.interface';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuthComponent {
-  fb = inject(FormBuilder);
-  userStore = inject(UserStore);
+  private readonly fb = inject(FormBuilder);
+  private readonly userStore = inject(UserStore);
 
-  authForm = this.fb.group(
+  protected readonly authForm = this.fb.group(
     {
       username: ['', validators.username],
       password: ['', validators.password],

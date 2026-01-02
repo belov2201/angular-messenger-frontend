@@ -7,7 +7,7 @@ import { AuthDto, RegisterDto, UserDto } from './user.interface';
   providedIn: 'root',
 })
 export class UserService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   getUserData(): Observable<UserDto> {
     return this.http.get<UserDto>('/user');

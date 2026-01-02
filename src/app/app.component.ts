@@ -26,8 +26,8 @@ import { AppService } from './app.service';
   host: { class: 'block h-full' },
 })
 export class AppComponent {
-  appService = inject(AppService);
+  private readonly appService = inject(AppService);
 
-  showLoader = this.appService.showLoader;
-  showError = this.appService.showError;
+  protected readonly showLoader = this.appService.showLoader;
+  protected readonly showError = this.appService.showError;
 }

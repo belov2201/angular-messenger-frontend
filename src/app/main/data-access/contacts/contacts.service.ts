@@ -7,7 +7,7 @@ import { ContactDto } from './contacts.interface';
   providedIn: 'root',
 })
 export class ContactsService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   getAll(): Observable<ContactDto[]> {
     return this.http.get<ContactDto[]>('/contacts');

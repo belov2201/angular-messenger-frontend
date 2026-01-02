@@ -10,26 +10,28 @@ import { InputTextModule } from 'primeng/inputtext';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloatLabelInputComponent implements ControlValueAccessor {
+  private readonly ngControl = inject(NgControl, { self: true });
+
   fieldId = input.required<string>();
   label = input.required<string>();
   inputType = input<'password' | 'text'>('text');
-  value = signal<string>('');
-  disabled = signal<boolean>(false);
-  ngControl = inject(NgControl, { self: true });
 
-  onChange = signal<((value: string) => void) | null>(null);
-  onTouched = signal<(() => void) | null>(null);
+  protected readonly value = signal<string>('');
+  protected readonly disabled = signal<boolean>(false);
+
+  private onChange: ((value: string) => void) | null = null;
+  private onTouched: (() => void) | null = null;
 
   constructor() {
     this.ngControl.valueAccessor = this;
   }
 
   registerOnChange(fn: (value: string) => void): void {
-    this.onChange.set(fn);
+    this.onChange = fn;
   }
 
   registerOnTouched(fn: () => void): void {
-    this.onTouched.set(fn);
+    this.onTouched = fn;
   }
 
   setDisabledState(isDisabled: boolean): void {
@@ -42,13 +44,11 @@ export class FloatLabelInputComponent implements ControlValueAccessor {
 
   inputValue(event: Event) {
     const input = event.currentTarget as HTMLInputElement;
-    const onChange = this.onChange();
-    if (onChange) onChange(input.value);
+    if (this.onChange) this.onChange(input.value);
   }
 
   onBlur() {
-    const onTouched = this.onTouched();
-    if (onTouched) onTouched();
+    if (this.onTouched) this.onTouched();
     this.ngControl.control?.updateValueAndValidity();
   }
 }

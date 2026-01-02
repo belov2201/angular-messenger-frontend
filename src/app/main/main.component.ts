@@ -11,27 +11,31 @@ import { AppService } from '@app/app.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainComponent {
-  appService = inject(AppService);
-  contactsStore = inject(ContactsStore);
-  invitesStore = inject(InvitesStore);
+  private readonly appService = inject(AppService);
+  private readonly contactsStore = inject(ContactsStore);
+  private readonly invitesStore = inject(InvitesStore);
 
-  isLoadedInitData = computed(() => this.contactsStore.isLoaded() && this.invitesStore.isLoaded());
+  protected readonly isLoadedInitData = computed(
+    () => this.contactsStore.isLoaded() && this.invitesStore.isLoaded(),
+  );
 
-  isLoadingInitData = computed(
+  private readonly isLoadingInitData = computed(
     () => this.contactsStore.isLoading() || this.invitesStore.isLoading(),
   );
 
-  isErrorInitData = computed(() => this.contactsStore.isError() || this.invitesStore.isError());
+  private readonly isErrorInitData = computed(
+    () => this.contactsStore.isError() || this.invitesStore.isError(),
+  );
 
-  changeIsLoadingInitData = effect(() => {
+  private readonly changeIsLoadingInitData = effect(() => {
     this.appService.isLoadingInitData.set(this.isLoadingInitData());
   });
 
-  changeIsLoadedInitData = effect(() => {
+  private readonly changeIsLoadedInitData = effect(() => {
     this.appService.isLoadedInitData.set(this.isLoadedInitData());
   });
 
-  changeIsErrorInitData = effect(() => {
+  private readonly changeIsErrorInitData = effect(() => {
     this.appService.isErrorInitData.set(this.isErrorInitData());
   });
 }

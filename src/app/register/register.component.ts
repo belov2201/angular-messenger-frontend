@@ -32,10 +32,10 @@ import { RegisterDto, UserStore } from '@app/core/store/user';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {
-  fb = inject(FormBuilder);
-  userStore = inject(UserStore);
+  private readonly fb = inject(FormBuilder);
+  private readonly userStore = inject(UserStore);
 
-  registerForm = this.fb.group(
+  protected readonly registerForm = this.fb.group(
     {
       username: ['', validators.username],
       password: ['', validators.password],
@@ -46,12 +46,14 @@ export class RegisterComponent {
     { updateOn: 'change' },
   );
 
-  validateRepeatPasswordField = this.registerForm.controls.password.valueChanges
-    .pipe(
-      tap(() => this.registerForm.controls.repeatPassword.updateValueAndValidity()),
-      takeUntilDestroyed(),
-    )
-    .subscribe();
+  constructor() {
+    this.registerForm.controls.password.valueChanges
+      .pipe(
+        tap(() => this.registerForm.controls.repeatPassword.updateValueAndValidity()),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+  }
 
   register() {
     if (!this.registerForm.valid) return;

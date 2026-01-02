@@ -5,28 +5,22 @@ import { UserStore } from './core/store/user';
   providedIn: 'root',
 })
 export class AppService {
-  userStore = inject(UserStore);
-
-  isLoadingUser = this.userStore.isLoading;
-  isLoadedUser = this.userStore.isLoaded;
-  isErrorUser = this.userStore.isError;
+  private readonly userStore = inject(UserStore);
 
   isLoadingInitData = signal<boolean>(false);
   isLoadedInitData = signal<boolean>(false);
   isErrorInitData = signal<boolean>(false);
 
-  isPendingAction = this.userStore.isPendingAction;
-
-  showLoader = computed(() => {
+  readonly showLoader = computed(() => {
     const isLoadingUser = this.userStore.isLoading();
     const isUnauthorized = this.userStore.isUnauthorized();
-    const isUserError = this.userStore.isUnauthorized();
+    const isUserError = this.userStore.isError();
 
     const isLoadingInitData = this.isLoadingInitData();
     const isLoadedInitData = this.isLoadedInitData();
     const isErrorInitData = this.isErrorInitData();
 
-    const isPendingAction = this.isPendingAction();
+    const isPendingAction = this.userStore.isPendingAction();
 
     return (
       isPendingAction ||
@@ -37,5 +31,5 @@ export class AppService {
     );
   });
 
-  showError = computed(() => this.isErrorInitData() || this.isErrorUser());
+  readonly showError = computed(() => this.isErrorInitData() || this.userStore.isError());
 }

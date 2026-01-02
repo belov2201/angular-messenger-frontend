@@ -7,7 +7,7 @@ import { InviteDto } from './invites.interface';
   providedIn: 'root',
 })
 export class InvitesService {
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   getAll(): Observable<InviteDto[]> {
     return this.http.get<InviteDto[]>('/invites');

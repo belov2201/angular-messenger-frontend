@@ -5,7 +5,7 @@ import { MessageService, ToastMessageOptions } from 'primeng/api';
   providedIn: 'root',
 })
 export class AlertsService {
-  messages = inject(MessageService);
+  private readonly messages = inject(MessageService);
 
   private baseToastOptions: ToastMessageOptions = {
     closable: false,
