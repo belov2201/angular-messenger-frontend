@@ -13,7 +13,6 @@ import { comparePasswordValidator } from '@app/shared/libs/validators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { tap } from 'rxjs';
 import { RegisterDto, UserStore } from '@app/core/store/user';
-import { LoaderComponent } from '@app/shared/ui';
 
 @Component({
   selector: 'app-register',
@@ -27,7 +26,6 @@ import { LoaderComponent } from '@app/shared/ui';
     FloatLabelInputComponent,
     FieldErrorValidationDirective,
     AuthLayoutComponent,
-    LoaderComponent,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
@@ -36,8 +34,6 @@ import { LoaderComponent } from '@app/shared/ui';
 export class RegisterComponent {
   fb = inject(FormBuilder);
   userStore = inject(UserStore);
-
-  isPendingAction = this.userStore.isPendingAction;
 
   registerForm = this.fb.group(
     {

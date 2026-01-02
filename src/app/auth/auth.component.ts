@@ -5,7 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { FloatLabelInputComponent, LoaderComponent } from '@app/shared/ui';
+import { FloatLabelInputComponent } from '@app/shared/ui';
 import { validators } from '@app/shared/libs';
 import { FieldErrorValidationDirective } from '@app/core/form-validation';
 import { AuthLayoutComponent } from '@app/shared/layouts';
@@ -24,7 +24,6 @@ import { AuthDto } from '@app/core/store/user/user.interface';
     FloatLabelInputComponent,
     FieldErrorValidationDirective,
     AuthLayoutComponent,
-    LoaderComponent,
   ],
   templateUrl: './auth.component.html',
   styleUrl: './auth.component.css',
@@ -33,8 +32,6 @@ import { AuthDto } from '@app/core/store/user/user.interface';
 export class AuthComponent {
   fb = inject(FormBuilder);
   userStore = inject(UserStore);
-
-  isPendingAction = this.userStore.isPendingAction;
 
   authForm = this.fb.group(
     {

@@ -8,20 +8,16 @@ import { AlertsService } from '../../alerts';
 import { Router } from '@angular/router';
 import { AuthDto, RegisterDto, UserEntity } from './user.interface';
 import { HttpErrorResponse } from '@angular/common/http';
+import { BaseApiState, baseApiState } from '@app/shared/libs';
 
-interface UserState {
+interface UserState extends BaseApiState {
   user: UserEntity | null;
-  isPendingAction: boolean;
-  isLoading: boolean;
-  isLoaded: boolean;
   isUnauthorized: boolean;
 }
 
 const initialState: UserState = {
+  ...baseApiState,
   user: null,
-  isPendingAction: false,
-  isLoading: false,
-  isLoaded: false,
   isUnauthorized: false,
 };
 
@@ -51,6 +47,7 @@ export const UserStore = signalStore(
                     return;
                   }
 
+                  patchState(store, { isError: true });
                   alertService.showErrorAlert('Ошибка авторизации');
                 },
                 finalize: () => {
@@ -68,7 +65,7 @@ export const UserStore = signalStore(
             return userService.auth(authDto).pipe(
               tapResponse({
                 next: (user) => {
-                  patchState(store, { user });
+                  patchState(store, { user, isLoaded: true, isUnauthorized: false });
                   router.navigate(['/'], { replaceUrl: true });
                 },
                 error: () => alertService.showErrorAlert('Ошибка авторизации'),

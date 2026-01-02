@@ -1,24 +1,33 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { AlertsComponent } from './core/alerts';
-import { UserStore } from './core/store/user';
 import { LoaderComponent } from './shared/ui';
+import { AppService } from './app.service';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, ToastModule, AlertsComponent, LoaderComponent],
   template: `
+    <app-alerts />
+
     @if (showLoader()) {
       <app-loader />
     }
-    <app-alerts />
-    <router-outlet />
+
+    @if (!showError()) {
+      <router-outlet />
+    } @else {
+      <div class="h-full flex justify-center items-center">
+        Ошибка загрузки данных, перезапустите приложение
+      </div>
+    }
   `,
   host: { class: 'block h-full' },
 })
 export class AppComponent {
-  userStore = inject(UserStore);
+  appService = inject(AppService);
 
-  showLoader = computed(() => this.userStore.isLoading() || !this.userStore.isLoaded());
+  showLoader = this.appService.showLoader;
+  showError = this.appService.showError;
 }

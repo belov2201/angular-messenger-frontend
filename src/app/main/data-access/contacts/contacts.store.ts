@@ -12,21 +12,15 @@ import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { ContactEntity } from './contacts.interface';
 import { ContactsService } from './contacts.service';
+import { baseApiState, BaseApiState } from '@app/shared/libs';
 
-interface ContactsState {
+interface ContactsState extends BaseApiState {
   contacts: ContactEntity[];
-  isPendingAction: boolean;
-  isLoading: boolean;
-  isLoaded: boolean;
-  isError: boolean;
 }
 
 const initialState: ContactsState = {
+  ...baseApiState,
   contacts: [],
-  isPendingAction: false,
-  isLoading: false,
-  isLoaded: false,
-  isError: false,
 };
 
 export const ContactsStore = signalStore(

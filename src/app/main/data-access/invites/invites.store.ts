@@ -5,21 +5,15 @@ import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { InvitesService } from './invites.service';
 import { InviteEntity } from './invites.interface';
+import { baseApiState, BaseApiState } from '@app/shared/libs';
 
-interface InvitesState {
+interface InvitesState extends BaseApiState {
   invites: InviteEntity[];
-  isPendingAction: boolean;
-  isLoading: boolean;
-  isLoaded: boolean;
-  isError: boolean;
 }
 
 const initialState: InvitesState = {
+  ...baseApiState,
   invites: [],
-  isPendingAction: false,
-  isLoading: false,
-  isLoaded: false,
-  isError: false,
 };
 
 export const InvitesStore = signalStore(
