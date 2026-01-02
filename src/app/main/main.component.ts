@@ -2,12 +2,16 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@a
 import { ContactsStore } from './data-access/contacts';
 import { InvitesStore } from './data-access/invites';
 import { AppService } from '@app/app.service';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-main',
-  imports: [],
+  imports: [SidebarComponent],
   templateUrl: './main.component.html',
   styleUrl: './main.component.css',
+  host: {
+    class: 'h-full flex',
+  },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MainComponent {

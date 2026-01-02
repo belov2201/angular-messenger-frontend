@@ -1,0 +1,20 @@
+@if (userStore.user(); as user) {
+  <div class="flex items-center">
+    <div class="relative flex mr-3">
+      <p-avatar
+        [image]="appConfig.apiUrl + '/avatars/' + user?.avatar || ''"
+        shape="circle"
+        size="xlarge"
+      />
+      <p-badge
+        severity="success"
+        class="absolute bottom-0.5 right-0 border-white border rounded-2xl"
+        style="width: 0.65rem; height: 0.65rem"
+      />
+    </div>
+    <div class="flex-auto flex flex-col">
+      <div class="title">{{ user.firstName }} {{ user.lastName }}</div>
+      <div class="subtitle">{{ user.username }}</div>
+    </div>
+  </div>
+}
