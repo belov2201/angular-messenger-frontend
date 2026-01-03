@@ -13,6 +13,8 @@ import { tapResponse } from '@ngrx/operators';
 import { ContactEntity } from './contacts.interface';
 import { ContactsService } from './contacts.service';
 import { baseApiState, BaseApiState } from '@app/shared/libs';
+import { UserStore } from '@app/core/store/user';
+import { mapToContactView } from './contacts.mapper';
 
 interface ContactsState extends BaseApiState {
   contacts: ContactEntity[];
@@ -25,9 +27,16 @@ const initialState: ContactsState = {
 
 export const ContactsStore = signalStore(
   withState(initialState),
-  withComputed((store) => ({
-    getCount: computed(() => store.contacts().length),
-  })),
+  withComputed((store) => {
+    const userStore = inject(UserStore);
+
+    return {
+      getCount: computed(() => store.contacts().length),
+      displayContacts: computed(() => {
+        return mapToContactView(store.contacts(), userStore.user());
+      }),
+    };
+  }),
   withMethods((store, contactsService = inject(ContactsService)) => ({
     getContactsData: rxMethod<void>(
       pipe(

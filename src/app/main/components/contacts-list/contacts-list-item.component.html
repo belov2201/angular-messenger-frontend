@@ -1,0 +1,25 @@
+@if (contact(); as contact) {
+  <div class="flex px-2 py-3">
+    <div class="mr-2">
+      <app-avatar [avatar]="contact.user.avatar || ''" size="large" />
+    </div>
+    <div class="flex-auto flex flex-col min-w-0">
+      <div class="title">{{ contact.user.firstName }} {{ contact.user.lastName }}</div>
+      <div class="subtitle overflow-hidden whitespace-nowrap text-ellipsis wrap-anywhere">
+        {{ contact.lastMessage?.text || 'Сообщений нет' }}
+      </div>
+    </div>
+    @if (contact.lastMessage; as lastMessage) {
+      <div class="flex flex-col *:flex-auto">
+        <div class="subtitle font-bold">{{ lastMessage.date | dateToStr }}</div>
+        <div class="flex justify-end items-center">
+          @if (lastMessage.isRead) {
+            <app-icon>done_all</app-icon>
+          } @else {
+            <app-icon>done</app-icon>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

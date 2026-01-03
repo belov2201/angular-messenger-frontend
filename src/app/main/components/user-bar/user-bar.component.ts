@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AppConfig } from '@app/core/config';
 import { UserStore } from '@app/core/store/user';
-import { AvatarModule } from 'primeng/avatar';
+import { AvatarComponent } from '@app/shared/ui';
 import { Badge } from 'primeng/badge';
 
 @Component({
   selector: 'app-user-bar',
-  imports: [AvatarModule, Badge],
+  imports: [AvatarComponent, Badge],
   templateUrl: './user-bar.component.html',
   styleUrl: './user-bar.component.css',
   host: {

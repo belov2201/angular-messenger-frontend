@@ -1,0 +1,7 @@
+@for (contact of contactsStore.displayContacts(); track contact.id) {
+  <div class="hover:bg-surface-200">
+    <a [routerLink]="['/dialog', contact.id]">
+      <app-contacts-list-item [contact]="contact" />
+    </a>
+  </div>
+}

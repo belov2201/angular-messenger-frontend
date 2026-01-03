@@ -20,3 +20,7 @@ export interface ContactDto {
 }
 
 export type ContactEntity = ContactDto;
+
+export interface Contact extends ContactEntity {
+  user: ParticipantDto;
+}

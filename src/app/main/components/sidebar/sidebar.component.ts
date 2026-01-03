@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { UserBarComponent } from '../user-bar/user-bar.component';
+import { ContactsListComponent } from '../contacts-list/contacts-list.component';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [UserBarComponent],
+  imports: [UserBarComponent, ContactsListComponent],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
   host: {

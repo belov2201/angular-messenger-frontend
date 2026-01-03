@@ -6,4 +6,9 @@ export const avatar: AvatarDesignTokens = {
     height: '3.45rem',
     fontSize: '1rem',
   },
+  lg: {
+    width: '2.5rem',
+    height: '2.5rem',
+    fontSize: '1rem',
+  },
 };
