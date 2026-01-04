@@ -92,6 +92,24 @@ export const UserStore = signalStore(
           }),
         ),
       ),
+      logout: rxMethod<void>(
+        pipe(
+          tap(() => patchState(store, { isPendingAction: true })),
+          switchMap(() => {
+            return userService.logout().pipe(
+              tapResponse({
+                next: () => {
+                  patchState(store, { ...initialState, isLoaded: true });
+                  router.navigate(['/auth'], { replaceUrl: true });
+                  alertService.showSuccessAlert('Вы вышли из учетной записи');
+                },
+                error: () => alertService.showErrorAlert('Ошибка выхода из учетной записи'),
+                finalize: () => patchState(store, { isPendingAction: false }),
+              }),
+            );
+          }),
+        ),
+      ),
     }),
   ),
   withHooks({

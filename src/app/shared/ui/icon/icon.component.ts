@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 const sizes = {
   s: 0.75,
   m: 1,
-  l: 1.25,
+  l: 1.5,
 };
 
 @Component({
@@ -22,6 +22,7 @@ const sizes = {
       <ng-content />
     </span>
   `,
+  host: { class: 'flex' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconComponent {

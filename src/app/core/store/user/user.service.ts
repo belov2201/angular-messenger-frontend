@@ -20,4 +20,8 @@ export class UserService {
   register(createUserDto: RegisterDto): Observable<void> {
     return this.http.post<void>('/auth/register', createUserDto);
   }
+
+  logout(): Observable<void> {
+    return this.http.get<void>('/auth/logout');
+  }
 }

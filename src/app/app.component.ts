@@ -4,11 +4,13 @@ import { ToastModule } from 'primeng/toast';
 import { AlertsComponent } from './core/alerts';
 import { LoaderComponent } from './shared/ui';
 import { AppService } from './app.service';
+import { ConfirmDialogComponent } from './shared/ui/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ToastModule, AlertsComponent, LoaderComponent],
+  imports: [RouterOutlet, ToastModule, AlertsComponent, LoaderComponent, ConfirmDialogComponent],
   template: `
+    <app-confirm-dialog />
     <app-alerts />
 
     @if (showLoader()) {

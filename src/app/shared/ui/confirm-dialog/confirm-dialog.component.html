@@ -1,0 +1,17 @@
+<p-confirmDialog class="overflow-hidden">
+  <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+    @if (message) {
+      <div class="flex flex-col bg-surface-50 p-4 rounded-xl">
+        <div class="mb-4">{{ message.message }}</div>
+        <div class="flex gap-4 *:flex-auto">
+          <div>
+            <p-button size="small" label="Подтвердить" (onClick)="onAccept()" fluid />
+          </div>
+          <div>
+            <p-button size="small" label="Отменить" (onClick)="onReject()" fluid />
+          </div>
+        </div>
+      </div>
+    }
+  </ng-template>
+</p-confirmDialog>

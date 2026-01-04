@@ -8,6 +8,7 @@ import { apiInterceptor } from './core/interceptors';
 import { environment } from 'environments/environment';
 import { AppConfig } from './core/config/app-config.token';
 import { MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { withCredentialsInterceptor } from './core/interceptors';
 
 export const appConfig: ApplicationConfig = {
@@ -22,5 +23,6 @@ export const appConfig: ApplicationConfig = {
     { provide: AppConfig, useValue: environment },
     provideHttpClient(withInterceptors([apiInterceptor, withCredentialsInterceptor])),
     MessageService,
+    ConfirmationService,
   ],
 };

@@ -15,6 +15,8 @@ export const colorScheme = {
       950: '#ffffff',
     },
     primary: {
+      50: '{surface.300}',
+      100: '{surface.400}',
       500: '#313c40', // основной цвет
       600: '#39474c', // hover
       700: '#415157', // focus
