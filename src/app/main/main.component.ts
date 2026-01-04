@@ -9,6 +9,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
   imports: [SidebarComponent],
   templateUrl: './main.component.html',
   styleUrl: './main.component.css',
+  providers: [ContactsStore, InvitesStore],
   host: {
     class: 'h-full flex',
   },
