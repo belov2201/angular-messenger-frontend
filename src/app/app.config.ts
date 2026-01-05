@@ -10,6 +10,7 @@ import { AppConfig } from './core/config/app-config.token';
 import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
 import { withCredentialsInterceptor } from './core/interceptors';
+import { DialogService } from 'primeng/dynamicdialog';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -24,5 +25,6 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([apiInterceptor, withCredentialsInterceptor])),
     MessageService,
     ConfirmationService,
+    DialogService,
   ],
 };

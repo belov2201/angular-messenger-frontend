@@ -1,0 +1,41 @@
+@if (userStore.user(); as user) {
+  <div>
+    <form [formGroup]="editUserForm" (submit)="edit()" class="*:not-last:mb-6">
+      <div class="flex items-center *:first:mr-4">
+        <div class="hover:cursor-pointer hover:opacity-[0.8]">
+          <app-avatar [avatar]="user.avatar || ''" size="xlarge" (click)="menu.toggle($event)" />
+          <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+          <input
+            #fileInput
+            role="file-input"
+            type="file"
+            style="display: none"
+            (change)="changeFile($event)"
+          />
+        </div>
+        <div class="title">{{ user.firstName }} {{ user.lastName }}</div>
+      </div>
+      <div class="*:mb-4">
+        <div>
+          <app-float-label-input label="Имя" fieldId="firstName" formControlName="firstName" />
+        </div>
+        <div>
+          <app-float-label-input label="Фамилия" fieldId="lastName" formControlName="lastName" />
+        </div>
+      </div>
+      <div>
+        <div class="title">Код приглашения</div>
+        <div class="subtitle">{{ user.inviteCode }}</div>
+      </div>
+      <div>
+        <p-button
+          type="submit"
+          label="Редактировать"
+          styleClass="w-full"
+          size="small"
+          [disabled]="!editUserForm.valid || isEqualInit() || !editUserForm.dirty"
+        />
+      </div>
+    </form>
+  </div>
+}

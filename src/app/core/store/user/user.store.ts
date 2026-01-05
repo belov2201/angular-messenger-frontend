@@ -6,7 +6,7 @@ import { UserService } from './user.service';
 import { tapResponse } from '@ngrx/operators';
 import { AlertsService } from '../../alerts';
 import { Router } from '@angular/router';
-import { AuthDto, RegisterDto, UserEntity } from './user.interface';
+import { AuthDto, EditUserAvatarDto, EditUserDto, RegisterDto, UserEntity } from './user.interface';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BaseApiState, baseApiState } from '@app/shared/libs';
 
@@ -105,6 +105,78 @@ export const UserStore = signalStore(
                 },
                 error: () => alertService.showErrorAlert('Ошибка выхода из учетной записи'),
                 finalize: () => patchState(store, { isPendingAction: false }),
+              }),
+            );
+          }),
+        ),
+      ),
+      editUser: rxMethod<EditUserDto>(
+        pipe(
+          tap(() => patchState(store, { isPendingAction: true })),
+          switchMap((editUserDto) => {
+            return userService.editUserData(editUserDto).pipe(
+              tapResponse({
+                next: () => {
+                  patchState(store, (state) => ({
+                    user: state?.user ? { ...state.user, ...editUserDto } : null,
+                  }));
+
+                  alertService.showSuccessAlert('Информация о пользователе отредактирована');
+                },
+                error: () => {
+                  alertService.showErrorAlert('Ошибка редактирования информации о пользователе');
+                },
+                finalize: () => {
+                  patchState(store, { isPendingAction: false });
+                },
+              }),
+            );
+          }),
+        ),
+      ),
+      editAvatar: rxMethod<EditUserAvatarDto>(
+        pipe(
+          tap(() => patchState(store, { isPendingAction: true })),
+          switchMap((editUserAvatarDto) => {
+            return userService.editUserAvatar(editUserAvatarDto).pipe(
+              tapResponse({
+                next: ({ fileName }) => {
+                  patchState(store, (state) => ({
+                    user: state?.user ? { ...state.user, avatar: fileName } : null,
+                  }));
+
+                  alertService.showSuccessAlert('Аватар успешно изменен');
+                },
+                error: () => {
+                  alertService.showErrorAlert('Ошибка изменения аватара');
+                },
+                finalize: () => {
+                  patchState(store, { isPendingAction: false });
+                },
+              }),
+            );
+          }),
+        ),
+      ),
+      deleteAvatar: rxMethod<void>(
+        pipe(
+          tap(() => patchState(store, { isPendingAction: true })),
+          switchMap(() => {
+            return userService.deleteUserAvatar().pipe(
+              tapResponse({
+                next: () => {
+                  patchState(store, (state) => ({
+                    user: state?.user ? { ...state.user, avatar: null } : null,
+                  }));
+
+                  alertService.showSuccessAlert('Аватар удален');
+                },
+                error: () => {
+                  alertService.showErrorAlert('Ошибка удаления аватара');
+                },
+                finalize: () => {
+                  patchState(store, { isPendingAction: false });
+                },
               }),
             );
           }),

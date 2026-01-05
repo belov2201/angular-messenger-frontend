@@ -1,7 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AuthDto, RegisterDto, UserDto } from './user.interface';
+import {
+  AuthDto,
+  EditUserAvatarDto,
+  EditUserAvatarResponse,
+  EditUserDto,
+  RegisterDto,
+  UserDto,
+} from './user.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -23,5 +30,20 @@ export class UserService {
 
   logout(): Observable<void> {
     return this.http.get<void>('/auth/logout');
+  }
+
+  editUserData(data: EditUserDto) {
+    return this.http.patch('/user', data);
+  }
+
+  editUserAvatar(data: EditUserAvatarDto): Observable<EditUserAvatarResponse> {
+    const body = new FormData();
+    body.append('avatar', data.avatar as Blob);
+
+    return this.http.patch<EditUserAvatarResponse>('/user/updateAvatar', body);
+  }
+
+  deleteUserAvatar() {
+    return this.http.delete('/user/updateAvatar');
   }
 }

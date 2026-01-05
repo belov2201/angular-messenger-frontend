@@ -6,6 +6,9 @@ import { MenuItem } from 'primeng/api';
 import { Badge } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
+import { DialogService } from 'primeng/dynamicdialog';
+import { EditProfileComponent } from './edit-profile/edit-profile.component';
+import { ModalService } from '@app/core/providers';
 
 @Component({
   selector: 'app-user-bar',
@@ -15,18 +18,28 @@ import { MenuModule } from 'primeng/menu';
   host: {
     class: 'py-3 px-2 border-b border-surface-300',
   },
+  providers: [DialogService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserBarComponent {
   protected readonly userStore = inject(UserStore);
   private readonly confirmModalService = inject(ConfirmModalService);
+  private readonly modalService = inject(ModalService);
 
   protected readonly menuItems: MenuItem[] = [
+    {
+      label: 'Профиль',
+      command: () => this.openProfile(),
+    },
     {
       label: 'Выйти',
       command: () => this.openLogoutDialog(),
     },
   ];
+
+  private openProfile() {
+    this.modalService.open(EditProfileComponent);
+  }
 
   private openLogoutDialog() {
     this.confirmModalService.open({

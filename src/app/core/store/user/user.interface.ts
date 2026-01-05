@@ -23,3 +23,13 @@ export interface RegisterDto {
   firstName: string;
   lastName: string;
 }
+
+export type EditUserDto = Partial<Pick<UserDto, 'firstName' | 'lastName' | 'avatar'>>;
+
+export interface EditUserAvatarDto {
+  avatar: File | null;
+}
+
+export interface EditUserAvatarResponse {
+  fileName: string;
+}

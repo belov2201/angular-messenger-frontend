@@ -7,6 +7,7 @@ import { progressspinner } from './components/progress-spinner';
 import { toast } from './components/toast';
 import { avatar } from './components/avatar';
 import { button } from './components/button';
+import { dialog } from './components/dialog';
 import Aura from '@primeuix/themes/aura';
 
 export const Preset = definePreset(Aura, {
@@ -21,6 +22,7 @@ export const Preset = definePreset(Aura, {
     toast,
     avatar,
     button,
+    dialog,
   },
   css: `
 
