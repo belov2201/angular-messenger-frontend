@@ -6,6 +6,7 @@ import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from '@angular/f
 import { CreateInviteDto } from '@app/main/data-access/invites/invites.interface';
 import { FieldErrorValidationDirective } from '@app/core/form-validation';
 import { validators } from '@app/shared/libs';
+import { ConfirmModalService } from '@app/core/providers';
 
 @Component({
   selector: 'app-contacts',
@@ -24,6 +25,8 @@ import { validators } from '@app/shared/libs';
 export class ContactsComponent {
   private readonly config = inject(DynamicDialogConfig);
   private readonly fb = inject(FormBuilder);
+  private readonly confirmModalService = inject(ConfirmModalService);
+
   protected readonly contactsStore = this.config.data.contactsStore;
   protected readonly invitesStore = this.config.data.invitesStore;
 
@@ -38,5 +41,19 @@ export class ContactsComponent {
     if (!this.sendInviteForm.valid) return;
     this.invitesStore.sendInvite(this.sendInviteForm.value as CreateInviteDto);
     formDirective.resetForm();
+  }
+
+  protected openApproveInviteDialog(id: number) {
+    this.confirmModalService.open({
+      message: 'Вы уверены, что хотите добавить пользователя в список контактов?',
+      accept: () => this.invitesStore.approveInvite({ id }),
+    });
+  }
+
+  protected openDeclineInviteDialog(id: number) {
+    this.confirmModalService.open({
+      message: 'Вы уверены, что хотите отклонить заявку?',
+      accept: () => this.invitesStore.declineInvite({ id }),
+    });
   }
 }

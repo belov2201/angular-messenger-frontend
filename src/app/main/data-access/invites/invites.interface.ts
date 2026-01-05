@@ -15,3 +15,5 @@ export interface Invite extends InviteEntity {
 }
 
 export type CreateInviteDto = Pick<UserDto, 'inviteCode'>;
+export type ApproveInviteDto = Pick<InviteDto, 'id'>;
+export type DeleteInviteDto = Pick<InviteDto, 'id'>;

@@ -11,11 +11,17 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { InvitesService } from './invites.service';
-import { CreateInviteDto, InviteEntity } from './invites.interface';
+import {
+  ApproveInviteDto,
+  CreateInviteDto,
+  DeleteInviteDto,
+  InviteEntity,
+} from './invites.interface';
 import { baseApiState, BaseApiState } from '@app/shared/libs';
 import { UserStore } from '@app/core/store/user';
 import { mapToInviteView } from './invites.mapper';
 import { AlertsService } from '@app/core/alerts';
+import { ContactsStore } from '../contacts';
 
 interface InvitesState extends BaseApiState {
   invites: InviteEntity[];
@@ -38,7 +44,12 @@ export const InvitesStore = signalStore(
     };
   }),
   withMethods(
-    (store, invitesService = inject(InvitesService), alertService = inject(AlertsService)) => ({
+    (
+      store,
+      invitesService = inject(InvitesService),
+      alertService = inject(AlertsService),
+      contactsStore = inject(ContactsStore),
+    ) => ({
       getInvitesData: rxMethod<void>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),
@@ -64,6 +75,47 @@ export const InvitesStore = signalStore(
                   patchState(store, (state) => ({ invites: [...state.invites, invite] }));
                 },
                 error: () => alertService.showErrorAlert('Ошибка отправки запроса'),
+                finalize: () => patchState(store, { isPendingAction: false }),
+              }),
+            );
+          }),
+        ),
+      ),
+      approveInvite: rxMethod<ApproveInviteDto>(
+        pipe(
+          tap(() => patchState(store, { isPendingAction: true })),
+          switchMap((approveInviteDto) => {
+            return invitesService.approve(approveInviteDto).pipe(
+              tapResponse({
+                next: (contact) => {
+                  alertService.showSuccessAlert('Пользователь успешно добавлен');
+
+                  patchState(store, (state) => ({
+                    invites: state.invites.filter((e) => e.id !== approveInviteDto.id),
+                  }));
+
+                  contactsStore.addContact(contact);
+                },
+                error: () => alertService.showErrorAlert('Ошибка подтверждения заявки'),
+                finalize: () => patchState(store, { isPendingAction: false }),
+              }),
+            );
+          }),
+        ),
+      ),
+      declineInvite: rxMethod<DeleteInviteDto>(
+        pipe(
+          tap(() => patchState(store, { isPendingAction: true })),
+          switchMap((deleteInviteDto) => {
+            return invitesService.delete(deleteInviteDto).pipe(
+              tapResponse({
+                next: () => {
+                  alertService.showSuccessAlert('Заявка отклонена');
+                  patchState(store, (state) => ({
+                    invites: state.invites.filter((e) => e.id !== deleteInviteDto.id),
+                  }));
+                },
+                error: () => alertService.showErrorAlert('Ошибка удаления заявки'),
                 finalize: () => patchState(store, { isPendingAction: false }),
               }),
             );

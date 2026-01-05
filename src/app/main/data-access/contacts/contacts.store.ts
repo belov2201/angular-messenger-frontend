@@ -10,7 +10,7 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { ContactEntity } from './contacts.interface';
+import { ContactDto, ContactEntity } from './contacts.interface';
 import { ContactsService } from './contacts.service';
 import { baseApiState, BaseApiState } from '@app/shared/libs';
 import { UserStore } from '@app/core/store/user';
@@ -38,6 +38,11 @@ export const ContactsStore = signalStore(
     };
   }),
   withMethods((store, contactsService = inject(ContactsService)) => ({
+    addContact: (contact: ContactDto) => {
+      patchState(store, (state) => ({
+        contacts: [...state.contacts, contact],
+      }));
+    },
     getContactsData: rxMethod<void>(
       pipe(
         tap(() => patchState(store, { isLoading: true })),
