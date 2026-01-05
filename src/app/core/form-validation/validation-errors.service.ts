@@ -16,6 +16,7 @@ export class ValidationErrorsService {
       `Введенное значение не может быть больше ${requiredLength} символов`,
     pattern: () => 'Введенное значение содержит недопустимые символы',
     repeatPassword: () => 'Введенные пароли не совпадают',
+    inviteCodeFormat: () => 'Неверный формат кода',
   };
 
   getTextError(errorKey: string, params: ValidationParams): string | null {

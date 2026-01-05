@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { InviteDto } from './invites.interface';
+import { CreateInviteDto, InviteDto } from './invites.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -11,5 +11,9 @@ export class InvitesService {
 
   getAll(): Observable<InviteDto[]> {
     return this.http.get<InviteDto[]>('/invites');
+  }
+
+  create(body: CreateInviteDto): Observable<InviteDto> {
+    return this.http.post<InviteDto>('/invites', body);
   }
 }

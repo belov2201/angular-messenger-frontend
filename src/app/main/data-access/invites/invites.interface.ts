@@ -1,4 +1,4 @@
-import { ParticipantDto } from '@app/core/store/user';
+import { ParticipantDto, UserDto } from '@app/core/store/user';
 
 export interface InviteDto {
   id: number;
@@ -13,3 +13,5 @@ export interface Invite extends InviteEntity {
   user: ParticipantDto;
   isSender: boolean;
 }
+
+export type CreateInviteDto = Pick<UserDto, 'inviteCode'>;

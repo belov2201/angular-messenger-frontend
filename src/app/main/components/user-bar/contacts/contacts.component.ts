@@ -3,6 +3,8 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { IconComponent, UserCardComponent, FloatLabelInputComponent } from '@app/shared/ui';
 import { Button } from 'primeng/button';
 import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+import { CreateInviteDto } from '@app/main/data-access/invites/invites.interface';
+import { FieldErrorValidationDirective } from '@app/core/form-validation';
 import { validators } from '@app/shared/libs';
 
 @Component({
@@ -13,6 +15,7 @@ import { validators } from '@app/shared/libs';
     UserCardComponent,
     FloatLabelInputComponent,
     ReactiveFormsModule,
+    FieldErrorValidationDirective,
   ],
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.css',
@@ -33,6 +36,7 @@ export class ContactsComponent {
 
   protected sendInvite(formDirective: FormGroupDirective) {
     if (!this.sendInviteForm.valid) return;
+    this.invitesStore.sendInvite(this.sendInviteForm.value as CreateInviteDto);
     formDirective.resetForm();
   }
 }
