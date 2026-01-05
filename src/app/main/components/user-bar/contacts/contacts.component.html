@@ -1,0 +1,72 @@
+<div class="*:not-last:mb-4">
+  @if (invitesStore.displayInvites().length > 0) {
+    <div>
+      <div class="title mb-2">Приглашения в список контактов</div>
+      <div class="-mx-5">
+        @for (invite of invitesStore.displayInvites(); track invite.id) {
+          <app-user-card
+            [user]="invite.user"
+            [title]="invite.user.firstName + ' ' + invite.user.lastName"
+            [subtitle]="invite.user.username"
+          >
+            <div class="flex items-center">
+              @if (invite.isSender) {
+                <div class="p-1.5">
+                  <app-icon size="l">access_time</app-icon>
+                </div>
+              } @else {
+                <p-button [rounded]="true" [text]="true" size="small">
+                  <app-icon size="l">check</app-icon>
+                </p-button>
+                <p-button [rounded]="true" [text]="true" size="small">
+                  <app-icon size="l">close</app-icon>
+                </p-button>
+              }
+            </div>
+          </app-user-card>
+        }
+      </div>
+    </div>
+  }
+
+  <div>
+    <div class="title mb-2">Контакты</div>
+    @if (contactsStore.displayContacts().length > 0) {
+      <div class="-mx-5">
+        @for (contact of contactsStore.displayContacts(); track contact.id) {
+          <app-user-card
+            [user]="contact.user"
+            [title]="contact.user.firstName + ' ' + contact.user.lastName"
+            [subtitle]="contact.user.username"
+          >
+            <div class="flex items-center">
+              <p-button [rounded]="true" [text]="true" size="small">
+                <app-icon size="l">close</app-icon>
+              </p-button>
+            </div>
+          </app-user-card>
+        }
+      </div>
+    } @else {
+      <div class="subtitle">Пока вы не добавили ни одного контакта</div>
+    }
+  </div>
+  <form (submit)="sendInvite(formDirective)" [formGroup]="sendInviteForm" #formDirective="ngForm">
+    <div class="mb-4">
+      <app-float-label-input
+        label="Код приглашения"
+        fieldId="inviteCode"
+        formControlName="inviteCode"
+      />
+    </div>
+    <div>
+      <p-button
+        type="submit"
+        label="Отправить"
+        styleClass="w-full"
+        size="small"
+        [disabled]="!sendInviteForm.valid"
+      />
+    </div>
+  </form>
+</div>

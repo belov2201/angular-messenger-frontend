@@ -7,3 +7,9 @@ export interface InviteDto {
 }
 
 export type InviteEntity = InviteDto;
+
+export interface Invite extends InviteEntity {
+  id: number;
+  user: ParticipantDto;
+  isSender: boolean;
+}

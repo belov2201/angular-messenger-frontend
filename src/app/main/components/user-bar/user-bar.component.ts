@@ -9,6 +9,9 @@ import { MenuModule } from 'primeng/menu';
 import { DialogService } from 'primeng/dynamicdialog';
 import { EditProfileComponent } from './edit-profile/edit-profile.component';
 import { ModalService } from '@app/core/providers';
+import { ContactsComponent } from './contacts/contacts.component';
+import { ContactsStore } from '@app/main/data-access/contacts';
+import { InvitesStore } from '@app/main/data-access/invites';
 
 @Component({
   selector: 'app-user-bar',
@@ -23,6 +26,9 @@ import { ModalService } from '@app/core/providers';
 })
 export class UserBarComponent {
   protected readonly userStore = inject(UserStore);
+  protected readonly contactsStore = inject(ContactsStore);
+  protected readonly invitesStore = inject(InvitesStore);
+
   private readonly confirmModalService = inject(ConfirmModalService);
   private readonly modalService = inject(ModalService);
 
@@ -32,6 +38,10 @@ export class UserBarComponent {
       command: () => this.openProfile(),
     },
     {
+      label: 'Контакты',
+      command: () => this.openContacts(),
+    },
+    {
       label: 'Выйти',
       command: () => this.openLogoutDialog(),
     },
@@ -39,6 +49,15 @@ export class UserBarComponent {
 
   private openProfile() {
     this.modalService.open(EditProfileComponent);
+  }
+
+  private openContacts() {
+    this.modalService.open(ContactsComponent, {
+      data: {
+        invitesStore: this.invitesStore,
+        contactsStore: this.contactsStore,
+      },
+    });
   }
 
   private openLogoutDialog() {

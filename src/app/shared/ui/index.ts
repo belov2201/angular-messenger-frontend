@@ -2,3 +2,4 @@ export { FloatLabelInputComponent } from './float-label-input/float-label-input.
 export { LoaderComponent } from './loader/loader.component';
 export { IconComponent } from './icon/icon.component';
 export { AvatarComponent } from './avatar/avatar.component';
+export { UserCardComponent } from './user-card/user-card.component';

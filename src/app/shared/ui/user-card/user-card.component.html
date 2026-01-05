@@ -1,0 +1,14 @@
+@if (user(); as user) {
+  <div class="flex items-center hover:cursor-pointer hover:bg-surface-200 px-5 py-2">
+    <div class="mr-2">
+      <app-avatar [avatar]="user.avatar || ''" size="large" />
+    </div>
+    <div class="flex-auto flex flex-col">
+      <div class="title">{{ title() }}</div>
+      <div class="subtitle">{{ subtitle() }}</div>
+    </div>
+    <div>
+      <ng-content></ng-content>
+    </div>
+  </div>
+}

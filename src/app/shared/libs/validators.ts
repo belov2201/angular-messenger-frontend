@@ -23,6 +23,12 @@ export const validators = {
     Validators.maxLength(50),
     Validators.pattern(/^[a-zA-Zа-яА-Я]*$/),
   ],
+  inviteCode: [
+    Validators.required,
+    Validators.pattern(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+    ),
+  ],
 };
 
 export const comparePasswordValidator = (control: AbstractControl): ValidationErrors | null => {
