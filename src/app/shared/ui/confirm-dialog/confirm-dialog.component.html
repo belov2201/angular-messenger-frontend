@@ -1,7 +1,9 @@
 <p-confirmDialog class="overflow-hidden">
   <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
     @if (message) {
-      <div class="flex flex-col bg-surface-50 p-4 rounded-xl">
+      <div
+        class="flex flex-col bg-surface-50 p-4 rounded-xl min-w-75 max-w-100 max-h-[70wh] w-[50vw]"
+      >
         <div class="mb-4">{{ message.message }}</div>
         <div class="flex gap-4 *:flex-auto">
           <div>

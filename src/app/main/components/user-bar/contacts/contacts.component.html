@@ -50,7 +50,12 @@
             [subtitle]="contact.user.username"
           >
             <div class="flex items-center">
-              <p-button [rounded]="true" [text]="true" size="small">
+              <p-button
+                [rounded]="true"
+                [text]="true"
+                size="small"
+                (click)="openDeleteContactDialog(contact.id)"
+              >
                 <app-icon size="l">close</app-icon>
               </p-button>
             </div>

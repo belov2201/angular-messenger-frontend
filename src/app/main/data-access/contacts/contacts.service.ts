@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ContactDto } from './contacts.interface';
+import { ContactDto, DeleteContactDto } from './contacts.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -11,5 +11,9 @@ export class ContactsService {
 
   getAll(): Observable<ContactDto[]> {
     return this.http.get<ContactDto[]>('/contacts');
+  }
+
+  delete(body: DeleteContactDto) {
+    return this.http.delete<void>(`/contacts/${body.id}`);
   }
 }

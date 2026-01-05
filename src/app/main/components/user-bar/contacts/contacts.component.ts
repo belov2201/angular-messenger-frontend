@@ -56,4 +56,12 @@ export class ContactsComponent {
       accept: () => this.invitesStore.declineInvite({ id }),
     });
   }
+
+  protected openDeleteContactDialog(id: number) {
+    this.confirmModalService.open({
+      message:
+        'Вы уверены, что хотите удалить пользователя из списка контактов? Это действие приведет к удалению истории сообщений.',
+      accept: () => this.contactsStore.deleteContact({ id }),
+    });
+  }
 }
