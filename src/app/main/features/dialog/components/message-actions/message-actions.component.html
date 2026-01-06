@@ -1,0 +1,16 @@
+<form class="flex justify-between items-center h-full">
+  <div class="overflow-auto flex-auto h-full">
+    <textarea
+      pTextarea
+      variant="filled"
+      placeholder="Введите сообщение"
+      style="border: none; resize: none"
+      [autoResize]="true"
+      rows="1"
+      fluid
+    ></textarea>
+  </div>
+  <p-button [rounded]="true" [text]="true" size="small">
+    <app-icon size="l">send</app-icon>
+  </p-button>
+</form>

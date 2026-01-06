@@ -24,6 +24,7 @@ export const validators = {
     Validators.pattern(/^[a-zA-Zа-яА-Я]*$/),
   ],
   inviteCode: [Validators.required, inviteCode()],
+  message: [Validators.required, Validators.maxLength(1000)],
 };
 
 function inviteCode(): ValidatorFn {

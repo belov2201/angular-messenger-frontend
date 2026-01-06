@@ -3,10 +3,11 @@ import { ContactsStore } from './data-access/contacts';
 import { InvitesStore } from './data-access/invites';
 import { AppService } from '@app/app.service';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-main',
-  imports: [SidebarComponent],
+  imports: [SidebarComponent, RouterModule],
   templateUrl: './main.component.html',
   styleUrl: './main.component.css',
   providers: [ContactsStore, InvitesStore],
