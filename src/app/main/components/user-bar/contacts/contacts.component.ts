@@ -1,25 +1,26 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { IconComponent, UserCardComponent, FloatLabelInputComponent } from '@app/shared/ui';
+import { FloatLabelInputComponent } from '@app/shared/ui';
 import { Button } from 'primeng/button';
 import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { CreateInviteDto } from '@app/main/data-access/invites/invites.interface';
 import { FieldErrorValidationDirective } from '@app/core/form-validation';
 import { validators } from '@app/shared/libs';
 import { ConfirmModalService } from '@app/core/providers';
+import { InviteCardComponent } from './invite-card/invite-card.component';
+import { ContactCardComponent } from './contact-card/contact-card.component';
 
 @Component({
   selector: 'app-contacts',
   imports: [
     Button,
-    IconComponent,
-    UserCardComponent,
     FloatLabelInputComponent,
     ReactiveFormsModule,
     FieldErrorValidationDirective,
+    InviteCardComponent,
+    ContactCardComponent,
   ],
   templateUrl: './contacts.component.html',
-  styleUrl: './contacts.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactsComponent {
@@ -36,12 +37,6 @@ export class ContactsComponent {
     },
     { updateOn: 'change' },
   );
-
-  protected sendInvite(formDirective: FormGroupDirective) {
-    if (!this.sendInviteForm.valid) return;
-    this.invitesStore.sendInvite(this.sendInviteForm.value as CreateInviteDto);
-    formDirective.resetForm();
-  }
 
   protected openApproveInviteDialog(id: number) {
     this.confirmModalService.open({
@@ -63,5 +58,11 @@ export class ContactsComponent {
         'Вы уверены, что хотите удалить пользователя из списка контактов? Это действие приведет к удалению истории сообщений.',
       accept: () => this.contactsStore.deleteContact({ id }),
     });
+  }
+
+  protected sendInvite(formDirective: FormGroupDirective) {
+    if (!this.sendInviteForm.valid) return;
+    this.invitesStore.sendInvite(this.sendInviteForm.value as CreateInviteDto);
+    formDirective.resetForm();
   }
 }

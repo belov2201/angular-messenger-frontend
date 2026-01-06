@@ -1,19 +1,16 @@
 import { UserDto } from '@app/core/store/user';
 import { Contact, ContactEntity } from './contacts.interface';
 
-export const mapToContactView = (contactsEntity: ContactEntity[], user: UserDto | null) => {
-  if (!user) return [];
+export const mapToContactView = (
+  contactEntity: ContactEntity,
+  user: UserDto | null,
+): Contact | null => {
+  const userData = contactEntity.participants.find((participant) => participant.id !== user?.id);
 
-  return contactsEntity.reduce((res: Contact[], contactEntity) => {
-    const userData = contactEntity.participants.find((participant) => participant.id !== user?.id);
+  if (!userData) return null;
 
-    if (!userData) return res;
-
-    const contact: Contact = {
-      ...contactEntity,
-      user: userData,
-    };
-
-    return [...res, contact];
-  }, []);
+  return {
+    ...contactEntity,
+    user: userData,
+  };
 };

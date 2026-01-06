@@ -1,50 +1,22 @@
-import { computed, inject } from '@angular/core';
-import {
-  patchState,
-  signalStore,
-  withComputed,
-  withHooks,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { inject } from '@angular/core';
+import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { ContactDto, ContactEntity } from './contacts.interface';
 import { ContactsService } from './contacts.service';
-import { baseApiState, BaseApiState } from '@app/shared/libs';
-import { UserStore } from '@app/core/store/user';
-import { mapToContactView } from './contacts.mapper';
+import { baseApiState } from '@app/shared/libs';
 import { DeleteInviteDto } from '../invites/invites.interface';
 import { AlertsService } from '@app/core/alerts';
-
-interface ContactsState extends BaseApiState {
-  contacts: ContactEntity[];
-}
-
-const initialState: ContactsState = {
-  ...baseApiState,
-  contacts: [],
-};
+import { withEntities, addEntity, addEntities, removeEntity } from '@ngrx/signals/entities';
 
 export const ContactsStore = signalStore(
-  withState(initialState),
-  withComputed((store) => {
-    const userStore = inject(UserStore);
-
-    return {
-      getCount: computed(() => store.contacts().length),
-      displayContacts: computed(() => {
-        return mapToContactView(store.contacts(), userStore.user());
-      }),
-    };
-  }),
+  withState(baseApiState),
+  withEntities<ContactEntity>(),
   withMethods(
     (store, contactsService = inject(ContactsService), alertService = inject(AlertsService)) => ({
       addContact: (contact: ContactDto) => {
-        patchState(store, (state) => ({
-          contacts: [...state.contacts, contact],
-        }));
+        patchState(store, addEntity(contact));
       },
       getContactsData: rxMethod<void>(
         pipe(
@@ -52,7 +24,7 @@ export const ContactsStore = signalStore(
           switchMap(() => {
             return contactsService.getAll().pipe(
               tapResponse({
-                next: (contacts) => patchState(store, { contacts }),
+                next: (contacts) => patchState(store, addEntities(contacts)),
                 error: () => patchState(store, { isError: true }),
                 finalize: () => patchState(store, { isLoaded: true, isLoading: false }),
               }),
@@ -68,9 +40,7 @@ export const ContactsStore = signalStore(
               tapResponse({
                 next: () => {
                   alertService.showSuccessAlert('Контакт удален');
-                  patchState(store, (state) => ({
-                    contacts: state.contacts.filter((e) => e.id !== deleteContactDto.id),
-                  }));
+                  patchState(store, removeEntity(deleteContactDto.id));
                 },
                 error: () => alertService.showErrorAlert('Ошибка удаления контакта'),
                 finalize: () => patchState(store, { isPendingAction: false }),

@@ -1,12 +1,5 @@
-import { computed, inject } from '@angular/core';
-import {
-  patchState,
-  signalStore,
-  withComputed,
-  withHooks,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { inject } from '@angular/core';
+import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
@@ -17,32 +10,14 @@ import {
   DeleteInviteDto,
   InviteEntity,
 } from './invites.interface';
-import { baseApiState, BaseApiState } from '@app/shared/libs';
-import { UserStore } from '@app/core/store/user';
-import { mapToInviteView } from './invites.mapper';
+import { baseApiState } from '@app/shared/libs';
 import { AlertsService } from '@app/core/alerts';
 import { ContactsStore } from '../contacts';
-
-interface InvitesState extends BaseApiState {
-  invites: InviteEntity[];
-}
-
-const initialState: InvitesState = {
-  ...baseApiState,
-  invites: [],
-};
+import { addEntities, addEntity, removeEntity, withEntities } from '@ngrx/signals/entities';
 
 export const InvitesStore = signalStore(
-  withState(initialState),
-  withComputed((store) => {
-    const userStore = inject(UserStore);
-
-    return {
-      displayInvites: computed(() => {
-        return mapToInviteView(store.invites(), userStore.user());
-      }),
-    };
-  }),
+  withState(baseApiState),
+  withEntities<InviteEntity>(),
   withMethods(
     (
       store,
@@ -56,7 +31,7 @@ export const InvitesStore = signalStore(
           switchMap(() => {
             return invitesService.getAll().pipe(
               tapResponse({
-                next: (invites) => patchState(store, { invites }),
+                next: (invites) => patchState(store, addEntities(invites)),
                 error: () => patchState(store, { isError: true }),
                 finalize: () => patchState(store, { isLoaded: true, isLoading: false }),
               }),
@@ -72,7 +47,7 @@ export const InvitesStore = signalStore(
               tapResponse({
                 next: (invite) => {
                   alertService.showSuccessAlert('Запрос на добавление отправлен');
-                  patchState(store, (state) => ({ invites: [...state.invites, invite] }));
+                  patchState(store, addEntity(invite));
                 },
                 error: () => alertService.showErrorAlert('Ошибка отправки запроса'),
                 finalize: () => patchState(store, { isPendingAction: false }),
@@ -89,11 +64,7 @@ export const InvitesStore = signalStore(
               tapResponse({
                 next: (contact) => {
                   alertService.showSuccessAlert('Пользователь успешно добавлен');
-
-                  patchState(store, (state) => ({
-                    invites: state.invites.filter((e) => e.id !== approveInviteDto.id),
-                  }));
-
+                  patchState(store, removeEntity(approveInviteDto.id));
                   contactsStore.addContact(contact);
                 },
                 error: () => alertService.showErrorAlert('Ошибка подтверждения заявки'),
@@ -111,9 +82,7 @@ export const InvitesStore = signalStore(
               tapResponse({
                 next: () => {
                   alertService.showSuccessAlert('Заявка отклонена');
-                  patchState(store, (state) => ({
-                    invites: state.invites.filter((e) => e.id !== deleteInviteDto.id),
-                  }));
+                  patchState(store, removeEntity(deleteInviteDto.id));
                 },
                 error: () => alertService.showErrorAlert('Ошибка удаления заявки'),
                 finalize: () => patchState(store, { isPendingAction: false }),

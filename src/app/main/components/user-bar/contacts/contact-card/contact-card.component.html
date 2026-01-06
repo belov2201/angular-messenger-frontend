@@ -1,0 +1,13 @@
+@if (contact(); as contact) {
+  <app-user-card
+    [user]="contact.user"
+    [title]="contact.user.firstName + ' ' + contact.user.lastName"
+    [subtitle]="contact.user.username"
+  >
+    <div class="flex items-center">
+      <p-button [rounded]="true" [text]="true" size="small" (click)="deleteContact(contact.id)">
+        <app-icon size="l">close</app-icon>
+      </p-button>
+    </div>
+  </app-user-card>
+}

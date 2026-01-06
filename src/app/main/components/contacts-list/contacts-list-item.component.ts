@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
-import { Contact } from '../../data-access/contacts/contacts.interface';
-import { AppConfig } from '@app/core/config';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ContactEntity } from '../../data-access/contacts/contacts.interface';
 import { DateToStrPipe } from '@app/main/pipes/date-to-str';
 import { IconComponent } from '@app/shared/ui';
 import { AvatarComponent } from '@app/shared/ui';
+import { UserStore } from '@app/core/store/user';
+import { mapToContactView } from '@app/main/data-access/contacts/contacts.mapper';
 
 @Component({
   selector: 'app-contacts-list-item',
@@ -12,6 +13,10 @@ import { AvatarComponent } from '@app/shared/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactsListItemComponent {
-  appConfig = inject(AppConfig);
-  contact = input.required<Contact>();
+  private readonly userStore = inject(UserStore);
+  readonly contactEntity = input.required<ContactEntity>();
+
+  protected readonly contact = computed(() =>
+    mapToContactView(this.contactEntity(), this.userStore.user()),
+  );
 }

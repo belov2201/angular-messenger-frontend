@@ -1,0 +1,22 @@
+@if (inviteView(); as invite) {
+  <app-user-card
+    [user]="invite.user"
+    [title]="invite.user.firstName + ' ' + invite.user.lastName"
+    [subtitle]="invite.user.username"
+  >
+    <div class="flex items-center">
+      @if (invite.isSender) {
+        <div class="p-1.5">
+          <app-icon size="l">access_time</app-icon>
+        </div>
+      } @else {
+        <p-button [rounded]="true" [text]="true" size="small" (click)="approveInvite(invite.id)">
+          <app-icon size="l">check</app-icon>
+        </p-button>
+        <p-button [rounded]="true" [text]="true" size="small" (click)="declineInvite(invite.id)">
+          <app-icon size="l">close</app-icon>
+        </p-button>
+      }
+    </div>
+  </app-user-card>
+}
