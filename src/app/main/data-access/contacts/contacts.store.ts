@@ -1,5 +1,12 @@
-import { inject } from '@angular/core';
-import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
+import { computed, inject } from '@angular/core';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withHooks,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
@@ -13,6 +20,15 @@ import { withEntities, addEntity, addEntities, removeEntity } from '@ngrx/signal
 export const ContactsStore = signalStore(
   withState(baseApiState),
   withEntities<ContactEntity>(),
+  withComputed((store) => {
+    return {
+      sortedEntities: computed(() => {
+        return [...store.entities()].sort(
+          (a, b) => +new Date(b.lastMessage?.date || 0) - +new Date(a.lastMessage?.date || 0),
+        );
+      }),
+    };
+  }),
   withMethods(
     (store, contactsService = inject(ContactsService), alertService = inject(AlertsService)) => ({
       addContact: (contact: ContactDto) => {

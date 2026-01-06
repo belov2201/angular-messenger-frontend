@@ -1,4 +1,4 @@
-@for (contact of contactsStore.entities(); track contact.id) {
+@for (contact of contactsStore.sortedEntities(); track contact.id) {
   <div class="hover:bg-surface-200">
     <a [routerLink]="['/dialog', contact.id]">
       <app-contacts-list-item [contactEntity]="contact" />
