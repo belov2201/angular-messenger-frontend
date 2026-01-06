@@ -12,7 +12,12 @@
       <div class="title">{{ user.firstName }} {{ user.lastName }}</div>
       <div class="subtitle">{{ user.username }}</div>
     </div>
-    <div>
+    <div class="flex items-center">
+      @if (invitesStore.incomingInvitesCount() > 0) {
+        <div class="mr-2 no-read-count">
+          {{ invitesStore.incomingInvitesCount() }}
+        </div>
+      }
       <p-menu #menu [model]="menuItems" [popup]="true" />
       <p-button (click)="menu.toggle($event)" [rounded]="true" [text]="true" size="small">
         <app-icon size="l">keyboard_arrow_right</app-icon>

@@ -45,5 +45,15 @@ export const Preset = definePreset(Aura, {
     padding-left: 0.75rem;
     color: var(--p-surface-400);
   }
+
+  .no-read-count {
+    font-size: 0.625rem;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--color-green-900);
+    color: var(--color-green-300);
+    background-color: var(--color-green-950);
+    font-weight: bold;
+    border-radius: 1rem;
+  }
 `,
 });

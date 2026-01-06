@@ -1,5 +1,12 @@
-import { inject } from '@angular/core';
-import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
+import { computed, inject } from '@angular/core';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withHooks,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
@@ -14,10 +21,23 @@ import { baseApiState } from '@app/shared/libs';
 import { AlertsService } from '@app/core/alerts';
 import { ContactsStore } from '../contacts';
 import { addEntities, addEntity, removeEntity, withEntities } from '@ngrx/signals/entities';
+import { UserStore } from '@app/core/store/user';
 
 export const InvitesStore = signalStore(
   withState(baseApiState),
   withEntities<InviteEntity>(),
+  withComputed((store) => {
+    const userStore = inject(UserStore);
+
+    return {
+      incomingInvitesCount: computed(() => {
+        return (
+          store.entities().filter((invite) => invite.recipient.id === userStore.user()?.id)
+            .length || 0
+        );
+      }),
+    };
+  }),
   withMethods(
     (
       store,
