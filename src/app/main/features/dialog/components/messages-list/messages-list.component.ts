@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { MessagesStore } from '../../data-access/messages';
 import { DatePipe, NgClass } from '@angular/common';
 import { IconComponent, AvatarComponent } from '@app/shared/ui';
+import { MessagesStateStore } from '../../data-access/messages';
 
 @Component({
   selector: 'app-messages-list',
@@ -11,5 +11,5 @@ import { IconComponent, AvatarComponent } from '@app/shared/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessagesListComponent {
-  protected readonly messagesStore = inject(MessagesStore);
+  protected readonly messages = inject(MessagesStateStore).currentMessages;
 }

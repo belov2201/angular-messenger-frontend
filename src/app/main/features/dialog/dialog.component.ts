@@ -1,17 +1,23 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MessagesListComponent } from './components/messages-list/messages-list.component';
 import { MessageActionsComponent } from './components/message-actions/message-actions.component';
-import { MessagesStore } from './data-access/messages';
+import { MessagesStore, MessagesStateStore } from './data-access/messages';
+import { LoaderComponent } from '@app/shared/ui';
 
 @Component({
   selector: 'app-dialog',
-  imports: [MessagesListComponent, MessageActionsComponent],
+  imports: [MessagesListComponent, MessageActionsComponent, LoaderComponent],
   template: `
+    @if (currentMessagesState()?.isLoading) {
+      <app-loader />
+    }
     <app-messages-list />
     <app-message-actions />
   `,
-  providers: [MessagesStore],
-  host: { class: 'h-full flex flex-col' },
+  providers: [MessagesStateStore, MessagesStore],
+  host: { class: 'h-full flex flex-col relative' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DialogComponent {}
+export class DialogComponent {
+  protected readonly currentMessagesState = inject(MessagesStateStore).currentState;
+}
