@@ -21,7 +21,9 @@ import { MessagesStore } from './messages.store';
 interface MessagesState {
   id: number;
   isLoading: boolean;
+  isLoaded: boolean;
   messageIds: number[];
+  isScrolled: boolean;
 }
 
 interface MessagesStateStore {
@@ -32,7 +34,9 @@ const createInitialState = (id: number): MessagesState => {
   return {
     id,
     isLoading: true,
+    isLoaded: false,
     messageIds: [],
+    isScrolled: false,
   };
 };
 
@@ -65,6 +69,9 @@ export const MessagesStateStore = signalStore(
       setCurrentDialogId(value: number | null) {
         patchState(store, { currentDialogId: value });
       },
+      setIsScrolled(id: number) {
+        patchState(store, updateEntity({ id, changes: { isScrolled: true } }));
+      },
       getMessagesData: rxMethod<number>(
         pipe(
           mergeMap((id) => {
@@ -93,7 +100,10 @@ export const MessagesStateStore = signalStore(
                   router.navigate(['/'], { replaceUrl: true });
                 },
                 finalize: () =>
-                  patchState(store, updateEntity({ id, changes: { isLoading: false } })),
+                  patchState(
+                    store,
+                    updateEntity({ id, changes: { isLoading: false, isLoaded: true } }),
+                  ),
               }),
             );
           }),
