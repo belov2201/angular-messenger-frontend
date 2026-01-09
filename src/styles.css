@@ -9,4 +9,6 @@ body {
   background-color: var(--color-surface-0);
   color: var(--color-surface-700);
   -webkit-font-smoothing: antialiased;
+  scrollbar-color: var(--color-surface-300) transparent;
+  scrollbar-width: 2px;
 }
