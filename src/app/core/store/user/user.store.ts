@@ -39,7 +39,6 @@ export const UserStore = signalStore(
               tapResponse({
                 next: (user) => {
                   patchState(store, { user });
-                  router.navigate(['/'], { replaceUrl: true });
                 },
                 error: (err: HttpErrorResponse) => {
                   if (err.status === 401) {
