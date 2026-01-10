@@ -8,7 +8,7 @@ import {
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { filter, map, mergeMap, pipe, switchMap, tap } from 'rxjs';
+import { filter, map, mergeMap, pipe, Subject, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { AlertsService } from '@app/core/alerts';
 import { addEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
@@ -29,6 +29,8 @@ interface MessagesState {
   loadingMessages: Message[];
   errorMessages: Message[];
   isScrolled: boolean;
+  isScrollAdd: boolean;
+  isViewLastMessage: boolean;
 }
 
 interface MessagesStateStore {
@@ -44,6 +46,8 @@ const createInitialState = (id: number): MessagesState => {
     loadingMessages: [],
     errorMessages: [],
     isScrolled: false,
+    isScrollAdd: false,
+    isViewLastMessage: false,
   };
 };
 
@@ -64,37 +68,43 @@ export const MessagesStateStore = signalStore(
       return (store.currentState()?.messageIds ?? []).map((id) => messages[id]).filter(Boolean);
     }),
   })),
-  withMethods((store, messagesStore = inject(MessagesStore)) => ({
-    addMessage(message: Message) {
-      patchState(
-        store,
-        updateEntity({
-          id: message.contact.id,
-          changes: (state) => ({
-            messageIds: [...state.messageIds, message.id],
-          }),
-        }),
-      );
+  withMethods((store, messagesStore = inject(MessagesStore)) => {
+    const addMessageSubject = new Subject<Message>();
 
-      messagesStore.addOne(message);
-    },
-    updateMessageId(
-      prevId: number,
-      currentMessage: Partial<Message> & Pick<Message, 'id' | 'contact'>,
-    ) {
-      patchState(
-        store,
-        updateEntity({
-          id: currentMessage.contact.id,
-          changes: (state) => ({
-            messageIds: [...state.messageIds, currentMessage.id].filter((e) => e !== prevId),
+    return {
+      messageAdded$: () => addMessageSubject.asObservable(),
+      addMessage(message: Message) {
+        patchState(
+          store,
+          updateEntity({
+            id: message.contact.id,
+            changes: (state) => ({
+              messageIds: [...state.messageIds, message.id],
+            }),
           }),
-        }),
-      );
+        );
 
-      messagesStore.updateOne(prevId, currentMessage);
-    },
-  })),
+        messagesStore.addOne(message);
+        addMessageSubject.next(message);
+      },
+      updateMessageId(
+        prevId: number,
+        currentMessage: Partial<Message> & Pick<Message, 'id' | 'contact'>,
+      ) {
+        patchState(
+          store,
+          updateEntity({
+            id: currentMessage.contact.id,
+            changes: (state) => ({
+              messageIds: [...state.messageIds, currentMessage.id].filter((e) => e !== prevId),
+            }),
+          }),
+        );
+
+        messagesStore.updateOne(prevId, currentMessage);
+      },
+    };
+  }),
   withMethods(
     (
       store,
@@ -111,7 +121,12 @@ export const MessagesStateStore = signalStore(
       setIsScrolled(id: number) {
         patchState(store, updateEntity({ id, changes: { isScrolled: true } }));
       },
-
+      setScrollAdd(id: number, value: boolean) {
+        patchState(store, updateEntity({ id, changes: { isScrollAdd: value } }));
+      },
+      setIsViewLast(id: number, value: boolean) {
+        patchState(store, updateEntity({ id, changes: { isViewLastMessage: value } }));
+      },
       getMessagesData: rxMethod<number>(
         pipe(
           mergeMap((id) => {

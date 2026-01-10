@@ -1,4 +1,4 @@
-@for (message of messages(); track message.id; let index = $index) {
+@for (message of messages(); track message.id; let index = $index; let isLast = $last) {
   @if (message.groupDate !== messages()[index - 1]?.groupDate) {
     <div class="flex items-center">
       <div class="flex-auto border-b border-surface-200"></div>
@@ -13,7 +13,12 @@
     }"
   >
     <div class="max-w-[70%]">
-      <app-message-card [message]="message" />
+      <app-message-card
+        [message]="message"
+        appVisibility
+        [isEnabledVisibility]="isLast"
+        (visible)="isLast && changeCurrentViewLast($event)"
+      />
     </div>
   </div>
   @if (
