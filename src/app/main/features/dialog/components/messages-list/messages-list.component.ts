@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { DatePipe, NgClass } from '@angular/common';
-import { IconComponent, AvatarComponent } from '@app/shared/ui';
+import { NgClass } from '@angular/common';
+import { AvatarComponent } from '@app/shared/ui';
 import { MessagesStateStore } from '../../data-access/messages';
 import { ScrollBottomDirective } from './directives/scroll-bottom.directive';
+import { MessageCardComponent } from './message-card/message-card.component';
 
 @Component({
   selector: 'app-messages-list',
-  imports: [NgClass, IconComponent, DatePipe, AvatarComponent],
+  imports: [NgClass, AvatarComponent, MessageCardComponent],
   templateUrl: './messages-list.component.html',
   host: { class: 'flex-auto p-4 overflow-auto' },
   hostDirectives: [{ directive: ScrollBottomDirective }],

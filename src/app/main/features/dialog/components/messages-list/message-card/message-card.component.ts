@@ -1,16 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
-import { MessageEntity } from '../../../data-access/messages/messages.interface';
-import { UserStore } from '@app/core/store/user';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Message } from '../../../data-access/messages/messages.interface';
+import { DatePipe, NgClass } from '@angular/common';
+import { IconComponent } from '@app/shared/ui';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-message-card',
-  imports: [],
+  imports: [NgClass, IconComponent, DatePipe, ProgressSpinner],
   templateUrl: './message-card.component.html',
-  styleUrl: './message-card.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessageCardComponent {
-  userStore = inject(UserStore);
-
-  message = input.required<MessageEntity>();
+  message = input.required<Message>();
 }

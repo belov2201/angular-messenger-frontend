@@ -8,7 +8,7 @@ import {
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { map, mergeMap, pipe, switchMap, tap } from 'rxjs';
+import { filter, map, mergeMap, pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { AlertsService } from '@app/core/alerts';
 import { addEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
@@ -17,12 +17,17 @@ import { mapToMessageView } from './messages.mapper';
 import { UserStore } from '@app/core/store/user';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessagesStore } from './messages.store';
+import { CreateMessageDto, Message, SendMessageParam } from './messages.interface';
+import { ContactsStore } from '@app/main/data-access/contacts';
+import { createOptimisticMessage, getCreateMessageDto } from './lib';
 
 interface MessagesState {
   id: number;
   isLoading: boolean;
   isLoaded: boolean;
   messageIds: number[];
+  loadingMessages: Message[];
+  errorMessages: Message[];
   isScrolled: boolean;
 }
 
@@ -36,6 +41,8 @@ const createInitialState = (id: number): MessagesState => {
     isLoading: true,
     isLoaded: false,
     messageIds: [],
+    loadingMessages: [],
+    errorMessages: [],
     isScrolled: false,
   };
 };
@@ -53,9 +60,40 @@ export const MessagesStateStore = signalStore(
   })),
   withComputed((store, messagesStore = inject(MessagesStore)) => ({
     currentMessages: computed(() => {
-      const allMessages = messagesStore.entityMap();
-      return (store.currentState()?.messageIds ?? []).map((id) => allMessages[id]).filter(Boolean);
+      const messages = messagesStore.entityMap();
+      return (store.currentState()?.messageIds ?? []).map((id) => messages[id]).filter(Boolean);
     }),
+  })),
+  withMethods((store, messagesStore = inject(MessagesStore)) => ({
+    addMessage(message: Message) {
+      patchState(
+        store,
+        updateEntity({
+          id: message.contact.id,
+          changes: (state) => ({
+            messageIds: [...state.messageIds, message.id],
+          }),
+        }),
+      );
+
+      messagesStore.addOne(message);
+    },
+    updateMessageId(
+      prevId: number,
+      currentMessage: Partial<Message> & Pick<Message, 'id' | 'contact'>,
+    ) {
+      patchState(
+        store,
+        updateEntity({
+          id: currentMessage.contact.id,
+          changes: (state) => ({
+            messageIds: [...state.messageIds, currentMessage.id].filter((e) => e !== prevId),
+          }),
+        }),
+      );
+
+      messagesStore.updateOne(prevId, currentMessage);
+    },
   })),
   withMethods(
     (
@@ -64,6 +102,7 @@ export const MessagesStateStore = signalStore(
       alertService = inject(AlertsService),
       userStore = inject(UserStore),
       messagesStore = inject(MessagesStore),
+      contactsStore = inject(ContactsStore),
       router = inject(Router),
     ) => ({
       setCurrentDialogId(value: number | null) {
@@ -72,6 +111,7 @@ export const MessagesStateStore = signalStore(
       setIsScrolled(id: number) {
         patchState(store, updateEntity({ id, changes: { isScrolled: true } }));
       },
+
       getMessagesData: rxMethod<number>(
         pipe(
           mergeMap((id) => {
@@ -88,7 +128,10 @@ export const MessagesStateStore = signalStore(
                     updateEntity({
                       id,
                       changes: (state) => ({
-                        messageIds: [...state.messageIds, ...messages.map((e) => e.id)],
+                        messageIds: [
+                          ...state.messageIds,
+                          ...messages.map((e) => e.id).sort((a, b) => a - b),
+                        ],
                       }),
                     }),
                   );
@@ -107,6 +150,44 @@ export const MessagesStateStore = signalStore(
               }),
             );
           }),
+        ),
+      ),
+      sendMessage: rxMethod<SendMessageParam>(
+        pipe(
+          map(
+            (
+              sendMessageParam,
+            ): { createMessageDto: CreateMessageDto; createdMessage: Message } | null => {
+              const user = userStore.user();
+              if (!user) return null;
+
+              const createMessageDto = getCreateMessageDto(sendMessageParam, user);
+              const createdMessage = createOptimisticMessage(createMessageDto, user);
+
+              return { createMessageDto, createdMessage };
+            },
+          ),
+          filter((e) => !!e),
+          tap(({ createdMessage }) => {
+            store.addMessage(createdMessage);
+          }),
+          mergeMap(({ createMessageDto, createdMessage }) =>
+            messagesService.create(createMessageDto).pipe(
+              tapResponse({
+                next: (message) => {
+                  store.updateMessageId(createdMessage.id, { ...message, status: 'sent' });
+                  contactsStore.updateLastMessage(createdMessage.contact.id, {
+                    ...createdMessage,
+                    ...message,
+                  });
+                },
+                error: () => {
+                  alertService.showErrorAlert('Ошибка отправки сообщения');
+                  messagesStore.updateOne(createdMessage.id, { status: 'error' });
+                },
+              }),
+            ),
+          ),
         ),
       ),
       getById(id: number) {

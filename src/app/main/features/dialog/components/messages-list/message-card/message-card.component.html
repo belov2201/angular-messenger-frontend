@@ -1,6 +1,33 @@
-<div class="flex mb-4 justify-end">
-  <div class="bg-primary-500 flex rounded-3xl py-1.5 px-4 shadow-xl">
-    <div class="flex-auto">{{ message.text }}</div>
-    <div class="ml-2">status</div>
+@if (message(); as message) {
+  <div
+    class="rounded-3xl py-1.5 px-4 shadow-xl"
+    [ngClass]="{
+      'bg-primary-500': message.isSender,
+      'bg-surface-50': !message.isSender,
+    }"
+  >
+    <span class="text-sm">{{ message.text }}</span>
+    <div class="flex items-center ml-2 float-right relative top-1.5">
+      <div class="subtitle text-[0.65rem]!">{{ message.date | date: 'HH:mm' }}</div>
+      @if (message.isSender) {
+        <div class="*:first:ml-0.5">
+          @if (message.status === 'loading') {
+            <div>
+              <p-progress-spinner
+                strokeWidth="4"
+                style="width: 0.65rem; height: 0.65rem; display: block"
+              />
+            </div>
+          } @else if (message.status === 'error') {
+            <app-icon>error_outline</app-icon>
+          } @else if (message.isRead) {
+            <app-icon>done_all</app-icon>
+          } @else if (!message.isRead) {
+            <app-icon>done</app-icon>
+          }
+        </div>
+      }
+    </div>
+    <div class="clear-both"></div>
   </div>
-</div>
+}

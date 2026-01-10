@@ -23,6 +23,7 @@ export const colorScheme = {
     },
     formField: {
       invalidBorderColor: '{surface.300}',
+      invalidPlaceholderColor: '{surface.500}',
     },
   },
 };

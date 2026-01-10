@@ -20,4 +20,14 @@ export interface Message extends MessageEntity {
   isSender: boolean;
   user: MessageSenderDto;
   groupDate: string;
+  status?: 'sent' | 'loading' | 'error';
 }
+
+export interface CreateMessageDto {
+  text: string;
+  senderId: number;
+  contactId: number;
+  sender: MessageSenderDto;
+}
+
+export type SendMessageParam = Pick<CreateMessageDto, 'contactId' | 'text'>;

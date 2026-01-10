@@ -2,7 +2,7 @@ import { UserDto } from '@app/core/store/user';
 
 export type ParticipantDto = Omit<UserDto, 'inviteCode'>;
 
-interface LastMessageDto {
+export interface LastMessageDto {
   id: number;
   text: string;
   date: string;

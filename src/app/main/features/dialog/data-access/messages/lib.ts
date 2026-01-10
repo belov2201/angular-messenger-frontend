@@ -4,6 +4,10 @@
 // разница составляет более 2 суток - вывести дату
 // разница составляет более года - вывести полную дату, включая год
 
+import { UserDto } from '@app/core/store/user';
+import { CreateMessageDto, Message, MessageEntity, SendMessageParam } from './messages.interface';
+import { mapToMessageView } from './messages.mapper';
+
 const msInDay = 3600 * 24 * 1000;
 
 const months: Record<number, string> = {
@@ -38,4 +42,34 @@ export const getMessageGroupDate = (currentMessageDate: Date, nowDate = new Date
   } else {
     return `${currentMessageDate.getDate()} ${months[currentMessageDate.getMonth()]}`;
   }
+};
+
+export const getCreateMessageDto = (param: SendMessageParam, user: UserDto): CreateMessageDto => {
+  return {
+    contactId: param.contactId,
+    text: param.text,
+    sender: user,
+    senderId: user.id,
+  };
+};
+
+export const createOptimisticMessage = (
+  createMessageDto: CreateMessageDto,
+  user: UserDto,
+): Message => {
+  const messageEntity: MessageEntity = {
+    audio: null,
+    text: createMessageDto.text,
+    duration: null,
+    id: Date.now(),
+    date: new Date().toUTCString(),
+    isRead: false,
+    sender: createMessageDto.sender,
+    contact: { id: createMessageDto.contactId },
+  };
+
+  const createdMessage = mapToMessageView(messageEntity, user) as Message;
+  createdMessage.status = 'loading';
+
+  return createdMessage;
 };

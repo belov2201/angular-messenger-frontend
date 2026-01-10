@@ -10,12 +10,18 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
-import { ContactDto, ContactEntity } from './contacts.interface';
+import { ContactDto, ContactEntity, LastMessageDto } from './contacts.interface';
 import { ContactsService } from './contacts.service';
 import { baseApiState } from '@app/shared/libs';
 import { DeleteInviteDto } from '../invites/invites.interface';
 import { AlertsService } from '@app/core/alerts';
-import { withEntities, addEntity, addEntities, removeEntity } from '@ngrx/signals/entities';
+import {
+  withEntities,
+  addEntity,
+  addEntities,
+  removeEntity,
+  updateEntity,
+} from '@ngrx/signals/entities';
 
 export const ContactsStore = signalStore(
   withState(baseApiState),
@@ -33,6 +39,19 @@ export const ContactsStore = signalStore(
     (store, contactsService = inject(ContactsService), alertService = inject(AlertsService)) => ({
       addContact: (contact: ContactDto) => {
         patchState(store, addEntity(contact));
+      },
+      updateLastMessage(contactId: number, message: LastMessageDto) {
+        const updatedContact = store.entityMap()[contactId];
+        if (!updatedContact) return;
+
+        const currentMessage = updatedContact.lastMessage;
+
+        if (!currentMessage || new Date(currentMessage?.date) < new Date(message.date)) {
+          patchState(
+            store,
+            updateEntity({ id: contactId, changes: { lastMessage: { ...message } } }),
+          );
+        }
       },
       getContactsData: rxMethod<void>(
         pipe(

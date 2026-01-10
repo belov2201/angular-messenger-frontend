@@ -1,5 +1,5 @@
 import { patchState, signalStore, withMethods } from '@ngrx/signals';
-import { addEntities, withEntities } from '@ngrx/signals/entities';
+import { addEntities, addEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { Message } from './messages.interface';
 
 export const MessagesStore = signalStore(
@@ -7,6 +7,9 @@ export const MessagesStore = signalStore(
   withMethods((store) => {
     return {
       addMany: (messages: Message[]) => patchState(store, addEntities(messages)),
+      addOne: (message: Message) => patchState(store, addEntity(message)),
+      updateOne: (id: number, changes: Partial<Message>) =>
+        patchState(store, updateEntity({ id, changes: { ...changes } })),
       getById: (id: number) => store.entityMap()[id],
     };
   }),
