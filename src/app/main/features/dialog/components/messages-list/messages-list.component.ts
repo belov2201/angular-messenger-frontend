@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AvatarComponent } from '@app/shared/ui';
 import { MessagesStateStore } from '../../data-access/messages';
@@ -17,13 +17,17 @@ import { VisibilityDirective } from './directives/visibility.directive';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessagesListComponent {
-  protected readonly messages = inject(MessagesStateStore).currentMessages;
   private readonly messagesStateStore = inject(MessagesStateStore);
-  private readonly currentMessagesState = this.messagesStateStore.currentState;
+  private readonly elementRef = inject<ElementRef<HTMLDivElement>>(ElementRef);
+  protected readonly messages = this.messagesStateStore.currentMessages;
 
-  changeCurrentViewLast(value: boolean) {
-    const currentMessageState = this.currentMessagesState();
-    if (!currentMessageState) return;
-    this.messagesStateStore.setIsViewLast(currentMessageState.id, value);
+  protected changeCurrentViewLast(value: boolean) {
+    this.messagesStateStore.setIsViewLast(value);
+  }
+
+  protected firstVisibleHandler(isVisible: boolean) {
+    if (!isVisible) return;
+    this.messagesStateStore.setPrevScrollHeight(this.elementRef.nativeElement.scrollHeight);
+    this.messagesStateStore.getAdditionalMessagesData();
   }
 }

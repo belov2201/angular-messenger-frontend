@@ -25,11 +25,16 @@ interface MessagesState {
   id: number;
   isLoading: boolean;
   isLoaded: boolean;
+  hasNext: boolean;
   messageIds: number[];
   loadingMessages: Message[];
   errorMessages: Message[];
   isScrolled: boolean;
   isScrollAdd: boolean;
+  isRestoreScroll: boolean;
+  isScrollAdditionaly: boolean;
+  scrollPosition: number;
+  prevScrollHeight: number;
   isViewLastMessage: boolean;
 }
 
@@ -42,11 +47,16 @@ const createInitialState = (id: number): MessagesState => {
     id,
     isLoading: true,
     isLoaded: false,
+    hasNext: true,
     messageIds: [],
     loadingMessages: [],
     errorMessages: [],
     isScrolled: false,
     isScrollAdd: false,
+    isRestoreScroll: false,
+    isScrollAdditionaly: false,
+    scrollPosition: 0,
+    prevScrollHeight: 0,
     isViewLastMessage: false,
   };
 };
@@ -103,6 +113,9 @@ export const MessagesStateStore = signalStore(
 
         messagesStore.updateOne(prevId, currentMessage);
       },
+      setIsScrollAdditionaly(id: number, value: boolean) {
+        patchState(store, updateEntity({ id, changes: { isScrollAdditionaly: value } }));
+      },
     };
   }),
   withMethods(
@@ -124,8 +137,28 @@ export const MessagesStateStore = signalStore(
       setScrollAdd(id: number, value: boolean) {
         patchState(store, updateEntity({ id, changes: { isScrollAdd: value } }));
       },
-      setIsViewLast(id: number, value: boolean) {
-        patchState(store, updateEntity({ id, changes: { isViewLastMessage: value } }));
+      setIsViewLast(value: boolean) {
+        if (!Number.isInteger(store.currentDialogId())) return;
+
+        patchState(
+          store,
+          updateEntity({ id: store.currentDialogId()!, changes: { isViewLastMessage: value } }),
+        );
+      },
+      setScrollPosition(id: number, value: number) {
+        patchState(store, updateEntity({ id, changes: { scrollPosition: value } }));
+      },
+      setPrevScrollHeight(value: number) {
+        const currentState = store.currentState();
+
+        if (currentState)
+          patchState(
+            store,
+            updateEntity({ id: currentState.id, changes: { prevScrollHeight: value } }),
+          );
+      },
+      setIsRestoreScroll(id: number, value: boolean) {
+        patchState(store, updateEntity({ id, changes: { isRestoreScroll: value } }));
       },
       getMessagesData: rxMethod<number>(
         pipe(
@@ -147,6 +180,7 @@ export const MessagesStateStore = signalStore(
                           ...state.messageIds,
                           ...messages.map((e) => e.id).sort((a, b) => a - b),
                         ],
+                        hasNext: messages.length === 50,
                       }),
                     }),
                   );
@@ -161,6 +195,62 @@ export const MessagesStateStore = signalStore(
                   patchState(
                     store,
                     updateEntity({ id, changes: { isLoading: false, isLoaded: true } }),
+                  ),
+              }),
+            );
+          }),
+        ),
+      ),
+      getAdditionalMessagesData: rxMethod<void>(
+        pipe(
+          map(() => store.currentState()),
+          filter((currentState) => !!currentState),
+          filter((currentState) => currentState.hasNext && !currentState.isLoading),
+          tap((currentState) =>
+            patchState(
+              store,
+              updateEntity({
+                id: currentState.id,
+                changes: {
+                  isLoading: true,
+                },
+              }),
+            ),
+          ),
+          mergeMap((currentState) => {
+            return messagesService.getAll(currentState.id, currentState.messageIds.length).pipe(
+              map((messages) =>
+                messages
+                  .map((message) => mapToMessageView(message, userStore.user()))
+                  .filter((e) => !!e),
+              ),
+              tapResponse({
+                next: (messages) => {
+                  patchState(
+                    store,
+                    updateEntity({
+                      id: currentState.id,
+                      changes: (state) => ({
+                        messageIds: [
+                          ...messages.map((e) => e.id).sort((a, b) => a - b),
+                          ...state.messageIds,
+                        ],
+                        hasNext: messages.length === 50,
+                      }),
+                    }),
+                  );
+
+                  messagesStore.addMany(messages);
+                  store.setIsScrollAdditionaly(currentState.id, true);
+                },
+                error: () => {
+                  alertService.showErrorAlert('Ошибка получения сообщений');
+                  router.navigate(['/'], { replaceUrl: true });
+                },
+                finalize: () =>
+                  patchState(
+                    store,
+                    updateEntity({ id: currentState.id, changes: { isLoading: false } }),
                   ),
               }),
             );
