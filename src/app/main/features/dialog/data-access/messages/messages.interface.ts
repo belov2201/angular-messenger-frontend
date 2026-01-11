@@ -31,3 +31,9 @@ export interface CreateMessageDto {
 }
 
 export type SendMessageParam = Pick<CreateMessageDto, 'contactId' | 'text'>;
+
+export type DeleteMessageDto = Pick<MessageDto, 'id'>;
+
+export interface DeleteMessageResponseDto {
+  prevMessage: MessageDto | null;
+}

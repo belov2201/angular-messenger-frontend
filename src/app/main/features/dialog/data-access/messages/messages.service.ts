@@ -1,7 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CreateMessageDto, MessageDto } from './messages.interface';
+import {
+  CreateMessageDto,
+  DeleteMessageDto,
+  DeleteMessageResponseDto,
+  MessageDto,
+} from './messages.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -15,5 +20,9 @@ export class MessagesService {
 
   create(body: CreateMessageDto) {
     return this.http.post<MessageDto>('/messages', body);
+  }
+
+  delete(body: DeleteMessageDto) {
+    return this.http.delete<DeleteMessageResponseDto>(`/messages/${body.id}`);
   }
 }

@@ -23,6 +23,11 @@ import {
   updateEntity,
 } from '@ngrx/signals/entities';
 
+interface DeleteLastMessageParams {
+  deletedMessage: LastMessageDto;
+  newMessage: LastMessageDto | null;
+}
+
 export const ContactsStore = signalStore(
   withState(baseApiState),
   withEntities<ContactEntity>(),
@@ -52,6 +57,15 @@ export const ContactsStore = signalStore(
             updateEntity({ id: contactId, changes: { lastMessage: { ...message } } }),
           );
         }
+      },
+      deleteLastMessage(
+        contactId: number,
+        { deletedMessage, newMessage }: DeleteLastMessageParams,
+      ) {
+        const currentContact = store.entityMap()[contactId];
+        if (currentContact.lastMessage?.id !== deletedMessage.id) return;
+
+        patchState(store, updateEntity({ id: contactId, changes: { lastMessage: newMessage } }));
       },
       getContactsData: rxMethod<void>(
         pipe(

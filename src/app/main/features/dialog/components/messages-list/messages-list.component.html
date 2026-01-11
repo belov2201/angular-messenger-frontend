@@ -25,7 +25,9 @@
         [isEnabledVisibility]="isFirst || isLast"
         (visible)="isLast && changeCurrentViewLast($event)"
         (visible)="isFirst && firstVisibleHandler($event)"
+        (click)="activeMessage = message; menu.toggle($event)"
       />
+      <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
     </div>
   </div>
   @if (

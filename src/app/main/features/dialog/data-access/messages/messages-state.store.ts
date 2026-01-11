@@ -97,6 +97,19 @@ export const MessagesStateStore = signalStore(
         messagesStore.addOne(message);
         addMessageSubject.next(message);
       },
+      deleteMessageStore(message: Message) {
+        patchState(
+          store,
+          updateEntity({
+            id: message.contact.id,
+            changes: (state) => ({
+              messageIds: state.messageIds.filter((e) => e !== message.id),
+            }),
+          }),
+        );
+
+        messagesStore.deleteOne(message.id);
+      },
       updateMessageId(
         prevId: number,
         currentMessage: Partial<Message> & Pick<Message, 'id' | 'contact'>,
@@ -289,6 +302,31 @@ export const MessagesStateStore = signalStore(
                 error: () => {
                   alertService.showErrorAlert('Ошибка отправки сообщения');
                   messagesStore.updateOne(createdMessage.id, { status: 'error' });
+                },
+              }),
+            ),
+          ),
+        ),
+      ),
+      deleteMessage: rxMethod<Message>(
+        pipe(
+          tap((message) => {
+            messagesStore.updateOne(message.id, { status: 'loading' });
+          }),
+          mergeMap((message) =>
+            messagesService.delete({ id: message.id }).pipe(
+              tapResponse({
+                next: (deleteMessageResponse) => {
+                  store.deleteMessageStore(message);
+                  contactsStore.deleteLastMessage(message.contact.id, {
+                    deletedMessage: message,
+                    newMessage: deleteMessageResponse.prevMessage,
+                  });
+                  alertService.showSuccessAlert('Сообщение удалено');
+                },
+                error: () => {
+                  alertService.showErrorAlert('Ошибка удаления сообщения');
+                  messagesStore.updateOne(message.id, { status: 'sent' });
                 },
               }),
             ),

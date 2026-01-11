@@ -1,6 +1,6 @@
 @if (message(); as message) {
   <div
-    class="rounded-3xl py-1.5 px-4 shadow-xl"
+    class="rounded-3xl py-1.5 px-4 shadow-xl hover:cursor-pointer"
     [ngClass]="{
       'bg-primary-500': message.isSender,
       'bg-surface-50': !message.isSender,
