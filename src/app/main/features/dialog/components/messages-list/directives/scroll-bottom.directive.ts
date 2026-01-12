@@ -1,7 +1,8 @@
 import { AfterViewChecked, Directive, effect, ElementRef, inject, untracked } from '@angular/core';
-import { MessagesStateStore } from '../../../data-access/messages';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, tap } from 'rxjs';
+import { ScrollStateStore } from '../../../data-access/scroll';
+import { MessagesStateStore } from '../../../data-access/messages';
 
 @Directive({
   selector: '[appScrollBottom]',
@@ -9,24 +10,22 @@ import { filter, tap } from 'rxjs';
 export class ScrollBottomDirective implements AfterViewChecked {
   private readonly elementRef = inject<ElementRef<HTMLDivElement>>(ElementRef);
   private readonly messagesStateStore = inject(MessagesStateStore);
+  private readonly scrollStateStore = inject(ScrollStateStore);
   private readonly currentMessagesState = this.messagesStateStore.currentState;
 
   constructor() {
     effect((onCleanup) => {
-      const dialogId = this.messagesStateStore.currentDialogId();
+      const dialogId = this.scrollStateStore.currentDialogId();
 
       onCleanup(() => {
         if (!dialogId) return;
 
-        this.messagesStateStore.setScrollPosition(
-          dialogId,
-          this.elementRef.nativeElement.scrollTop,
-        );
+        this.scrollStateStore.setScrollPosition(dialogId, this.elementRef.nativeElement.scrollTop);
 
-        const state = untracked(() => this.messagesStateStore.getById(dialogId));
+        const state = untracked(() => this.scrollStateStore.getById(dialogId));
         if (!state.isScrolled) return;
 
-        this.messagesStateStore.setIsRestoreScroll(dialogId, true);
+        this.scrollStateStore.setIsRestoreScroll(dialogId, true);
       });
     });
 
@@ -38,40 +37,48 @@ export class ScrollBottomDirective implements AfterViewChecked {
             addedMessage.contact.id === this.currentMessagesState()?.id &&
             !!this.currentMessagesState()?.isViewLastMessage,
         ),
-        tap((addedMessage) => this.messagesStateStore.setScrollAdd(addedMessage.contact.id, true)),
+        tap((addedMessage) => this.scrollStateStore.setScrollAdd(addedMessage.contact.id, true)),
         takeUntilDestroyed(),
       )
       .subscribe();
   }
 
   ngAfterViewChecked(): void {
-    const state = this.currentMessagesState();
-    if (!state) return;
+    const currentMessagesState = this.currentMessagesState();
+    const currentScrollState = this.scrollStateStore.currentState();
 
-    if (state.isScrolled && state.isRestoreScroll && !state.isLoading && state.isLoaded) {
-      this.elementRef.nativeElement.scrollTop = state.scrollPosition;
-      this.messagesStateStore.setIsRestoreScroll(state.id, false);
+    if (!currentMessagesState || !currentScrollState) return;
+
+    if (
+      currentScrollState.isScrolled &&
+      currentScrollState.isRestoreScroll &&
+      !currentMessagesState.isLoading &&
+      currentMessagesState.isLoaded
+    ) {
+      this.elementRef.nativeElement.scrollTop = currentScrollState.scrollPosition;
+      this.scrollStateStore.setIsRestoreScroll(currentScrollState.id, false);
     }
 
-    if (!state.isScrolled && state.isLoaded) {
+    if (!currentScrollState.isScrolled && currentMessagesState.isLoaded) {
       this.elementRef.nativeElement.scrollTop = this.elementRef.nativeElement.scrollHeight;
-      this.messagesStateStore.setIsScrolled(state.id);
+      this.scrollStateStore.setIsScrolled(currentScrollState.id);
     }
 
-    if (state.isScrollAdd) {
+    if (currentScrollState.isScrollAdd) {
       this.elementRef.nativeElement.scrollTop = this.elementRef.nativeElement.scrollHeight;
-      this.messagesStateStore.setScrollAdd(state.id, false);
+      this.scrollStateStore.setScrollAdd(currentMessagesState.id, false);
     }
 
-    if (state.isScrollAdditionaly) {
+    if (currentScrollState.isScrollAdditionaly) {
       const scrollTop = this.elementRef.nativeElement.scrollTop;
       const scrollHeight = this.elementRef.nativeElement.scrollHeight;
 
       if (scrollTop === 0) {
-        this.elementRef.nativeElement.scrollTop = scrollHeight - state.prevScrollHeight;
+        this.elementRef.nativeElement.scrollTop =
+          scrollHeight - currentScrollState.prevScrollHeight;
       }
 
-      this.messagesStateStore.setIsScrollAdditionaly(state.id, false);
+      this.scrollStateStore.setIsScrollAdditionaly(currentMessagesState.id, false);
     }
   }
 }

@@ -20,6 +20,7 @@ import { MessagesStore } from './messages.store';
 import { CreateMessageDto, Message, SendMessageParam } from './messages.interface';
 import { ContactsStore } from '@app/main/data-access/contacts';
 import { createOptimisticMessage, getCreateMessageDto } from './lib';
+import { ScrollStateStore } from '../scroll';
 
 interface MessagesState {
   id: number;
@@ -27,12 +28,6 @@ interface MessagesState {
   isLoaded: boolean;
   hasNext: boolean;
   messageIds: number[];
-  isScrolled: boolean;
-  isScrollAdd: boolean;
-  isRestoreScroll: boolean;
-  isScrollAdditionaly: boolean;
-  scrollPosition: number;
-  prevScrollHeight: number;
   isViewLastMessage: boolean;
 }
 
@@ -47,12 +42,6 @@ const createInitialState = (id: number): MessagesState => {
     isLoaded: false,
     hasNext: true,
     messageIds: [],
-    isScrolled: false,
-    isScrollAdd: false,
-    isRestoreScroll: false,
-    isScrollAdditionaly: false,
-    scrollPosition: 0,
-    prevScrollHeight: 0,
     isViewLastMessage: false,
   };
 };
@@ -122,9 +111,6 @@ export const MessagesStateStore = signalStore(
 
         messagesStore.updateOne(prevId, currentMessage);
       },
-      setIsScrollAdditionaly(id: number, value: boolean) {
-        patchState(store, updateEntity({ id, changes: { isScrollAdditionaly: value } }));
-      },
     };
   }),
   withMethods(
@@ -135,16 +121,11 @@ export const MessagesStateStore = signalStore(
       userStore = inject(UserStore),
       messagesStore = inject(MessagesStore),
       contactsStore = inject(ContactsStore),
+      scrollStore = inject(ScrollStateStore),
       router = inject(Router),
     ) => ({
       setCurrentDialogId(value: number | null) {
         patchState(store, { currentDialogId: value });
-      },
-      setIsScrolled(id: number) {
-        patchState(store, updateEntity({ id, changes: { isScrolled: true } }));
-      },
-      setScrollAdd(id: number, value: boolean) {
-        patchState(store, updateEntity({ id, changes: { isScrollAdd: value } }));
       },
       setIsViewLast(value: boolean) {
         if (!Number.isInteger(store.currentDialogId())) return;
@@ -153,21 +134,6 @@ export const MessagesStateStore = signalStore(
           store,
           updateEntity({ id: store.currentDialogId()!, changes: { isViewLastMessage: value } }),
         );
-      },
-      setScrollPosition(id: number, value: number) {
-        patchState(store, updateEntity({ id, changes: { scrollPosition: value } }));
-      },
-      setPrevScrollHeight(value: number) {
-        const currentState = store.currentState();
-
-        if (currentState)
-          patchState(
-            store,
-            updateEntity({ id: currentState.id, changes: { prevScrollHeight: value } }),
-          );
-      },
-      setIsRestoreScroll(id: number, value: boolean) {
-        patchState(store, updateEntity({ id, changes: { isRestoreScroll: value } }));
       },
       getMessagesData: rxMethod<number>(
         pipe(
@@ -250,7 +216,7 @@ export const MessagesStateStore = signalStore(
                   );
 
                   messagesStore.addMany(messages);
-                  store.setIsScrollAdditionaly(currentState.id, true);
+                  scrollStore.setIsScrollAdditionaly(currentState.id, true);
                 },
                 error: () => {
                   alertService.showErrorAlert('Ошибка получения сообщений');

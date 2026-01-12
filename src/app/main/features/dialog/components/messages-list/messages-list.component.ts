@@ -10,6 +10,7 @@ import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ConfirmModalService } from '@app/core/providers';
 import { InputMessagesStateStore } from '../../data-access/input-messages';
+import { ScrollStateStore } from '../../data-access/scroll';
 
 @Component({
   selector: 'app-messages-list',
@@ -23,6 +24,7 @@ import { InputMessagesStateStore } from '../../data-access/input-messages';
 export class MessagesListComponent {
   private readonly messagesStateStore = inject(MessagesStateStore);
   private readonly inputMessagesStateStore = inject(InputMessagesStateStore);
+  private readonly scrollStateStore = inject(ScrollStateStore);
   private readonly elementRef = inject<ElementRef<HTMLDivElement>>(ElementRef);
   private readonly confirmModalService = inject(ConfirmModalService);
 
@@ -62,7 +64,7 @@ export class MessagesListComponent {
 
   protected firstVisibleHandler(isVisible: boolean) {
     if (!isVisible) return;
-    this.messagesStateStore.setPrevScrollHeight(this.elementRef.nativeElement.scrollHeight);
+    this.scrollStateStore.setPrevScrollHeight(this.elementRef.nativeElement.scrollHeight);
     this.messagesStateStore.getAdditionalMessagesData();
   }
 }

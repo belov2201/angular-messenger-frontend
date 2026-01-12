@@ -4,6 +4,7 @@ import { MessageActionsComponent } from './components/message-actions/message-ac
 import { MessagesStore, MessagesStateStore } from './data-access/messages';
 import { LoaderComponent } from '@app/shared/ui';
 import { InputMessagesStateStore } from './data-access/input-messages';
+import { ScrollStateStore } from './data-access/scroll';
 
 @Component({
   selector: 'app-dialog',
@@ -15,7 +16,7 @@ import { InputMessagesStateStore } from './data-access/input-messages';
     <app-messages-list />
     <app-message-actions />
   `,
-  providers: [MessagesStateStore, MessagesStore, InputMessagesStateStore],
+  providers: [MessagesStateStore, MessagesStore, InputMessagesStateStore, ScrollStateStore],
   host: { class: 'h-full flex flex-col relative' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
