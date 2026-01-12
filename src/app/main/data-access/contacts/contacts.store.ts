@@ -110,7 +110,7 @@ export const ContactsStore = signalStore(
       ),
     }),
   ),
-  withMethods((store, wsService = inject(WsService)) => ({
+  withMethods((store, wsService = inject(WsService), alertService = inject(AlertsService)) => ({
     changeOnlineStatus: rxMethod<void>(
       pipe(
         switchMap(() => wsService.socket.fromEvent<number>(WsEvents.online)),
@@ -123,12 +123,29 @@ export const ContactsStore = signalStore(
         tap((userId) => store.updateContactStatus(userId, false)),
       ),
     ),
+    addWsContact: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<ContactDto>(WsEvents.addContact)),
+        tap((contact) => {
+          alertService.showSuccessAlert('Пользователь добавил вас в список контактов');
+          patchState(store, addEntity(contact));
+        }),
+      ),
+    ),
+    deleteWsContact: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<number>(WsEvents.deleteContact)),
+        tap((id) => patchState(store, removeEntity(id))),
+      ),
+    ),
   })),
   withHooks({
     onInit: (store) => {
       store.getContactsData();
       store.changeOnlineStatus();
       store.changeOfflineStatus();
+      store.addWsContact();
+      store.deleteWsContact();
     },
   }),
 );

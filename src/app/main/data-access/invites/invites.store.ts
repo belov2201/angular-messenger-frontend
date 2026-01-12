@@ -15,6 +15,7 @@ import {
   ApproveInviteDto,
   CreateInviteDto,
   DeleteInviteDto,
+  InviteDto,
   InviteEntity,
 } from './invites.interface';
 import { baseApiState } from '@app/shared/libs';
@@ -22,6 +23,8 @@ import { AlertsService } from '@app/core/alerts';
 import { ContactsStore } from '../contacts';
 import { addEntities, addEntity, removeEntity, withEntities } from '@ngrx/signals/entities';
 import { UserStore } from '@app/core/store/user';
+import { WsService } from '@app/main/providers/ws/ws.service';
+import { WsEvents } from '@app/main/providers/ws/ws-events';
 
 export const InvitesStore = signalStore(
   withState(baseApiState),
@@ -113,9 +116,28 @@ export const InvitesStore = signalStore(
       ),
     }),
   ),
+  withMethods((store, wsService = inject(WsService), alertService = inject(AlertsService)) => ({
+    addWsInvite: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<InviteDto>(WsEvents.addInvite)),
+        tap((invite) => {
+          alertService.showSuccessAlert('Получено новое приглашение на добавление в список друзей');
+          patchState(store, addEntity(invite));
+        }),
+      ),
+    ),
+    deleteWsInvite: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<number>(WsEvents.deleteInvite)),
+        tap((inviteId) => patchState(store, removeEntity(inviteId))),
+      ),
+    ),
+  })),
   withHooks({
     onInit: (store) => {
       store.getInvitesData();
+      store.addWsInvite();
+      store.deleteWsInvite();
     },
   }),
 );
