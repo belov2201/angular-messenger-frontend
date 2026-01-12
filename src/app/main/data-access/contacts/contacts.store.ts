@@ -24,6 +24,7 @@ import {
 } from '@ngrx/signals/entities';
 import { WsService } from '@app/main/providers/ws/ws.service';
 import { WsEvents } from '@app/main/providers/ws/ws-events';
+import { MessageDto } from '@app/main/features/dialog/data-access/messages/messages.interface';
 
 interface DeleteLastMessageParams {
   deletedMessage: LastMessageDto;
@@ -138,6 +139,34 @@ export const ContactsStore = signalStore(
         tap((id) => patchState(store, removeEntity(id))),
       ),
     ),
+    updateWsLastMessage: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<MessageDto>(WsEvents.addMessage)),
+        tap((message) => store.updateLastMessage(message.contact.id, message)),
+      ),
+    ),
+    editWsLastMessage: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<MessageDto>(WsEvents.updateMessage)),
+        tap((message) => store.updateLastMessage(message.contact.id, message)),
+      ),
+    ),
+    deleteWsLastMessage: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          wsService.socket.fromEvent<{
+            removedMessage: MessageDto;
+            prevMessage: MessageDto | null;
+          }>(WsEvents.deleteMessage),
+        ),
+        tap(({ prevMessage, removedMessage }) => {
+          store.deleteLastMessage(removedMessage.contact.id, {
+            deletedMessage: removedMessage,
+            newMessage: prevMessage,
+          });
+        }),
+      ),
+    ),
   })),
   withHooks({
     onInit: (store) => {
@@ -146,6 +175,9 @@ export const ContactsStore = signalStore(
       store.changeOfflineStatus();
       store.addWsContact();
       store.deleteWsContact();
+      store.updateWsLastMessage();
+      store.editWsLastMessage();
+      store.deleteWsLastMessage();
     },
   }),
 );

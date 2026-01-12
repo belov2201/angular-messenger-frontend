@@ -38,6 +38,11 @@ export interface DeleteMessageResponseDto {
   prevMessage: MessageDto | null;
 }
 
+export interface DeleteMessageWsDto {
+  removedMessage: MessageDto;
+  prevMessage: MessageDto | null;
+}
+
 export interface UpdateMessageDto {
   id: number;
   text?: string;

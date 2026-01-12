@@ -17,10 +17,18 @@ import { mapToMessageView } from './messages.mapper';
 import { UserStore } from '@app/core/store/user';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessagesStore } from './messages.store';
-import { CreateMessageDto, Message, SendMessageParam } from './messages.interface';
+import {
+  CreateMessageDto,
+  DeleteMessageWsDto,
+  Message,
+  MessageDto,
+  SendMessageParam,
+} from './messages.interface';
 import { ContactsStore } from '@app/main/data-access/contacts';
 import { createOptimisticMessage, getCreateMessageDto } from './lib';
 import { ScrollStateStore } from '../scroll';
+import { WsService } from '@app/main/providers/ws/ws.service';
+import { WsEvents } from '@app/main/providers/ws/ws-events';
 
 interface MessagesState {
   id: number;
@@ -82,7 +90,7 @@ export const MessagesStateStore = signalStore(
         messagesStore.addOne(message);
         addMessageSubject.next(message);
       },
-      deleteMessageStore(message: Message) {
+      deleteMessageStore(message: MessageDto) {
         patchState(
           store,
           updateEntity({
@@ -328,6 +336,39 @@ export const MessagesStateStore = signalStore(
       },
     }),
   ),
+  withMethods(
+    (
+      store,
+      wsService = inject(WsService),
+      messagesStore = inject(MessagesStore),
+      userStore = inject(UserStore),
+    ) => ({
+      addWsMessage: rxMethod<void>(
+        pipe(
+          switchMap(() => wsService.socket.fromEvent<MessageDto>(WsEvents.addMessage)),
+          tap((messageDto) => {
+            const user = userStore.user();
+            const message = mapToMessageView(messageDto, user);
+            if (!message) return;
+            messagesStore.addOne(message);
+            store.addMessage(message);
+          }),
+        ),
+      ),
+      updateWsMessage: rxMethod<void>(
+        pipe(
+          switchMap(() => wsService.socket.fromEvent<MessageDto>(WsEvents.updateMessage)),
+          tap((messageDto) => messagesStore.updateOne(messageDto.id, messageDto)),
+        ),
+      ),
+      deleteWsMessage: rxMethod<void>(
+        pipe(
+          switchMap(() => wsService.socket.fromEvent<DeleteMessageWsDto>(WsEvents.deleteMessage)),
+          tap(({ removedMessage }) => store.deleteMessageStore(removedMessage)),
+        ),
+      ),
+    }),
+  ),
   withMethods((store, router = inject(ActivatedRoute)) => {
     return {
       loadData: rxMethod<void>(
@@ -354,6 +395,9 @@ export const MessagesStateStore = signalStore(
   withHooks({
     onInit: (store) => {
       store.loadData();
+      store.addWsMessage();
+      store.updateWsMessage();
+      store.deleteWsMessage();
     },
   }),
 );

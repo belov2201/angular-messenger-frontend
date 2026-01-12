@@ -5,4 +5,7 @@ export enum WsEvents {
   deleteInvite = 'DeleteInvite',
   addContact = 'AddContact',
   deleteContact = 'DeleteContact',
+  addMessage = 'AddMessage',
+  deleteMessage = 'DeleteMessage',
+  updateMessage = 'UpdateMessage',
 }
