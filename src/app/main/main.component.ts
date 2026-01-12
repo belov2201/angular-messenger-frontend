@@ -1,25 +1,37 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { ContactsStore } from './data-access/contacts';
 import { InvitesStore } from './data-access/invites';
 import { AppService } from '@app/app.service';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { RouterModule } from '@angular/router';
+import { WsService } from '@app/main/providers/ws/ws.service';
 
 @Component({
   selector: 'app-main',
   imports: [SidebarComponent, RouterModule],
   templateUrl: './main.component.html',
   styleUrl: './main.component.css',
-  providers: [ContactsStore, InvitesStore],
+  providers: [ContactsStore, InvitesStore, WsService],
   host: {
     class: 'h-full flex',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MainComponent {
+export class MainComponent implements OnInit, OnDestroy {
   private readonly appService = inject(AppService);
   private readonly contactsStore = inject(ContactsStore);
   private readonly invitesStore = inject(InvitesStore);
+  private readonly wsService = inject(WsService);
+
+  protected readonly wsStatus = this.wsService.status;
 
   protected readonly isLoadedInitData = computed(
     () => this.contactsStore.isLoaded() && this.invitesStore.isLoaded(),
@@ -44,4 +56,12 @@ export class MainComponent {
   private readonly changeIsErrorInitData = effect(() => {
     this.appService.isErrorInitData.set(this.isErrorInitData());
   });
+
+  ngOnInit(): void {
+    this.wsService.socket.connect();
+  }
+
+  ngOnDestroy(): void {
+    this.wsService.socket.disconnect();
+  }
 }

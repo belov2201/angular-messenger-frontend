@@ -11,11 +11,18 @@ import { MessageService } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api';
 import { withCredentialsInterceptor } from './core/interceptors';
 import { DialogService } from 'primeng/dynamicdialog';
+import { SocketIoConfig, provideSocketIo } from 'ngx-socket-io';
+
+const wsConfig: SocketIoConfig = {
+  url: environment.apiUrl,
+  options: { autoConnect: false, withCredentials: true },
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideRouter(routes),
+    provideSocketIo(wsConfig),
     providePrimeNG({
       theme: {
         preset: Preset,

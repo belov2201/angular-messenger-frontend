@@ -1,6 +1,12 @@
-@if (isLoadedInitData()) {
-  <app-sidebar />
-  <div class="flex-auto">
-    <router-outlet />
+@if (wsStatus() !== 'error') {
+  @if (isLoadedInitData()) {
+    <app-sidebar />
+    <div class="flex-auto">
+      <router-outlet />
+    </div>
+  }
+} @else {
+  <div class="h-full flex-auto flex justify-center items-center">
+    Ошибка подключения к серверу, дождитесь переподключения или перезагрузите приложение
   </div>
 }

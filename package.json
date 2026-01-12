@@ -24,6 +24,7 @@
     "@primeuix/themes": "^2.0.2",
     "@tailwindcss/postcss": "^4.1.18",
     "material-icons": "^1.13.14",
+    "ngx-socket-io": "^4.10.0",
     "postcss": "^8.5.6",
     "primeicons": "^7.0.0",
     "primeng": "^21.0.2",
