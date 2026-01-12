@@ -3,6 +3,7 @@ import { MessagesListComponent } from './components/messages-list/messages-list.
 import { MessageActionsComponent } from './components/message-actions/message-actions.component';
 import { MessagesStore, MessagesStateStore } from './data-access/messages';
 import { LoaderComponent } from '@app/shared/ui';
+import { InputMessagesStateStore } from './data-access/input-messages';
 
 @Component({
   selector: 'app-dialog',
@@ -14,7 +15,7 @@ import { LoaderComponent } from '@app/shared/ui';
     <app-messages-list />
     <app-message-actions />
   `,
-  providers: [MessagesStateStore, MessagesStore],
+  providers: [MessagesStateStore, MessagesStore, InputMessagesStateStore],
   host: { class: 'h-full flex flex-col relative' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

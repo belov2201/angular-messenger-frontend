@@ -1,9 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, viewChild } from '@angular/core';
 import { FormBuilder, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
 import { TextareaModule } from 'primeng/textarea';
 import { validators } from '@app/shared/libs';
 import { IconComponent } from '@app/shared/ui';
 import { Button } from 'primeng/button';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { tap } from 'rxjs';
+import { InputMessagesStateStore } from '../../data-access/input-messages';
 import { MessagesStateStore } from '../../data-access/messages';
 
 @Component({
@@ -18,23 +21,57 @@ import { MessagesStateStore } from '../../data-access/messages';
 export class MessageActionsComponent {
   private readonly fb = inject(FormBuilder);
   private readonly messagesStateStore = inject(MessagesStateStore);
+  private readonly inputMessagesStateStore = inject(InputMessagesStateStore);
 
   private readonly formDirective = viewChild.required(FormGroupDirective);
+
+  protected readonly currentInputMessagesState = this.inputMessagesStateStore.currentState;
 
   protected readonly sendMessageForm = this.fb.group({
     text: ['', validators.message],
   });
 
+  constructor() {
+    this.sendMessageForm.valueChanges
+      .pipe(
+        tap(({ text }) => {
+          const currentState = this.currentInputMessagesState();
+          if (!currentState) return;
+
+          const editState = currentState.edit;
+
+          if (editState && text) {
+            this.inputMessagesStateStore.changeEditStateValue(text || '');
+          } else {
+            this.inputMessagesStateStore.changeSendStateValue(text || '');
+          }
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+
+    effect(() => {
+      const inputMessageState = this.currentInputMessagesState();
+
+      if (inputMessageState?.edit?.message) {
+        this.sendMessageForm.reset({ text: inputMessageState?.edit?.value }, { emitEvent: false });
+      } else {
+        this.sendMessageForm.reset({ text: inputMessageState?.send }, { emitEvent: false });
+      }
+    });
+  }
+
   protected onEnterHandler(event: Event) {
     const keyboardEvent = event as KeyboardEvent;
     if (keyboardEvent.shiftKey) return;
     event.preventDefault();
+    if (!this.sendMessageForm.valid) return;
     this.formDirective().onSubmit(event);
   }
 
   protected sendMessage() {
     const text = this.sendMessageForm.value.text || '';
-    const currentState = this.messagesStateStore.currentState();
+    const currentState = this.currentInputMessagesState();
     if (!this.sendMessageForm.valid || !currentState) return;
 
     this.messagesStateStore.sendMessage({
@@ -43,5 +80,23 @@ export class MessageActionsComponent {
     });
 
     this.formDirective().resetForm();
+  }
+
+  protected resetEditItem() {
+    const inputMessageState = this.currentInputMessagesState();
+    const editMessage = inputMessageState?.edit?.message;
+    if (!editMessage) return;
+    this.inputMessagesStateStore.resetEditState();
+    this.sendMessageForm.reset({ text: inputMessageState.send });
+  }
+
+  protected editMessage() {
+    const editState = this.currentInputMessagesState()?.edit;
+
+    if (editState) {
+      this.messagesStateStore.editMessage({ message: editState.message, text: editState.value });
+    }
+
+    this.resetEditItem();
   }
 }

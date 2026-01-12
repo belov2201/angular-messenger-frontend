@@ -6,6 +6,7 @@ import {
   DeleteMessageDto,
   DeleteMessageResponseDto,
   MessageDto,
+  UpdateMessageDto,
 } from './messages.interface';
 
 @Injectable({
@@ -20,6 +21,10 @@ export class MessagesService {
 
   create(body: CreateMessageDto) {
     return this.http.post<MessageDto>('/messages', body);
+  }
+
+  edit(body: UpdateMessageDto) {
+    return this.http.patch<void>(`/messages/${body.id}`, body);
   }
 
   delete(body: DeleteMessageDto) {

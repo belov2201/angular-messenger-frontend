@@ -51,7 +51,7 @@ export const ContactsStore = signalStore(
 
         const currentMessage = updatedContact.lastMessage;
 
-        if (!currentMessage || new Date(currentMessage?.date) < new Date(message.date)) {
+        if (!currentMessage || new Date(currentMessage?.date) <= new Date(message.date)) {
           patchState(
             store,
             updateEntity({ id: contactId, changes: { lastMessage: { ...message } } }),

@@ -9,6 +9,7 @@ import { VisibilityDirective } from './directives/visibility.directive';
 import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ConfirmModalService } from '@app/core/providers';
+import { InputMessagesStateStore } from '../../data-access/input-messages';
 
 @Component({
   selector: 'app-messages-list',
@@ -21,6 +22,7 @@ import { ConfirmModalService } from '@app/core/providers';
 })
 export class MessagesListComponent {
   private readonly messagesStateStore = inject(MessagesStateStore);
+  private readonly inputMessagesStateStore = inject(InputMessagesStateStore);
   private readonly elementRef = inject<ElementRef<HTMLDivElement>>(ElementRef);
   private readonly confirmModalService = inject(ConfirmModalService);
 
@@ -29,6 +31,13 @@ export class MessagesListComponent {
   protected activeMessage: Message | null = null;
 
   protected readonly menuItems: MenuItem[] = [
+    {
+      label: 'Редактировать',
+      command: () => {
+        if (!this.activeMessage) return;
+        this.inputMessagesStateStore.setEditState(this.activeMessage);
+      },
+    },
     {
       label: 'Удалить',
       command: () => {

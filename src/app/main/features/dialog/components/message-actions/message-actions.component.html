@@ -1,6 +1,8 @@
+@let inputMessagesState = currentInputMessagesState();
+
 <form
   [formGroup]="sendMessageForm"
-  (ngSubmit)="sendMessage()"
+  (ngSubmit)="inputMessagesState?.edit ? editMessage() : sendMessage()"
   class="flex justify-between items-center h-full"
   #formDirective="ngForm"
 >
@@ -17,13 +19,33 @@
       fluid
     ></textarea>
   </div>
-  <p-button
-    [rounded]="true"
-    [text]="true"
-    type="submit"
-    size="small"
-    [disabled]="!sendMessageForm.valid"
-  >
-    <app-icon size="l">send</app-icon>
-  </p-button>
+  @if (inputMessagesState?.edit) {
+    <div class="*:first:mr-2">
+      <p-button
+        [rounded]="true"
+        [text]="true"
+        size="small"
+        (click)="editMessage()"
+        [disabled]="
+          !sendMessageForm.valid ||
+          inputMessagesState?.edit?.value === inputMessagesState?.edit?.message?.text
+        "
+      >
+        <app-icon size="l">check</app-icon>
+      </p-button>
+      <p-button [rounded]="true" [text]="true" size="small" (click)="resetEditItem()">
+        <app-icon size="l">close</app-icon>
+      </p-button>
+    </div>
+  } @else {
+    <p-button
+      [rounded]="true"
+      [text]="true"
+      type="submit"
+      size="small"
+      [disabled]="!sendMessageForm.valid"
+    >
+      <app-icon size="l">send</app-icon>
+    </p-button>
+  }
 </form>

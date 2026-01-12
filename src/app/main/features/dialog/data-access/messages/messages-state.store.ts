@@ -27,8 +27,6 @@ interface MessagesState {
   isLoaded: boolean;
   hasNext: boolean;
   messageIds: number[];
-  loadingMessages: Message[];
-  errorMessages: Message[];
   isScrolled: boolean;
   isScrollAdd: boolean;
   isRestoreScroll: boolean;
@@ -49,8 +47,6 @@ const createInitialState = (id: number): MessagesState => {
     isLoaded: false,
     hasNext: true,
     messageIds: [],
-    loadingMessages: [],
-    errorMessages: [],
     isScrolled: false,
     isScrollAdd: false,
     isRestoreScroll: false,
@@ -302,6 +298,34 @@ export const MessagesStateStore = signalStore(
                 error: () => {
                   alertService.showErrorAlert('Ошибка отправки сообщения');
                   messagesStore.updateOne(createdMessage.id, { status: 'error' });
+                },
+              }),
+            ),
+          ),
+        ),
+      ),
+      editMessage: rxMethod<{ message: Message; text: string }>(
+        pipe(
+          tap(({ message, text }) => {
+            messagesStore.updateOne(message.id, { text, status: 'loading' });
+          }),
+          mergeMap(({ message, text }) =>
+            messagesService.edit({ id: message.id, text }).pipe(
+              tapResponse({
+                next: () => {
+                  contactsStore.updateLastMessage(message.contact.id, {
+                    ...message,
+                    text,
+                  });
+
+                  alertService.showSuccessAlert('Сообщение отредактировано');
+                },
+                error: () => {
+                  messagesStore.updateOne(message.id, { text: message.text });
+                  alertService.showErrorAlert('Ошибка редактирования сообщения');
+                },
+                finalize: () => {
+                  messagesStore.updateOne(message.id, { status: 'sent' });
                 },
               }),
             ),
