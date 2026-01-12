@@ -22,6 +22,8 @@ import {
   removeEntity,
   updateEntity,
 } from '@ngrx/signals/entities';
+import { WsService } from '@app/main/providers/ws/ws.service';
+import { WsEvents } from '@app/main/providers/ws/ws-events';
 
 interface DeleteLastMessageParams {
   deletedMessage: LastMessageDto;
@@ -67,6 +69,14 @@ export const ContactsStore = signalStore(
 
         patchState(store, updateEntity({ id: contactId, changes: { lastMessage: newMessage } }));
       },
+      updateContactStatus(userId: number, value: boolean) {
+        const updatedContact = store
+          .entities()
+          .find((e) => e.participants.some((e) => e.id === userId));
+
+        if (!updatedContact) return;
+        patchState(store, updateEntity({ id: updatedContact.id, changes: { online: value } }));
+      },
       getContactsData: rxMethod<void>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),
@@ -100,9 +110,25 @@ export const ContactsStore = signalStore(
       ),
     }),
   ),
+  withMethods((store, wsService = inject(WsService)) => ({
+    changeOnlineStatus: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<number>(WsEvents.online)),
+        tap((userId) => store.updateContactStatus(userId, true)),
+      ),
+    ),
+    changeOfflineStatus: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<number>(WsEvents.offline)),
+        tap((userId) => store.updateContactStatus(userId, false)),
+      ),
+    ),
+  })),
   withHooks({
     onInit: (store) => {
       store.getContactsData();
+      store.changeOnlineStatus();
+      store.changeOfflineStatus();
     },
   }),
 );

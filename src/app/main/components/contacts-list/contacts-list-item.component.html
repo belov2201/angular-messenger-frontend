@@ -1,7 +1,14 @@
 @if (contact(); as contact) {
   <div class="flex px-2 py-3">
-    <div class="mr-2">
+    <div class="mr-2 relative">
       <app-avatar [avatar]="contact.user.avatar || ''" size="large" />
+      @if (contact.online) {
+        <p-badge
+          severity="success"
+          class="absolute bottom-0.5 right-0.5 border-white border rounded-2xl"
+          style="width: 0.4rem; height: 0.5rem"
+        />
+      }
     </div>
     <div class="flex-auto flex flex-col min-w-0">
       <div class="title">{{ contact.user.firstName }} {{ contact.user.lastName }}</div>

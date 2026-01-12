@@ -5,10 +5,11 @@ import { IconComponent } from '@app/shared/ui';
 import { AvatarComponent } from '@app/shared/ui';
 import { UserStore } from '@app/core/store/user';
 import { mapToContactView } from '@app/main/data-access/contacts/contacts.mapper';
+import { Badge } from 'primeng/badge';
 
 @Component({
   selector: 'app-contacts-list-item',
-  imports: [DateToStrPipe, IconComponent, AvatarComponent],
+  imports: [DateToStrPipe, IconComponent, AvatarComponent, Badge],
   templateUrl: './contacts-list-item.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
