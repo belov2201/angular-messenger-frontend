@@ -81,6 +81,22 @@ export const ContactsStore = signalStore(
       updateTypingStatus(contactId: number, value: boolean) {
         patchState(store, updateEntity({ id: contactId, changes: { isTyping: value } }));
       },
+      updateNoReadCount(contactId: number, action: 'increment' | 'decrement') {
+        patchState(
+          store,
+          updateEntity({
+            id: contactId,
+            changes: (state) => ({
+              noReadCount:
+                action === 'increment'
+                  ? state.noReadCount + 1
+                  : state.noReadCount - 1 > 0
+                    ? state.noReadCount - 1
+                    : 0,
+            }),
+          }),
+        );
+      },
       getContactsData: rxMethod<void>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),
@@ -145,7 +161,10 @@ export const ContactsStore = signalStore(
     updateWsLastMessage: rxMethod<void>(
       pipe(
         switchMap(() => wsService.socket.fromEvent<MessageDto>(WsEvents.addMessage)),
-        tap((message) => store.updateLastMessage(message.contact.id, message)),
+        tap((message) => {
+          store.updateLastMessage(message.contact.id, message);
+          store.updateNoReadCount(message.contact.id, 'increment');
+        }),
       ),
     ),
     editWsLastMessage: rxMethod<void>(
@@ -175,7 +194,7 @@ export const ContactsStore = signalStore(
         ),
       ),
     ),
-    deleteWsLastMessage: rxMethod<void>(
+    deleteWsMessage: rxMethod<void>(
       pipe(
         switchMap(() =>
           wsService.socket.fromEvent<{
@@ -188,6 +207,10 @@ export const ContactsStore = signalStore(
             deletedMessage: removedMessage,
             newMessage: prevMessage,
           });
+
+          if (!removedMessage.isRead) {
+            store.updateNoReadCount(removedMessage.contact.id, 'decrement');
+          }
         }),
       ),
     ),
@@ -201,7 +224,7 @@ export const ContactsStore = signalStore(
       store.deleteWsContact();
       store.updateWsLastMessage();
       store.editWsLastMessage();
-      store.deleteWsLastMessage();
+      store.deleteWsMessage();
       store.editReadStatusWsLastMessage();
       store.changeTypingStatus();
     },

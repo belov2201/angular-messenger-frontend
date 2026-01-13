@@ -456,6 +456,7 @@ export const MessagesStateStore = signalStore(
                   tapResponse({
                     next: () => {
                       messagesStore.updateOne(message.id, { isRead: true });
+                      contactsStore.updateNoReadCount(message.contact.id, 'decrement');
                       contactsStore.updateLastMessage(message.contact.id, {
                         ...message,
                         isRead: true,

@@ -23,13 +23,19 @@
       </div>
       @if (contact.lastMessage; as lastMessage) {
         <div class="flex flex-col *:flex-auto">
-          <div class="subtitle font-bold">{{ lastMessage.date | dateToStr }}</div>
+          <div class="subtitle font-bold flex justify-end">{{ lastMessage.date | dateToStr }}</div>
           <div class="flex justify-end items-center">
-            @if (lastMessage.isRead) {
-              <app-icon>done_all</app-icon>
-            } @else {
-              <app-icon>done</app-icon>
-            }
+            <div class="flex items-center">
+              @if (lastMessage.isRead) {
+                <app-icon>done_all</app-icon>
+              } @else {
+                <app-icon>done</app-icon>
+              }
+
+              @if (contact.noReadCount; as noReadCount) {
+                <div class="no-read-count ml-2">{{ noReadCount }}</div>
+              }
+            </div>
           </div>
         </div>
       }
