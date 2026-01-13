@@ -9,4 +9,5 @@ export enum WsEvents {
   deleteMessage = 'DeleteMessage',
   updateMessage = 'UpdateMessage',
   updateReadStateMessage = 'updateReadStateMessage',
+  typing = 'Typing',
 }

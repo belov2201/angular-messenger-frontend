@@ -19,7 +19,7 @@ export interface ContactDto {
   online: boolean;
 }
 
-export type ContactEntity = ContactDto;
+export type ContactEntity = ContactDto & { isTyping?: boolean };
 
 export interface Contact extends ContactEntity {
   user: ParticipantDto;

@@ -82,15 +82,30 @@ export const MessagesStateStore = signalStore(
       return id !== null ? store.entityMap()[id] : null;
     }),
   })),
-  withComputed((store, messagesStore = inject(MessagesStore)) => ({
-    currentMessages: computed(() => {
-      const messages = messagesStore.entityMap();
-      return (store.currentState()?.messageIds ?? []).map((id) => messages[id]).filter(Boolean);
+  withComputed(
+    (
+      store,
+      messagesStore = inject(MessagesStore),
+      contactsStore = inject(ContactsStore),
+      userStore = inject(UserStore),
+    ) => ({
+      currentMessages: computed(() => {
+        const messages = messagesStore.entityMap();
+        return (store.currentState()?.messageIds ?? []).map((id) => messages[id]).filter(Boolean);
+      }),
+      currentUpdateReadState: computed(() => {
+        return store.currentState()?.updateReadStatusMessages;
+      }),
+      currentTypingContact: computed(() => {
+        const currentId = store.currentDialogId();
+        if (currentId === null) return;
+        const contact = contactsStore.entityMap()[currentId];
+        const currentUser = userStore.user();
+        if (!contact.isTyping || !currentUser) return;
+        return contact.participants.find((e) => e.id !== currentUser.id)?.firstName;
+      }),
     }),
-    currentUpdateReadState: computed(() => {
-      return store.currentState()?.updateReadStatusMessages;
-    }),
-  })),
+  ),
   withMethods((store, messagesStore = inject(MessagesStore)) => {
     const addMessageSubject = new Subject<Message>();
 

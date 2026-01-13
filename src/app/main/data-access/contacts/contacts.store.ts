@@ -8,7 +8,7 @@ import {
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap } from 'rxjs';
+import { groupBy, mergeMap, pipe, switchMap, tap, throttleTime, timer } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { ContactDto, ContactEntity, LastMessageDto } from './contacts.interface';
 import { ContactsService } from './contacts.service';
@@ -77,6 +77,9 @@ export const ContactsStore = signalStore(
 
         if (!updatedContact) return;
         patchState(store, updateEntity({ id: updatedContact.id, changes: { online: value } }));
+      },
+      updateTypingStatus(contactId: number, value: boolean) {
+        patchState(store, updateEntity({ id: contactId, changes: { isTyping: value } }));
       },
       getContactsData: rxMethod<void>(
         pipe(
@@ -157,6 +160,21 @@ export const ContactsStore = signalStore(
         tap((message) => store.updateLastMessage(message.contact.id, message)),
       ),
     ),
+    changeTypingStatus: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<{ contactId: number }>(WsEvents.typing)),
+        groupBy(({ contactId }) => contactId),
+        mergeMap((group$) =>
+          group$.pipe(
+            throttleTime(500),
+            tap(({ contactId }) => store.updateTypingStatus(contactId, true)),
+            switchMap(({ contactId }) =>
+              timer(3000).pipe(tap(() => store.updateTypingStatus(contactId, false))),
+            ),
+          ),
+        ),
+      ),
+    ),
     deleteWsLastMessage: rxMethod<void>(
       pipe(
         switchMap(() =>
@@ -185,6 +203,7 @@ export const ContactsStore = signalStore(
       store.editWsLastMessage();
       store.deleteWsLastMessage();
       store.editReadStatusWsLastMessage();
+      store.changeTypingStatus();
     },
   }),
 );

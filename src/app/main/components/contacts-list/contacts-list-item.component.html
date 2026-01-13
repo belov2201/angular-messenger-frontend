@@ -13,7 +13,11 @@
     <div class="flex-auto flex flex-col min-w-0">
       <div class="title">{{ contact.user.firstName }} {{ contact.user.lastName }}</div>
       <div class="subtitle overflow-hidden whitespace-nowrap text-ellipsis wrap-anywhere">
-        {{ contact.lastMessage?.text || 'Сообщений нет' }}
+        @if (contact.isTyping && !isActivatedRouteContact()) {
+          Печатает...
+        } @else {
+          {{ contact.lastMessage?.text || 'Сообщений нет' }}
+        }
       </div>
     </div>
     @if (contact.lastMessage; as lastMessage) {

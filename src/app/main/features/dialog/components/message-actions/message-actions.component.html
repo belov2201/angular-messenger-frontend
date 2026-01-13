@@ -49,3 +49,6 @@
     </p-button>
   }
 </form>
+@if (currentTypingContact(); as contact) {
+  <div class="subtitle absolute left-5 -top-5">{{ contact }} печатает</div>
+}
