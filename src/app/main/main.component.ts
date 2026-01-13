@@ -62,6 +62,6 @@ export class MainComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.wsService.socket.disconnect();
+    setTimeout(() => this.wsService.socket.disconnect(), 0);
   }
 }

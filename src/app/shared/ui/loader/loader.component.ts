@@ -7,7 +7,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   template: '<p-progress-spinner strokeWidth="4" />',
   host: {
     class:
-      'absolute left-0 top-0 w-full h-full flex justify-center items-center bg-gray-50/10 z-10000',
+      'absolute left-0 top-0 w-full h-full flex justify-center items-center bg-gray-50/10 z-1000',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
