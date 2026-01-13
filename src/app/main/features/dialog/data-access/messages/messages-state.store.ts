@@ -24,7 +24,7 @@ import {
 } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { AlertsService } from '@app/core/alerts';
-import { addEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
+import { addEntity, removeEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { MessagesService } from './messages.service';
 import { mapToMessageView } from './messages.mapper';
 import { UserStore } from '@app/core/store/user';
@@ -101,7 +101,7 @@ export const MessagesStateStore = signalStore(
         if (currentId === null) return;
         const contact = contactsStore.entityMap()[currentId];
         const currentUser = userStore.user();
-        if (!contact.isTyping || !currentUser) return;
+        if (!contact?.isTyping || !currentUser) return;
         return contact.participants.find((e) => e.id !== currentUser.id)?.firstName;
       }),
     }),
@@ -484,6 +484,7 @@ export const MessagesStateStore = signalStore(
       wsService = inject(WsService),
       messagesStore = inject(MessagesStore),
       userStore = inject(UserStore),
+      router = inject(Router),
     ) => ({
       addWsMessage: rxMethod<void>(
         pipe(
@@ -507,6 +508,19 @@ export const MessagesStateStore = signalStore(
         pipe(
           switchMap(() => wsService.socket.fromEvent<DeleteMessageWsDto>(WsEvents.deleteMessage)),
           tap(({ removedMessage }) => store.deleteMessageStore(removedMessage)),
+        ),
+      ),
+      deleteWsContact: rxMethod<void>(
+        pipe(
+          switchMap(() => wsService.socket.fromEvent<number>(WsEvents.deleteContact)),
+          tap((id) => {
+            const deletedState = store.entityMap()[id];
+            messagesStore.deleteMany(deletedState.messageIds);
+            patchState(store, removeEntity(id));
+            if (id === store.currentDialogId()) {
+              router.navigate(['/'], { replaceUrl: true });
+            }
+          }),
         ),
       ),
     }),
@@ -556,6 +570,7 @@ export const MessagesStateStore = signalStore(
       store.addWsMessage();
       store.updateWsMessage();
       store.deleteWsMessage();
+      store.deleteWsContact();
       store.updateReadStateMessagesObserve(store.currentUpdateReadState);
     },
   }),
