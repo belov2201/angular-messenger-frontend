@@ -22,9 +22,10 @@
       <app-message-card
         [message]="message"
         appVisibility
-        [isEnabledVisibility]="isFirst || isLast"
+        [isEnabledVisibility]="isFirst || isLast || (!message.isSender && !message.isRead)"
         (visible)="isLast && changeCurrentViewLast($event)"
         (visible)="isFirst && firstVisibleHandler($event)"
+        (visible)="!message.isRead && !message.isSender && handleUnreadMessage(message)($event)"
         (click)="activeMessage = message; menu.toggle($event)"
       />
       <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />

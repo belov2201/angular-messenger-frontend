@@ -1,4 +1,4 @@
-import { patchState, signalStore, withMethods } from '@ngrx/signals';
+import { patchState, signalStore, withHooks, withMethods } from '@ngrx/signals';
 import {
   addEntities,
   addEntity,
@@ -6,7 +6,12 @@ import {
   updateEntity,
   withEntities,
 } from '@ngrx/signals/entities';
-import { Message } from './messages.interface';
+import { Message, MessageDto } from './messages.interface';
+import { WsService } from '@app/main/providers/ws/ws.service';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { pipe, switchMap, tap } from 'rxjs';
+import { WsEvents } from '@app/main/providers/ws/ws-events';
+import { inject } from '@angular/core';
 
 export const MessagesStore = signalStore(
   withEntities<Message>(),
@@ -19,5 +24,18 @@ export const MessagesStore = signalStore(
       deleteOne: (id: number) => patchState(store, removeEntity(id)),
       getById: (id: number) => store.entityMap()[id],
     };
+  }),
+  withMethods((store, wsService = inject(WsService)) => ({
+    updateReadStateWs: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<MessageDto>(WsEvents.updateReadStateMessage)),
+        tap((messageDto) => store.updateOne(messageDto.id, messageDto)),
+      ),
+    ),
+  })),
+  withHooks({
+    onInit: (store) => {
+      store.updateReadStateWs();
+    },
   }),
 );

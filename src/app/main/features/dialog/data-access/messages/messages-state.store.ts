@@ -8,7 +8,20 @@ import {
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { filter, map, mergeMap, pipe, Subject, switchMap, tap } from 'rxjs';
+import {
+  distinctUntilChanged,
+  EMPTY,
+  filter,
+  from,
+  fromEvent,
+  map,
+  mergeMap,
+  pipe,
+  Subject,
+  switchMap,
+  tap,
+  throttleTime,
+} from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { AlertsService } from '@app/core/alerts';
 import { addEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
@@ -36,6 +49,8 @@ interface MessagesState {
   isLoaded: boolean;
   hasNext: boolean;
   messageIds: number[];
+  updateReadStatusMessages: Message[];
+  processUpdateReadStatusMessages: Message[];
   isViewLastMessage: boolean;
 }
 
@@ -50,6 +65,8 @@ const createInitialState = (id: number): MessagesState => {
     isLoaded: false,
     hasNext: true,
     messageIds: [],
+    updateReadStatusMessages: [],
+    processUpdateReadStatusMessages: [],
     isViewLastMessage: false,
   };
 };
@@ -69,6 +86,9 @@ export const MessagesStateStore = signalStore(
     currentMessages: computed(() => {
       const messages = messagesStore.entityMap();
       return (store.currentState()?.messageIds ?? []).map((id) => messages[id]).filter(Boolean);
+    }),
+    currentUpdateReadState: computed(() => {
+      return store.currentState()?.updateReadStatusMessages;
     }),
   })),
   withMethods((store, messagesStore = inject(MessagesStore)) => {
@@ -118,6 +138,81 @@ export const MessagesStateStore = signalStore(
         );
 
         messagesStore.updateOne(prevId, currentMessage);
+      },
+      addToUpdateReadStatusMessages(message: Message) {
+        const processUpdateReadStatusMessages =
+          store.entityMap()[message.contact.id].processUpdateReadStatusMessages;
+
+        const updateReadStatusMessages =
+          store.entityMap()[message.contact.id].updateReadStatusMessages;
+
+        const isExist = [updateReadStatusMessages, processUpdateReadStatusMessages].some((list) =>
+          (list ?? []).some((e) => e.id === message.id),
+        );
+
+        if (isExist) return;
+
+        patchState(
+          store,
+          updateEntity({
+            id: message.contact.id,
+            changes: (state) => ({
+              updateReadStatusMessages: [...state.updateReadStatusMessages, message],
+            }),
+          }),
+        );
+      },
+      deleteFromUpdateReadStatusMessages(message: Message) {
+        patchState(
+          store,
+          updateEntity({
+            id: message.contact.id,
+            changes: (state) => ({
+              updateReadStatusMessages: state.updateReadStatusMessages.filter(
+                (e) => e.id !== message.id,
+              ),
+            }),
+          }),
+        );
+      },
+      resetUpdateReadStatusMessages() {
+        const currentDialogId = store.currentDialogId();
+
+        if (currentDialogId === null || !Number.isInteger(currentDialogId)) return;
+
+        patchState(
+          store,
+          updateEntity({
+            id: currentDialogId,
+            changes: {
+              updateReadStatusMessages: [],
+            },
+          }),
+        );
+      },
+      addToProcessUpdateReadStatusMessages(message: Message) {
+        patchState(
+          store,
+          updateEntity({
+            id: message.contact.id,
+            changes: (state) => ({
+              processUpdateReadStatusMessages: [...state.processUpdateReadStatusMessages, message],
+            }),
+          }),
+        );
+      },
+      deleteFromProcessUpdateReadStatusMessages(message: Message) {
+        patchState(
+          store,
+          updateEntity({
+            id: message.contact.id,
+            changes: (state) => ({
+              processUpdateReadStatusMessages: state.processUpdateReadStatusMessages.filter(
+                (e) => e.id !== message.id,
+              ),
+            }),
+          }),
+        );
       },
     };
   }),
@@ -331,6 +426,37 @@ export const MessagesStateStore = signalStore(
           ),
         ),
       ),
+      updateReadStatus: rxMethod<void>(
+        pipe(
+          map(() => store.currentState()),
+          filter((state) => !!state),
+          map((state) => state.updateReadStatusMessages),
+          filter((e) => e.length > 0),
+          tap(() => store.resetUpdateReadStatusMessages()),
+          mergeMap((updateReadStatusMessage) =>
+            from(updateReadStatusMessage).pipe(
+              tap((message) => store.addToProcessUpdateReadStatusMessages(message)),
+              mergeMap((message) =>
+                messagesService.edit({ id: message.id, isRead: true }).pipe(
+                  tapResponse({
+                    next: () => {
+                      messagesStore.updateOne(message.id, { isRead: true });
+                      contactsStore.updateLastMessage(message.contact.id, {
+                        ...message,
+                        isRead: true,
+                      });
+                    },
+                    error: () => {
+                      store.deleteFromProcessUpdateReadStatusMessages(message);
+                      store.addToUpdateReadStatusMessages(message);
+                    },
+                  }),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       getById(id: number) {
         return store.entityMap()[id];
       },
@@ -390,6 +516,22 @@ export const MessagesStateStore = signalStore(
           }),
         ),
       ),
+      updateReadStateMessagesObserve: rxMethod<Message[] | undefined>(
+        pipe(
+          map((data) => (data ?? []).length > 0),
+          distinctUntilChanged(),
+          switchMap((hasMessages) => {
+            if (hasMessages) {
+              return fromEvent(window, 'mousemove').pipe(
+                throttleTime(500),
+                tap(() => store.updateReadStatus()),
+              );
+            }
+
+            return EMPTY;
+          }),
+        ),
+      ),
     };
   }),
   withHooks({
@@ -398,6 +540,7 @@ export const MessagesStateStore = signalStore(
       store.addWsMessage();
       store.updateWsMessage();
       store.deleteWsMessage();
+      store.updateReadStateMessagesObserve(store.currentUpdateReadState);
     },
   }),
 );

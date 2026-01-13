@@ -151,6 +151,12 @@ export const ContactsStore = signalStore(
         tap((message) => store.updateLastMessage(message.contact.id, message)),
       ),
     ),
+    editReadStatusWsLastMessage: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<MessageDto>(WsEvents.updateReadStateMessage)),
+        tap((message) => store.updateLastMessage(message.contact.id, message)),
+      ),
+    ),
     deleteWsLastMessage: rxMethod<void>(
       pipe(
         switchMap(() =>
@@ -178,6 +184,7 @@ export const ContactsStore = signalStore(
       store.updateWsLastMessage();
       store.editWsLastMessage();
       store.deleteWsLastMessage();
+      store.editReadStatusWsLastMessage();
     },
   }),
 );

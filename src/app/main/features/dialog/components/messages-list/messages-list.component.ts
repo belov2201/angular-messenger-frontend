@@ -67,4 +67,11 @@ export class MessagesListComponent {
     this.scrollStateStore.setPrevScrollHeight(this.elementRef.nativeElement.scrollHeight);
     this.messagesStateStore.getAdditionalMessagesData();
   }
+
+  protected handleUnreadMessage(message: Message) {
+    return (isVisible: boolean) => {
+      if (!isVisible) return;
+      this.messagesStateStore.addToUpdateReadStatusMessages(message);
+    };
+  }
 }
