@@ -97,6 +97,9 @@ export const ContactsStore = signalStore(
           }),
         );
       },
+      clearTyping(contactId: number) {
+        patchState(store, updateEntity({ id: contactId, changes: { isTyping: false } }));
+      },
       getContactsData: rxMethod<void>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),
@@ -164,6 +167,7 @@ export const ContactsStore = signalStore(
         tap((message) => {
           store.updateLastMessage(message.contact.id, message);
           store.updateNoReadCount(message.contact.id, 'increment');
+          store.clearTyping(message.contact.id);
         }),
       ),
     ),
