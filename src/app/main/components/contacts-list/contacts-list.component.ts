@@ -7,6 +7,7 @@ import { ContactsListItemComponent } from './contacts-list-item.component';
   selector: 'app-contacts-list',
   imports: [ContactsListItemComponent, RouterModule],
   templateUrl: './contacts-list.component.html',
+  host: { class: 'overflow-auto' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactsListComponent {
