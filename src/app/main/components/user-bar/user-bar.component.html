@@ -1,7 +1,7 @@
 @if (userStore.user(); as user) {
   <div class="flex items-center">
     <div class="relative flex mr-3">
-      <app-avatar [avatar]="user?.avatar || ''" size="xlarge" />
+      <app-avatar [params]="user" size="xlarge" />
       <p-badge
         severity="success"
         class="absolute bottom-0.5 right-0 border-white border rounded-2xl"

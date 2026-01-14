@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { AppConfig } from '@app/core/config';
+import { UserDto } from '@app/core/store/user';
 import { Avatar } from 'primeng/avatar';
+import { stringToColor } from './string-to-color';
 
 @Component({
   selector: 'app-avatar',
@@ -9,8 +11,10 @@ import { Avatar } from 'primeng/avatar';
     <div class="flex">
       <p-avatar
         [image]="appConfig.apiUrl + '/avatars/' + avatar()"
-        shape="circle"
         [size]="size()"
+        [label]="initials()"
+        [style.background]="bgColor()"
+        shape="circle"
       />
     </div>
   `,
@@ -19,6 +23,24 @@ import { Avatar } from 'primeng/avatar';
 export class AvatarComponent {
   protected readonly appConfig = inject(AppConfig);
 
-  avatar = input.required<string>();
-  size = input<'normal' | 'large' | 'xlarge'>('normal');
+  readonly params = input.required<Pick<UserDto, 'avatar' | 'firstName' | 'lastName'>>();
+
+  protected readonly avatar = computed(() => {
+    return this.params().avatar;
+  });
+
+  protected readonly initials = computed(() => {
+    const { firstName, lastName, avatar } = this.params();
+    if (avatar) return;
+    return `${firstName[0]}${lastName[0]}`.toUpperCase();
+  });
+
+  protected readonly bgColor = computed(() => {
+    const initials = this.initials();
+    if (!initials) return;
+    const { firstName, lastName } = this.params();
+    return stringToColor(firstName + lastName);
+  });
+
+  readonly size = input<'normal' | 'large' | 'xlarge'>('normal');
 }

@@ -36,7 +36,7 @@
     message.groupDate !== messages()[index + 1]?.groupDate
   ) {
     <div class="flex" [class.justify-end]="message.isSender">
-      <app-avatar [avatar]="message.user.avatar || ''" />
+      <app-avatar [params]="message.user" />
     </div>
   }
 }

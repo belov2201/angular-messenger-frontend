@@ -2,7 +2,7 @@
   <div [class.bg-surface-300]="isActivatedRouteContact()">
     <div class="flex px-2 py-3">
       <div class="mr-2 relative">
-        <app-avatar [avatar]="contact.user.avatar || ''" size="large" />
+        <app-avatar [params]="contact.user" size="large" />
         @if (contact.online) {
           <p-badge
             severity="success"

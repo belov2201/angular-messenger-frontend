@@ -3,7 +3,7 @@
     <form [formGroup]="editUserForm" (submit)="edit()" class="*:not-last:mb-6">
       <div class="flex items-center *:first:mr-4">
         <div class="hover:cursor-pointer hover:opacity-[0.8]">
-          <app-avatar [avatar]="user.avatar || ''" size="xlarge" (click)="menu.toggle($event)" />
+          <app-avatar [params]="user" size="xlarge" (click)="menu.toggle($event)" />
           <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
           <input
             #fileInput
