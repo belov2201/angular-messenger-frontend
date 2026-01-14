@@ -18,7 +18,7 @@
           {{ invitesStore.incomingInvitesCount() }}
         </div>
       }
-      <p-menu #menu [model]="menuItems" [popup]="true" />
+      <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
       <p-button (click)="menu.toggle($event)" [rounded]="true" [text]="true" size="small">
         <app-icon size="l">keyboard_arrow_right</app-icon>
       </p-button>

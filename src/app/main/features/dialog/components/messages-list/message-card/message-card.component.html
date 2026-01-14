@@ -1,9 +1,10 @@
 @if (message(); as message) {
   <div
-    class="rounded-3xl py-1.5 px-4 shadow-xl hover:cursor-pointer"
+    class="rounded-3xl py-1.5 px-4 shadow-xl"
     [ngClass]="{
       'bg-primary-500': message.isSender,
       'bg-surface-50': !message.isSender,
+      'hover:cursor-pointer': message.isSender,
     }"
   >
     <span class="text-sm">{{ message.text }}</span>

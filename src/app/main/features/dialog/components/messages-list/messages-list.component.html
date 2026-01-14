@@ -1,3 +1,5 @@
+<p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
+
 @for (
   message of messages();
   track message.id;
@@ -26,9 +28,8 @@
         (visible)="isLast && changeCurrentViewLast($event)"
         (visible)="isFirst && firstVisibleHandler($event)"
         (visible)="!message.isRead && !message.isSender && handleUnreadMessage(message)($event)"
-        (click)="activeMessage = message; menu.toggle($event)"
+        (click)="onMessageClick($event, message)"
       />
-      <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
     </div>
   </div>
   @if (

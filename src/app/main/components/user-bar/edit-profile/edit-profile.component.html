@@ -3,8 +3,19 @@
     <form [formGroup]="editUserForm" (submit)="edit()" class="*:not-last:mb-6">
       <div class="flex items-center *:first:mr-4">
         <div class="hover:cursor-pointer hover:opacity-[0.8]">
-          <app-avatar [params]="user" size="xlarge" (click)="menu.toggle($event)" />
-          <p-menu #menu [model]="menuItems()" [popup]="true" appendTo="body" />
+          <p-popover
+            #popover
+            appendTo="body"
+            [dt]="{
+              background: 'transparent',
+              borderColor: 'transparent',
+              shadow: 'none',
+              content: { padding: '0' },
+            }"
+          >
+            <p-menu [model]="menuItems()" appendTo="body" />
+          </p-popover>
+          <app-avatar [params]="user" size="xlarge" (click)="popover.toggle($event)" />
           <input
             #fileInput
             role="file-input"

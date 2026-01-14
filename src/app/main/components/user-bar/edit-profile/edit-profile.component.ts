@@ -13,6 +13,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { validators } from '@app/shared/libs';
 import { UserStore } from '@app/core/store/user';
 import { Menu } from 'primeng/menu';
+import { Popover } from 'primeng/popover';
 import { MenuItem } from 'primeng/api';
 import { ConfirmModalService } from '@app/core/providers';
 import { EditUserDto } from '@app/core/store/user/user.interface';
@@ -20,7 +21,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-edit-profile',
-  imports: [Button, FloatLabelInputComponent, ReactiveFormsModule, AvatarComponent, Menu],
+  imports: [Button, FloatLabelInputComponent, ReactiveFormsModule, AvatarComponent, Popover, Menu],
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

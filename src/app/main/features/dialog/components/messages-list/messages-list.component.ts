@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AvatarComponent } from '@app/shared/ui';
 import { Message, MessagesStateStore } from '../../data-access/messages';
@@ -28,6 +28,8 @@ export class MessagesListComponent {
   private readonly elementRef = inject<ElementRef<HTMLDivElement>>(ElementRef);
   private readonly confirmModalService = inject(ConfirmModalService);
 
+  private readonly menu = viewChild<Menu>('menu');
+
   protected readonly messages = this.messagesStateStore.currentMessages;
 
   protected activeMessage: Message | null = null;
@@ -47,6 +49,16 @@ export class MessagesListComponent {
       },
     },
   ];
+
+  protected onMessageClick(event: Event, message: Message) {
+    const menu = this.menu();
+    if (!menu) return;
+
+    if (message.isSender) {
+      this.activeMessage = message;
+      menu.toggle(event);
+    }
+  }
 
   private openDeleteMessageDialog() {
     this.confirmModalService.open({
