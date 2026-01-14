@@ -1,5 +1,5 @@
 @if (wsStatus() !== 'error') {
-  @if (isLoadedInitData()) {
+  @if (isLoadedInitData() && user()) {
     <app-sidebar />
     <div class="flex-auto">
       <router-outlet />

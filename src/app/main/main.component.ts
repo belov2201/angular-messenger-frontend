@@ -13,6 +13,7 @@ import { AppService } from '@app/app.service';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { RouterModule } from '@angular/router';
 import { WsService } from '@app/main/providers/ws/ws.service';
+import { UserStore } from '@app/core/store/user';
 
 @Component({
   selector: 'app-main',
@@ -30,7 +31,9 @@ export class MainComponent implements OnInit, OnDestroy {
   private readonly contactsStore = inject(ContactsStore);
   private readonly invitesStore = inject(InvitesStore);
   private readonly wsService = inject(WsService);
+  private readonly userStore = inject(UserStore);
 
+  protected readonly user = this.userStore.user;
   protected readonly wsStatus = this.wsService.status;
 
   protected readonly isLoadedInitData = computed(
