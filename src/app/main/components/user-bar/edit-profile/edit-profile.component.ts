@@ -4,6 +4,7 @@ import {
   computed,
   ElementRef,
   inject,
+  Signal,
   viewChild,
 } from '@angular/core';
 import { Button } from 'primeng/button';
@@ -31,16 +32,21 @@ export class EditProfileComponent {
 
   protected readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
-  protected readonly menuItems: MenuItem[] = [
-    {
-      label: 'Редактировать',
-      command: () => this.fileInput()?.nativeElement.click(),
-    },
-    {
-      label: 'Удалить',
-      command: () => this.openDeleteAvatarDialog(),
-    },
-  ];
+  protected readonly menuItems: Signal<MenuItem[]> = computed(() => {
+    const avatar = this.userStore.user()?.avatar;
+
+    return [
+      {
+        label: 'Редактировать',
+        command: () => this.fileInput()?.nativeElement.click(),
+      },
+      {
+        label: 'Удалить',
+        command: () => this.openDeleteAvatarDialog(),
+        disabled: avatar ? false : true,
+      },
+    ];
+  });
 
   protected readonly editUserForm = this.fb.group(
     {
