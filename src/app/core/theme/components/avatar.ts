@@ -2,7 +2,7 @@ import { AvatarDesignTokens } from '@primeuix/themes/types/avatar';
 
 export const avatar: AvatarDesignTokens = {
   root: {
-    fontSize: '0.5rem',
+    fontSize: '0.75rem',
   },
   xl: {
     width: '3.45rem',
