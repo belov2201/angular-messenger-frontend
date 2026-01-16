@@ -13,6 +13,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-contacts-list-item',
   imports: [DateToStrPipe, IconComponent, AvatarComponent, Badge],
+  host: { 'data-testid': 'contacts-list-item' },
   templateUrl: './contacts-list-item.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

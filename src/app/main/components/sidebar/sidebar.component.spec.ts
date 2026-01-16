@@ -1,37 +1,13 @@
-import { of } from 'rxjs';
-import { MessageService } from 'primeng/api';
-import { UserService } from '@app/core/store/user/user.service';
-import { render, screen } from '@testing-library/angular';
+import { screen } from '@testing-library/angular';
 import { SidebarComponent } from './sidebar.component';
 import { ContactsStore } from '@app/main/data-access/contacts';
 import { WsService } from '@app/main/providers/ws/ws.service';
-
-let userServiceSpy: jasmine.SpyObj<UserService>;
+import { renderWithProviders } from 'testing/render-with-providers';
 
 describe('SidebarComponent', () => {
   beforeEach(async () => {
-    userServiceSpy = jasmine.createSpyObj('UserService', ['auth', 'getUserData']);
-
-    userServiceSpy.auth.and.returnValue(
-      of({
-        id: 1,
-        username: 'username',
-        firstName: 'Firstname',
-        lastName: 'Lastname',
-        avatar: null,
-        inviteCode: 'fae3d417-82e7-4187-714c-f48912a0726e',
-      }),
-    );
-
-    userServiceSpy.getUserData.and.returnValue(of());
-
-    await render(SidebarComponent, {
-      providers: [
-        MessageService,
-        ContactsStore,
-        WsService,
-        { provide: UserService, useValue: userServiceSpy },
-      ],
+    await renderWithProviders(SidebarComponent, {
+      providers: [ContactsStore, WsService],
     });
   });
 

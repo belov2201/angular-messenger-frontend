@@ -1,6 +1,6 @@
 import { UserService } from '@app/core/store/user/user.service';
 import { of } from 'rxjs';
-import { userMock } from './user';
+import { userMock } from './user.mock';
 
 export const createUserServiceMock = () => {
   const userServiceSpy: jasmine.SpyObj<UserService> = jasmine.createSpyObj('UserService', [

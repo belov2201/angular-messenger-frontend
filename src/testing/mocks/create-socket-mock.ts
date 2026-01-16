@@ -1,0 +1,8 @@
+import { Socket } from 'ngx-socket-io';
+import { Subject } from 'rxjs';
+
+export const createSocketMock = () => {
+  const socketSpy: jasmine.SpyObj<Socket> = jasmine.createSpyObj('Socket', ['fromEvent']);
+  socketSpy.fromEvent.and.returnValue(new Subject());
+  return socketSpy;
+};

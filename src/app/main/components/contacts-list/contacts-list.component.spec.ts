@@ -1,22 +1,13 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { screen } from '@testing-library/angular';
 import { ContactsListComponent } from './contacts-list.component';
+import { renderWithProviders } from 'testing/render-with-providers';
 
 describe('ContactsListComponent', () => {
-  let component: ContactsListComponent;
-  let fixture: ComponentFixture<ContactsListComponent>;
-
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ContactsListComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(ContactsListComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+    await renderWithProviders(ContactsListComponent);
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(screen.getAllByTestId('contacts-list-item').length).toBe(3);
   });
 });
