@@ -80,7 +80,7 @@
           "builder": "@angular/build:karma",
           "options": {
             "polyfills": [],
-            "main": "src/test.ts",
+            "main": "src/testing/setup-tests.ts",
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               {

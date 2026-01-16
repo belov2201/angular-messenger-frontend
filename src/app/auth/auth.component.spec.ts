@@ -1,35 +1,15 @@
-import { of } from 'rxjs';
-import { MessageService } from 'primeng/api';
-import { UserService } from '@app/core/store/user/user.service';
-import { render, screen } from '@testing-library/angular';
+import { screen } from '@testing-library/angular';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AuthComponent } from './auth.component';
 import { AuthDto } from '@app/core/store/user/user.interface';
+import { renderWithProviders } from 'testing/render-with-providers';
 import userEvent from '@testing-library/user-event';
-
-let userServiceSpy: jasmine.SpyObj<UserService>;
+import { UserService } from '@app/core/store/user/user.service';
 
 describe('AuthComponent', () => {
   beforeEach(async () => {
-    userServiceSpy = jasmine.createSpyObj('UserService', ['auth', 'getUserData']);
-
-    userServiceSpy.auth.and.returnValue(
-      of({
-        id: 1,
-        username: 'username',
-        firstName: 'Firstname',
-        lastName: 'Lastname',
-        avatar: null,
-        inviteCode: 'fae3d417-82e7-4187-714c-f48912a0726e',
-      }),
-    );
-
-    userServiceSpy.getUserData.and.returnValue(of());
-
-    await render(AuthComponent, {
-      providers: [MessageService, { provide: UserService, useValue: userServiceSpy }],
-    });
+    await renderWithProviders(AuthComponent);
   });
 
   it('should create', () => {
@@ -62,6 +42,8 @@ describe('AuthComponent', () => {
   it('auth success', async () => {
     const router = TestBed.inject(Router);
     spyOn(router, 'navigate');
+
+    const userServiceSpy = TestBed.inject(UserService);
 
     const authDto: AuthDto = {
       username: 'username',

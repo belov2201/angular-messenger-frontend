@@ -1,24 +1,15 @@
 import { RegisterComponent } from './register.component';
-import { MessageService } from 'primeng/api';
-import { UserService } from '@app/core/store/user/user.service';
-import { of } from 'rxjs';
-import { render, screen } from '@testing-library/angular';
-import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/angular';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { RegisterDto } from '@app/core/store/user';
-
-let userServiceSpy: jasmine.SpyObj<UserService>;
+import { renderWithProviders } from 'testing/render-with-providers';
+import { UserService } from '@app/core/store/user/user.service';
+import userEvent from '@testing-library/user-event';
 
 describe('RegisterComponent', () => {
   beforeEach(async () => {
-    userServiceSpy = jasmine.createSpyObj('UserService', ['register', 'getUserData']);
-    userServiceSpy.register.and.returnValue(of(undefined));
-    userServiceSpy.getUserData.and.returnValue(of());
-
-    await render(RegisterComponent, {
-      providers: [MessageService, { provide: UserService, useValue: userServiceSpy }],
-    });
+    await renderWithProviders(RegisterComponent);
   });
 
   it('should create', () => {
@@ -54,6 +45,8 @@ describe('RegisterComponent', () => {
   it('register success', async () => {
     const router = TestBed.inject(Router);
     spyOn(router, 'navigate');
+
+    const userServiceSpy = TestBed.inject(UserService);
 
     const registerDto: RegisterDto = {
       username: 'username',
