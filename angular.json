@@ -80,6 +80,7 @@
           "builder": "@angular/build:karma",
           "options": {
             "polyfills": [],
+            "main": "src/test.ts",
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               {
@@ -88,7 +89,8 @@
               }
             ],
             "styles": ["src/styles.css"],
-            "scripts": []
+            "scripts": [],
+            "codeCoverage": true
           }
         },
         "lint": {
