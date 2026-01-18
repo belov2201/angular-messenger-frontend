@@ -18,10 +18,19 @@ import { MenuItem } from 'primeng/api';
 import { ConfirmModalService } from '@app/core/providers';
 import { EditUserDto } from '@app/core/store/user/user.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FieldErrorValidationDirective } from '@app/core/form-validation';
 
 @Component({
   selector: 'app-edit-profile',
-  imports: [Button, FloatLabelInputComponent, ReactiveFormsModule, AvatarComponent, Popover, Menu],
+  imports: [
+    Button,
+    FloatLabelInputComponent,
+    ReactiveFormsModule,
+    AvatarComponent,
+    Popover,
+    Menu,
+    FieldErrorValidationDirective,
+  ],
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

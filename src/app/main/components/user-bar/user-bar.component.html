@@ -19,7 +19,13 @@
         </div>
       }
       <p-menu #menu [model]="menuItems" [popup]="true" appendTo="body" />
-      <p-button (click)="menu.toggle($event)" [rounded]="true" [text]="true" size="small">
+      <p-button
+        (click)="menu.toggle($event)"
+        [rounded]="true"
+        [text]="true"
+        size="small"
+        data-testid="open-userbar-menu-button"
+      >
         <app-icon size="l">keyboard_arrow_right</app-icon>
       </p-button>
     </div>

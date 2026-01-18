@@ -15,7 +15,12 @@
           >
             <p-menu [model]="menuItems()" appendTo="body" />
           </p-popover>
-          <app-avatar [params]="user" size="xlarge" (click)="popover.toggle($event)" />
+          <app-avatar
+            [params]="user"
+            size="xlarge"
+            (click)="popover.toggle($event)"
+            data-testid="edit-avatar"
+          />
           <input
             #fileInput
             role="file-input"

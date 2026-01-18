@@ -1,22 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { screen, waitFor } from '@testing-library/angular';
 import { UserBarComponent } from './user-bar.component';
+import { renderWithProviders } from 'testing/render-with-providers';
+import { userMock } from 'testing/mocks/user/user.mock';
 
 describe('UserBarComponent', () => {
-  let component: UserBarComponent;
-  let fixture: ComponentFixture<UserBarComponent>;
-
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [UserBarComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(UserBarComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+    await renderWithProviders(UserBarComponent);
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(screen.getByText(userMock.firstName + ' ' + userMock.lastName)).toBeInTheDocument();
+  });
+
+  it('open userbar menu', async () => {
+    await screen.getByTestId('open-userbar-menu-button').click();
+    await waitFor(() => expect(screen.getByText('Профиль')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Контакты')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Выйти')).toBeInTheDocument());
   });
 });

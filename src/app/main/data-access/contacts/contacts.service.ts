@@ -10,8 +10,6 @@ export class ContactsService {
   private readonly http = inject(HttpClient);
 
   getAll(): Observable<ContactDto[]> {
-    console.log('get all');
-
     return this.http.get<ContactDto[]>('/contacts');
   }
 

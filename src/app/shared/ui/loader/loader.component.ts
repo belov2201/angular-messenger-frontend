@@ -8,6 +8,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   host: {
     class:
       'absolute left-0 top-0 w-full h-full flex justify-center items-center bg-gray-50/10 z-1000',
+    'data-testid': 'loader',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

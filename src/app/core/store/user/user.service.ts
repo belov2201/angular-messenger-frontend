@@ -32,8 +32,8 @@ export class UserService {
     return this.http.get<void>('/auth/logout');
   }
 
-  editUserData(data: EditUserDto) {
-    return this.http.patch('/user', data);
+  editUserData(data: EditUserDto): Observable<void> {
+    return this.http.patch<void>('/user', data);
   }
 
   editUserAvatar(data: EditUserAvatarDto): Observable<EditUserAvatarResponse> {
@@ -43,7 +43,7 @@ export class UserService {
     return this.http.patch<EditUserAvatarResponse>('/user/updateAvatar', body);
   }
 
-  deleteUserAvatar() {
-    return this.http.delete('/user/updateAvatar');
+  deleteUserAvatar(): Observable<void> {
+    return this.http.delete<void>('/user/updateAvatar');
   }
 }
