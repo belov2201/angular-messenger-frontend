@@ -28,7 +28,6 @@ import { RegisterDto, UserStore } from '@app/core/store/user';
     AuthLayoutComponent,
   ],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {

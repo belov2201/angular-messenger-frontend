@@ -26,7 +26,6 @@ import { AuthDto } from '@app/core/store/user/user.interface';
     AuthLayoutComponent,
   ],
   templateUrl: './auth.component.html',
-  styleUrl: './auth.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuthComponent {

@@ -19,7 +19,6 @@ import { UserStore } from '@app/core/store/user';
   selector: 'app-main',
   imports: [SidebarComponent, RouterModule],
   templateUrl: './main.component.html',
-  styleUrl: './main.component.css',
   providers: [ContactsStore, InvitesStore, WsService],
   host: {
     class: 'h-full flex',
