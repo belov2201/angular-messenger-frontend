@@ -10,10 +10,22 @@
           <app-icon size="l">access_time</app-icon>
         </div>
       } @else {
-        <p-button [rounded]="true" [text]="true" size="small" (click)="approveInvite(invite.id)">
+        <p-button
+          [rounded]="true"
+          [text]="true"
+          size="small"
+          (click)="approveInvite(invite.id)"
+          data-testid="approve-invite-btn"
+        >
           <app-icon size="l">check</app-icon>
         </p-button>
-        <p-button [rounded]="true" [text]="true" size="small" (click)="declineInvite(invite.id)">
+        <p-button
+          [rounded]="true"
+          [text]="true"
+          size="small"
+          (click)="declineInvite(invite.id)"
+          data-testid="decline-invite-btn"
+        >
           <app-icon size="l">close</app-icon>
         </p-button>
       }

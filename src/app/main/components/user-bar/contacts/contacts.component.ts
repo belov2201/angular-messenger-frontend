@@ -9,6 +9,7 @@ import { validators } from '@app/shared/libs';
 import { ConfirmModalService } from '@app/core/providers';
 import { InviteCardComponent } from './invite-card/invite-card.component';
 import { ContactCardComponent } from './contact-card/contact-card.component';
+import { modalMessages } from '@app/shared/constants/modal-messages';
 
 @Component({
   selector: 'app-contacts',
@@ -40,22 +41,21 @@ export class ContactsComponent {
 
   protected openApproveInviteDialog(id: number) {
     this.confirmModalService.open({
-      message: 'Вы уверены, что хотите добавить пользователя в список контактов?',
+      message: modalMessages.approveInvite,
       accept: () => this.invitesStore.approveInvite({ id }),
     });
   }
 
   protected openDeclineInviteDialog(id: number) {
     this.confirmModalService.open({
-      message: 'Вы уверены, что хотите отклонить заявку?',
+      message: modalMessages.declineInvite,
       accept: () => this.invitesStore.declineInvite({ id }),
     });
   }
 
   protected openDeleteContactDialog(id: number) {
     this.confirmModalService.open({
-      message:
-        'Вы уверены, что хотите удалить пользователя из списка контактов? Это действие приведет к удалению истории сообщений.',
+      message: modalMessages.deleteContact,
       accept: () => this.contactsStore.deleteContact({ id }),
     });
   }

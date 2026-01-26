@@ -5,7 +5,13 @@
     [subtitle]="contact.user.username"
   >
     <div class="flex items-center">
-      <p-button [rounded]="true" [text]="true" size="small" (click)="deleteContact(contact.id)">
+      <p-button
+        [rounded]="true"
+        [text]="true"
+        size="small"
+        (click)="deleteContact(contact.id)"
+        data-testid="delete-contact-btn"
+      >
         <app-icon size="l">close</app-icon>
       </p-button>
     </div>

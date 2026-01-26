@@ -5,10 +5,11 @@ import { contactsMock } from './contacts.mock';
 export const createContactsServiceMock = () => {
   const contactsServiceSpy: jasmine.SpyObj<ContactsService> = jasmine.createSpyObj(
     'ContactsService',
-    ['getAll'],
+    ['getAll', 'delete'],
   );
 
   contactsServiceSpy.getAll.and.returnValue(of(contactsMock));
+  contactsServiceSpy.delete.and.returnValue(of(undefined));
 
   return contactsServiceSpy;
 };

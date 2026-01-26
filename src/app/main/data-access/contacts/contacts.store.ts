@@ -26,6 +26,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { injectDispatch } from '@ngrx/signals/events';
 import { ContactsEvents } from './contacts.events';
 import { MessageDto } from '../messages/messages.interface';
+import { alertMessages } from '@app/shared/constants/alert-messages';
 
 export const ContactsStore = signalStore(
   withApiState(),
@@ -122,7 +123,7 @@ export const ContactsStore = signalStore(
               store._handlePendingAction(),
               tapResponse({
                 next: () => {
-                  alertService.showSuccessAlert('Контакт удален');
+                  alertService.showSuccessAlert(alertMessages.deleteContactSuccess);
 
                   const activeDialogId =
                     activatedRoute.firstChild?.snapshot.paramMap.get('dialogId');
@@ -137,7 +138,7 @@ export const ContactsStore = signalStore(
                   contactsActionsDispatch.delete({ id: deleteContactDto.id });
                   patchState(store, removeEntity(deleteContactDto.id));
                 },
-                error: () => alertService.showErrorAlert('Ошибка удаления контакта'),
+                error: () => alertService.showErrorAlert(alertMessages.deleteContactError),
               }),
             );
           }),

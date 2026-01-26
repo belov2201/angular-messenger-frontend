@@ -48,7 +48,7 @@ describe('EditProfileComponent', () => {
     ).toBeInTheDocument();
   });
 
-  fit('edit avatar', async () => {
+  it('edit avatar', async () => {
     const userStore = TestBed.inject(UserStore);
     const userService = TestBed.inject(UserService);
 

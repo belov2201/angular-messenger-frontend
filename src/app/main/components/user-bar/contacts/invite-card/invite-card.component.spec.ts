@@ -1,22 +1,35 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { screen } from '@testing-library/angular';
+import { renderWithProviders } from 'testing/render-with-providers';
+import { invitesMock } from 'testing/mocks/invites/invites.mock';
 import { InviteCardComponent } from './invite-card.component';
+import { participantsMock } from 'testing/mocks/participants/participants.mock';
 
 describe('InviteCardComponent', () => {
-  let component: InviteCardComponent;
-  let fixture: ComponentFixture<InviteCardComponent>;
+  it('should create', async () => {
+    const { rerender } = await renderWithProviders(InviteCardComponent, {
+      inputs: { inviteEntity: invitesMock[0] },
+    });
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [InviteCardComponent],
-    }).compileComponents();
+    expect(
+      screen.getByText(participantsMock[1].firstName + ' ' + participantsMock[1].lastName),
+    ).toBeInTheDocument();
 
-    fixture = TestBed.createComponent(InviteCardComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
+    rerender({
+      inputs: {
+        component: InviteCardComponent,
+        componentInputs: { inviteEntity: invitesMock[1] },
+      },
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    screen.getByText(participantsMock[2].firstName + ' ' + participantsMock[2].lastName);
+
+    rerender({
+      inputs: {
+        component: InviteCardComponent,
+        componentInputs: { inviteEntity: invitesMock[2] },
+      },
+    });
+
+    screen.getByText(participantsMock[3].firstName + ' ' + participantsMock[3].lastName);
   });
 });

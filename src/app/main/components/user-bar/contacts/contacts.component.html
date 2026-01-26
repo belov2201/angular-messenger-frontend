@@ -8,6 +8,7 @@
             [inviteEntity]="invite"
             (approve)="openApproveInviteDialog($event)"
             (decline)="openDeclineInviteDialog($event)"
+            data-testid="invite-card"
           />
         }
       </div>
@@ -18,7 +19,11 @@
     @if (contactsStore.entities().length > 0) {
       <div class="-mx-5">
         @for (contact of contactsStore.entities(); track contact.id) {
-          <app-contact-card [contactEntity]="contact" (delete)="openDeleteContactDialog($event)" />
+          <app-contact-card
+            [contactEntity]="contact"
+            (delete)="openDeleteContactDialog($event)"
+            data-testid="contact-card"
+          />
         }
       </div>
     } @else {

@@ -18,6 +18,7 @@ import { UserStore } from '@app/core/store/user';
 import { WsService } from '@app/main/providers/ws/ws.service';
 import { WsEvents } from '@app/main/providers/ws/ws-events';
 import { withApiState } from '@app/shared/libs';
+import { alertMessages } from '@app/shared/constants/alert-messages';
 
 export const InvitesStore = signalStore(
   withApiState(),
@@ -74,11 +75,11 @@ export const InvitesStore = signalStore(
                 store._handlePendingAction(),
                 tapResponse({
                   next: (contact) => {
-                    alertService.showSuccessAlert('Пользователь успешно добавлен');
+                    alertService.showSuccessAlert(alertMessages.approveInviteSuccess);
                     patchState(store, removeEntity(approveInviteDto.id));
                     contactsStore.addContact(contact);
                   },
-                  error: () => alertService.showErrorAlert('Ошибка подтверждения заявки'),
+                  error: () => alertService.showErrorAlert(alertMessages.approveInviteError),
                 }),
               );
             }),
@@ -91,10 +92,10 @@ export const InvitesStore = signalStore(
                 store._handlePendingAction(),
                 tapResponse({
                   next: () => {
-                    alertService.showSuccessAlert('Заявка отклонена');
+                    alertService.showSuccessAlert(alertMessages.declineInviteSuccess);
                     patchState(store, removeEntity(deleteInviteDto.id));
                   },
-                  error: () => alertService.showErrorAlert('Ошибка удаления заявки'),
+                  error: () => alertService.showErrorAlert(alertMessages.declineInviteError),
                 }),
               );
             }),
