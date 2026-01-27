@@ -4,7 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap } from 'rxjs';
 import { addEntity, EntityChanges, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { Message } from '../messages/messages.interface';
-import { MessagesStateStore } from '../messages/messages-state.store';
+import { MessagesStateStore } from '../messages-state/messages-state.store';
 
 interface InputMessageState {
   id: number;

@@ -8,9 +8,11 @@ import {
   withState,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { map, pipe, switchMap, tap } from 'rxjs';
+import { filter, map, pipe, switchMap, tap } from 'rxjs';
 import { addEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { ActivatedRoute } from '@angular/router';
+import { Events } from '@ngrx/signals/events';
+import { MessageEvents } from '../messages/message.events';
 
 interface BaseScrollStateStore {
   currentDialogId: number | null;
@@ -24,6 +26,7 @@ interface ScrollState {
   isScrollAdditionaly: boolean;
   scrollPosition: number;
   prevScrollHeight: number;
+  isViewLastMessage: boolean;
 }
 
 const createInitialState = (id: number): ScrollState => {
@@ -35,6 +38,7 @@ const createInitialState = (id: number): ScrollState => {
     isScrollAdditionaly: false,
     scrollPosition: 0,
     prevScrollHeight: 0,
+    isViewLastMessage: false,
   };
 };
 
@@ -78,12 +82,20 @@ export const ScrollStateStore = signalStore(
       setIsRestoreScroll(id: number, value: boolean) {
         patchState(store, updateEntity({ id, changes: { isRestoreScroll: value } }));
       },
+      setIsViewLast(value: boolean) {
+        if (!Number.isInteger(store.currentDialogId())) return;
+
+        patchState(
+          store,
+          updateEntity({ id: store.currentDialogId()!, changes: { isViewLastMessage: value } }),
+        );
+      },
       getById(id: number) {
         return store.entityMap()[id];
       },
     };
   }),
-  withMethods((store, activateRoute = inject(ActivatedRoute)) => ({
+  withMethods((store, events = inject(Events), activateRoute = inject(ActivatedRoute)) => ({
     createState: rxMethod<void>(
       pipe(
         switchMap(() => activateRoute.paramMap),
@@ -96,10 +108,36 @@ export const ScrollStateStore = signalStore(
         }),
       ),
     ),
+    onGetMessagesAdditionaly: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events
+            .on(MessageEvents.getMessagesDataAdditionalySuccess)
+            .pipe(tap((action) => store.setIsScrollAdditionaly(action.payload.id, true))),
+        ),
+      ),
+    ),
+    onAddMessage: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(MessageEvents.add).pipe(
+            map((action) => action.payload),
+            filter(
+              (addedMessage) =>
+                addedMessage.contact.id === store.currentState()?.id &&
+                !!store.currentState()?.isViewLastMessage,
+            ),
+            tap((addedMessage) => store.setScrollAdd(addedMessage.contact.id, true)),
+          ),
+        ),
+      ),
+    ),
   })),
   withHooks({
     onInit: (store) => {
       store.createState();
+      store.onGetMessagesAdditionaly();
+      store.onAddMessage();
     },
   }),
 );

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AvatarComponent } from '@app/shared/ui';
-import { Message, MessagesStateStore } from '../../data-access/messages';
+import { Message, MessagesStore } from '../../data-access/messages';
 import { ScrollBottomDirective } from './directives/scroll-bottom.directive';
 import { MessageCardComponent } from './message-card/message-card.component';
 import { IntersectionService } from './providers/intersection.service';
@@ -11,6 +11,7 @@ import { MenuItem } from 'primeng/api';
 import { ConfirmModalService } from '@app/core/providers';
 import { InputMessagesStateStore } from '../../data-access/input-messages';
 import { ScrollStateStore } from '../../data-access/scroll';
+import { MessagesStateStore } from '../../data-access/messages-state';
 
 @Component({
   selector: 'app-messages-list',
@@ -23,6 +24,7 @@ import { ScrollStateStore } from '../../data-access/scroll';
 })
 export class MessagesListComponent {
   private readonly messagesStateStore = inject(MessagesStateStore);
+  private readonly messagesStore = inject(MessagesStore);
   private readonly inputMessagesStateStore = inject(InputMessagesStateStore);
   private readonly scrollStateStore = inject(ScrollStateStore);
   private readonly elementRef = inject<ElementRef<HTMLDivElement>>(ElementRef);
@@ -65,19 +67,21 @@ export class MessagesListComponent {
       message: 'Вы уверены, что хотите удалить это сообщение?',
       accept: () => {
         if (!this.activeMessage) return;
-        this.messagesStateStore.deleteMessage(this.activeMessage);
+        this.messagesStore.deleteMessage(this.activeMessage);
       },
     });
   }
 
   protected changeCurrentViewLast(value: boolean) {
-    this.messagesStateStore.setIsViewLast(value);
+    this.scrollStateStore.setIsViewLast(value);
   }
 
   protected firstVisibleHandler(isVisible: boolean) {
     if (!isVisible) return;
+    const state = this.messagesStateStore.currentState();
+    if (!(state?.hasNext && !state.isLoading)) return;
     this.scrollStateStore.setPrevScrollHeight(this.elementRef.nativeElement.scrollHeight);
-    this.messagesStateStore.getAdditionalMessagesData();
+    this.messagesStore.getAdditionalMessagesData({ id: state.id, start: state.messageIds.length });
   }
 
   protected handleUnreadMessage(message: Message) {

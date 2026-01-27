@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MessagesListComponent } from './components/messages-list/messages-list.component';
 import { MessageActionsComponent } from './components/message-actions/message-actions.component';
-import { MessagesStore, MessagesStateStore } from './data-access/messages';
+import { MessagesStore } from './data-access/messages';
 import { LoaderComponent } from '@app/shared/ui';
 import { InputMessagesStateStore } from './data-access/input-messages';
 import { ScrollStateStore } from './data-access/scroll';
+import { MessagesStateStore } from './data-access/messages-state';
 
 @Component({
   selector: 'app-dialog',

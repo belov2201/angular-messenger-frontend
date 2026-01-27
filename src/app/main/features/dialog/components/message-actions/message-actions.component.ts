@@ -7,9 +7,10 @@ import { Button } from 'primeng/button';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { tap } from 'rxjs';
 import { InputMessagesStateStore } from '../../data-access/input-messages';
-import { MessagesStateStore } from '../../data-access/messages';
+import { MessagesStore } from '../../data-access/messages';
 import { WsService } from '@app/main/providers/ws/ws.service';
 import { WsEvents } from '@app/main/providers/ws/ws-events';
+import { MessagesStateStore } from '../../data-access/messages-state';
 
 @Component({
   selector: 'app-message-actions',
@@ -23,6 +24,7 @@ import { WsEvents } from '@app/main/providers/ws/ws-events';
 export class MessageActionsComponent {
   private readonly fb = inject(FormBuilder);
   private readonly messagesStateStore = inject(MessagesStateStore);
+  private readonly messagesStore = inject(MessagesStore);
   private readonly inputMessagesStateStore = inject(InputMessagesStateStore);
   private readonly wsService = inject(WsService);
 
@@ -82,7 +84,7 @@ export class MessageActionsComponent {
     const currentState = this.currentInputMessagesState();
     if (!this.sendMessageForm.valid || !currentState) return;
 
-    this.messagesStateStore.sendMessage({
+    this.messagesStore.sendMessage({
       text,
       contactId: currentState.id,
     });
@@ -102,7 +104,7 @@ export class MessageActionsComponent {
     const editState = this.currentInputMessagesState()?.edit;
 
     if (editState) {
-      this.messagesStateStore.editMessage({ message: editState.message, text: editState.value });
+      this.messagesStore.editMessage({ message: editState.message, text: editState.value });
     }
 
     this.resetEditItem();

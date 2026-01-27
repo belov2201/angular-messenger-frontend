@@ -1,8 +1,6 @@
 import { AfterViewChecked, Directive, effect, ElementRef, inject, untracked } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter, tap } from 'rxjs';
 import { ScrollStateStore } from '../../../data-access/scroll';
-import { MessagesStateStore } from '../../../data-access/messages';
+import { MessagesStateStore } from '../../../data-access/messages-state';
 
 @Directive({
   selector: '[appScrollBottom]',
@@ -11,6 +9,7 @@ export class ScrollBottomDirective implements AfterViewChecked {
   private readonly elementRef = inject<ElementRef<HTMLDivElement>>(ElementRef);
   private readonly messagesStateStore = inject(MessagesStateStore);
   private readonly scrollStateStore = inject(ScrollStateStore);
+
   private readonly currentMessagesState = this.messagesStateStore.currentState;
 
   constructor() {
@@ -19,28 +18,12 @@ export class ScrollBottomDirective implements AfterViewChecked {
 
       onCleanup(() => {
         if (!dialogId) return;
-
         this.scrollStateStore.setScrollPosition(dialogId, this.elementRef.nativeElement.scrollTop);
-
         const state = untracked(() => this.scrollStateStore.getById(dialogId));
         if (!state.isScrolled) return;
-
         this.scrollStateStore.setIsRestoreScroll(dialogId, true);
       });
     });
-
-    this.messagesStateStore
-      .messageAdded$()
-      .pipe(
-        filter(
-          (addedMessage) =>
-            addedMessage.contact.id === this.currentMessagesState()?.id &&
-            !!this.currentMessagesState()?.isViewLastMessage,
-        ),
-        tap((addedMessage) => this.scrollStateStore.setScrollAdd(addedMessage.contact.id, true)),
-        takeUntilDestroyed(),
-      )
-      .subscribe();
   }
 
   ngAfterViewChecked(): void {
