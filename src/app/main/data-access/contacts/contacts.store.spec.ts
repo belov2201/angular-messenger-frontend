@@ -8,7 +8,7 @@ import { TestBed } from '@angular/core/testing';
 import { ContactsService } from './contacts.service';
 import { throwError } from 'rxjs';
 
-fdescribe('ContactsStore', () => {
+describe('ContactsStore', () => {
   let store: InstanceType<typeof ContactsStore>;
 
   beforeEach(() => {
