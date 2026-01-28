@@ -19,6 +19,7 @@ import { createSocketMock } from './mocks/create-socket-mock';
 import { provideRouter } from '@angular/router';
 import { AlertsService } from '@app/core/alerts';
 import { MessagesService } from '@app/main/data-access/messages/messages.service';
+import { MessagesStore } from '@app/main/data-access/messages';
 
 export const getSharedProviders = (
   extra: (Provider | EnvironmentProviders)[] = [],
@@ -30,6 +31,7 @@ export const getSharedProviders = (
     MessageService,
     DialogService,
     ContactsStore,
+    MessagesStore,
     InvitesStore,
     ModalService,
     WsService,

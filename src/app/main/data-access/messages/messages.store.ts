@@ -208,6 +208,7 @@ export const MessagesStore = signalStore(
                     deletedMessage: message,
                     newMessage: deleteMessageResponse.prevMessage,
                   });
+                  patchState(store, removeEntity(message.id));
                   alertService.showSuccessAlert('Сообщение удалено');
                 },
                 error: () => {
