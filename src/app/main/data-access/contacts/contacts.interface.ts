@@ -26,3 +26,8 @@ export interface Contact extends ContactEntity {
 }
 
 export type DeleteContactDto = Pick<ContactDto, 'id'>;
+
+export interface DeleteLastMessageParams {
+  deletedMessage: LastMessageDto;
+  newMessage: LastMessageDto | null;
+}

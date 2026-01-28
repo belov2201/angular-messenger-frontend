@@ -1,2 +1,2 @@
 export { validators } from './validators';
-export { type BaseApiState, baseApiState } from './base-api-state';
+export { withApiState } from './with-api-state';
