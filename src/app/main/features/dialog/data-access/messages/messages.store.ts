@@ -29,7 +29,7 @@ import { UserStore } from '@app/core/store/user';
 import { createOptimisticMessage, getCreateMessageDto } from './lib';
 import { mapToMessageView } from './messages.mapper';
 import { Router } from '@angular/router';
-import { MessageEvents } from './message.events';
+import { MessagesEvents } from './messages.events';
 
 export const MessagesStore = signalStore(
   withEntities<Message>(),
@@ -44,7 +44,7 @@ export const MessagesStore = signalStore(
       userStore = inject(UserStore),
       contactsStore = inject(ContactsStore),
       router = inject(Router),
-      dispatchMessageEvent = injectDispatch(MessageEvents),
+      dispatchMessageEvent = injectDispatch(MessagesEvents),
     ) => ({
       getMessagesData: rxMethod<number>(
         pipe(
@@ -250,7 +250,7 @@ export const MessagesStore = signalStore(
       store,
       wsService = inject(WsService),
       userStore = inject(UserStore),
-      messageEventDispatch = injectDispatch(MessageEvents),
+      messagesEventDispatch = injectDispatch(MessagesEvents),
     ) => ({
       addWsMessage: rxMethod<void>(
         pipe(
@@ -260,7 +260,7 @@ export const MessagesStore = signalStore(
             const message = mapToMessageView(messageDto, user);
             if (!message) return;
             patchState(store, addEntity(message));
-            messageEventDispatch.add(message);
+            messagesEventDispatch.add(message);
           }),
         ),
       ),
@@ -285,7 +285,7 @@ export const MessagesStore = signalStore(
           switchMap(() => wsService.socket.fromEvent<DeleteMessageWsDto>(WsEvents.deleteMessage)),
           tap(({ removedMessage }) => {
             patchState(store, removeEntity(removedMessage.id));
-            messageEventDispatch.delete(removedMessage);
+            messagesEventDispatch.delete(removedMessage);
           }),
         ),
       ),

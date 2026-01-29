@@ -5,22 +5,22 @@ import { MessagesStore } from './data-access/messages';
 import { LoaderComponent } from '@app/shared/ui';
 import { InputMessagesStateStore } from './data-access/input-messages';
 import { ScrollStateStore } from './data-access/scroll';
-import { MessagesStateStore } from './data-access/messages-state';
+import { DialogsStateStore } from './data-access/dialogs-state/dialogs-state.store';
 
 @Component({
   selector: 'app-dialog',
   imports: [MessagesListComponent, MessageActionsComponent, LoaderComponent],
   template: `
     @if (currentMessagesState()?.isLoading) {
-      <app-loader />
+      <app-loader [zIndex]="100" />
     }
     <app-messages-list />
     <app-message-actions />
   `,
-  providers: [MessagesStateStore, MessagesStore, InputMessagesStateStore, ScrollStateStore],
+  providers: [DialogsStateStore, MessagesStore, InputMessagesStateStore, ScrollStateStore],
   host: { class: 'h-full flex flex-col relative' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DialogComponent {
-  protected readonly currentMessagesState = inject(MessagesStateStore).currentState;
+  protected readonly currentMessagesState = inject(DialogsStateStore).currentState;
 }

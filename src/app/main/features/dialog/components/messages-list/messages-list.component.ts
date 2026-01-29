@@ -11,7 +11,7 @@ import { MenuItem } from 'primeng/api';
 import { ConfirmModalService } from '@app/core/providers';
 import { InputMessagesStateStore } from '../../data-access/input-messages';
 import { ScrollStateStore } from '../../data-access/scroll';
-import { MessagesStateStore } from '../../data-access/messages-state';
+import { DialogsStateStore } from '../../data-access/dialogs-state';
 
 @Component({
   selector: 'app-messages-list',
@@ -23,7 +23,7 @@ import { MessagesStateStore } from '../../data-access/messages-state';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MessagesListComponent {
-  private readonly messagesStateStore = inject(MessagesStateStore);
+  private readonly dialogsStateStore = inject(DialogsStateStore);
   private readonly messagesStore = inject(MessagesStore);
   private readonly inputMessagesStateStore = inject(InputMessagesStateStore);
   private readonly scrollStateStore = inject(ScrollStateStore);
@@ -32,7 +32,7 @@ export class MessagesListComponent {
 
   private readonly menu = viewChild<Menu>('menu');
 
-  protected readonly messages = this.messagesStateStore.currentMessages;
+  protected readonly messages = this.dialogsStateStore.currentMessages;
 
   protected activeMessage: Message | null = null;
 
@@ -78,7 +78,7 @@ export class MessagesListComponent {
 
   protected firstVisibleHandler(isVisible: boolean) {
     if (!isVisible) return;
-    const state = this.messagesStateStore.currentState();
+    const state = this.dialogsStateStore.currentState();
     if (!(state?.hasNext && !state.isLoading)) return;
     this.scrollStateStore.setPrevScrollHeight(this.elementRef.nativeElement.scrollHeight);
     this.messagesStore.getAdditionalMessagesData({ id: state.id, start: state.messageIds.length });
@@ -87,7 +87,7 @@ export class MessagesListComponent {
   protected handleUnreadMessage(message: Message) {
     return (isVisible: boolean) => {
       if (!isVisible) return;
-      this.messagesStateStore.addToUpdateReadStatusMessages(message);
+      this.dialogsStateStore.addToUpdateReadStatusMessages(message);
     };
   }
 }

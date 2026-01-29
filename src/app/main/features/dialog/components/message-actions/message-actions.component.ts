@@ -10,7 +10,7 @@ import { InputMessagesStateStore } from '../../data-access/input-messages';
 import { MessagesStore } from '../../data-access/messages';
 import { WsService } from '@app/main/providers/ws/ws.service';
 import { WsEvents } from '@app/main/providers/ws/ws-events';
-import { MessagesStateStore } from '../../data-access/messages-state';
+import { DialogsStateStore } from '../../data-access/dialogs-state';
 
 @Component({
   selector: 'app-message-actions',
@@ -23,7 +23,7 @@ import { MessagesStateStore } from '../../data-access/messages-state';
 })
 export class MessageActionsComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly messagesStateStore = inject(MessagesStateStore);
+  private readonly dialogsStateStore = inject(DialogsStateStore);
   private readonly messagesStore = inject(MessagesStore);
   private readonly inputMessagesStateStore = inject(InputMessagesStateStore);
   private readonly wsService = inject(WsService);
@@ -31,7 +31,7 @@ export class MessageActionsComponent {
   private readonly formDirective = viewChild.required(FormGroupDirective);
 
   protected readonly currentInputMessagesState = this.inputMessagesStateStore.currentState;
-  protected readonly currentTypingContact = this.messagesStateStore.currentTypingContact;
+  protected readonly currentTypingContact = this.dialogsStateStore.currentTypingContact;
 
   protected readonly sendMessageForm = this.fb.group({
     text: ['', validators.message],

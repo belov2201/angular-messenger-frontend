@@ -4,7 +4,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap } from 'rxjs';
 import { addEntity, EntityChanges, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { Message } from '../messages/messages.interface';
-import { MessagesStateStore } from '../messages-state/messages-state.store';
+import { DialogsStateStore } from '../dialogs-state/dialogs-state.store';
 
 interface InputMessageState {
   id: number;
@@ -25,9 +25,9 @@ const createInitialState = (id: number): InputMessageState => {
 
 export const InputMessagesStateStore = signalStore(
   withEntities<InputMessageState>(),
-  withComputed((store, messagesStateStore = inject(MessagesStateStore)) => ({
+  withComputed((store, dialogsStateStore = inject(DialogsStateStore)) => ({
     currentState: computed(() => {
-      const id = messagesStateStore.currentDialogId();
+      const id = dialogsStateStore.currentDialogId();
       return id !== null ? store.entityMap()[id] : null;
     }),
   })),
@@ -64,8 +64,8 @@ export const InputMessagesStateStore = signalStore(
     };
   }),
   withHooks({
-    onInit: (store, messagesStateStore = inject(MessagesStateStore)) => {
-      store.createState(messagesStateStore.currentDialogId);
+    onInit: (store, dialogsStateStore = inject(DialogsStateStore)) => {
+      store.createState(dialogsStateStore.currentDialogId);
     },
   }),
 );

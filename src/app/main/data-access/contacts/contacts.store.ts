@@ -23,6 +23,9 @@ import { WsService } from '@app/main/providers/ws/ws.service';
 import { WsEvents } from '@app/main/providers/ws/ws-events';
 import { MessageDto } from '@app/main/features/dialog/data-access/messages/messages.interface';
 import { withApiState } from '@app/shared/libs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { injectDispatch } from '@ngrx/signals/events';
+import { ContactsEvents } from './contacts.events';
 
 export const ContactsStore = signalStore(
   withApiState(),
@@ -91,7 +94,14 @@ export const ContactsStore = signalStore(
     },
   })),
   withMethods(
-    (store, contactsService = inject(ContactsService), alertService = inject(AlertsService)) => ({
+    (
+      store,
+      contactsService = inject(ContactsService),
+      alertService = inject(AlertsService),
+      router = inject(Router),
+      activatedRoute = inject(ActivatedRoute),
+      contactsActionsDispatch = injectDispatch(ContactsEvents),
+    ) => ({
       getContactsData: rxMethod<void>(
         pipe(
           switchMap(() => {
@@ -113,6 +123,18 @@ export const ContactsStore = signalStore(
               tapResponse({
                 next: () => {
                   alertService.showSuccessAlert('Контакт удален');
+
+                  const activeDialogId =
+                    activatedRoute.firstChild?.snapshot.paramMap.get('dialogId');
+
+                  if (
+                    activeDialogId !== undefined &&
+                    deleteContactDto.id === Number(activeDialogId)
+                  ) {
+                    router.navigate(['/'], { replaceUrl: true });
+                  }
+
+                  contactsActionsDispatch.delete({ id: deleteContactDto.id });
                   patchState(store, removeEntity(deleteContactDto.id));
                 },
                 error: () => alertService.showErrorAlert('Ошибка удаления контакта'),

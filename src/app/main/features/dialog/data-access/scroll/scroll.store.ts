@@ -12,7 +12,7 @@ import { filter, map, pipe, switchMap, tap } from 'rxjs';
 import { addEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { ActivatedRoute } from '@angular/router';
 import { Events } from '@ngrx/signals/events';
-import { MessageEvents } from '../messages/message.events';
+import { MessagesEvents } from '../messages/messages.events';
 
 interface BaseScrollStateStore {
   currentDialogId: number | null;
@@ -112,7 +112,7 @@ export const ScrollStateStore = signalStore(
       pipe(
         switchMap(() =>
           events
-            .on(MessageEvents.getMessagesDataAdditionalySuccess)
+            .on(MessagesEvents.getMessagesDataAdditionalySuccess)
             .pipe(tap((action) => store.setIsScrollAdditionaly(action.payload.id, true))),
         ),
       ),
@@ -120,7 +120,7 @@ export const ScrollStateStore = signalStore(
     onAddMessage: rxMethod<void>(
       pipe(
         switchMap(() =>
-          events.on(MessageEvents.add).pipe(
+          events.on(MessagesEvents.add).pipe(
             map((action) => action.payload),
             filter(
               (addedMessage) =>

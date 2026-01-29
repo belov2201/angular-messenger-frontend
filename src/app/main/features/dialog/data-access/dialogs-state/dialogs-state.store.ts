@@ -30,9 +30,10 @@ import { ContactsStore } from '@app/main/data-access/contacts';
 import { WsService } from '@app/main/providers/ws/ws.service';
 import { WsEvents } from '@app/main/providers/ws/ws-events';
 import { Events } from '@ngrx/signals/events';
-import { MessageEvents } from '../messages/message.events';
+import { MessagesEvents } from '../messages/messages.events';
+import { ContactsEvents } from '@app/main/data-access/contacts/contacts.events';
 
-interface MessagesState {
+interface DialogState {
   id: number;
   isLoading: boolean;
   isLoaded: boolean;
@@ -42,11 +43,11 @@ interface MessagesState {
   processUpdateReadStatusMessages: Message[];
 }
 
-interface MessagesStateStore {
+interface DialogsStateStore {
   currentDialogId: number | null;
 }
 
-const createInitialState = (id: number): MessagesState => {
+const createInitialState = (id: number): DialogState => {
   return {
     id,
     isLoading: true,
@@ -58,11 +59,11 @@ const createInitialState = (id: number): MessagesState => {
   };
 };
 
-export const MessagesStateStore = signalStore(
-  withState<MessagesStateStore>(() => ({
+export const DialogsStateStore = signalStore(
+  withState<DialogsStateStore>(() => ({
     currentDialogId: null,
   })),
-  withEntities<MessagesState>(),
+  withEntities<DialogState>(),
   withComputed((store) => ({
     currentState: computed(() => {
       const id = store.currentDialogId();
@@ -93,7 +94,7 @@ export const MessagesStateStore = signalStore(
       }),
     }),
   ),
-  withMethods((store) => {
+  withMethods((store, messagesStore = inject(MessagesStore), router = inject(Router)) => {
     return {
       setCurrentDialogId(value: number | null) {
         patchState(store, { currentDialogId: value });
@@ -116,6 +117,12 @@ export const MessagesStateStore = signalStore(
             id: message.contact.id,
             changes: (state) => ({
               messageIds: state.messageIds.filter((e) => e !== message.id),
+              processUpdateReadStatusMessages: state.processUpdateReadStatusMessages.filter(
+                (e) => e.id !== message.id,
+              ),
+              updateReadStatusMessages: state.processUpdateReadStatusMessages.filter(
+                (e) => e.id !== message.id,
+              ),
             }),
           }),
         );
@@ -195,189 +202,196 @@ export const MessagesStateStore = signalStore(
           }),
         );
       },
+      deleteState(id: number) {
+        const deletedState = store.entityMap()[id];
+
+        if (deletedState) {
+          messagesStore.deleteMany(deletedState.messageIds);
+          patchState(store, removeEntity(id));
+        }
+
+        if (id === store.currentDialogId()) {
+          router.navigate(['/'], { replaceUrl: true });
+        }
+      },
     };
   }),
-  withMethods(
-    (
-      store,
-      wsService = inject(WsService),
-      messagesStore = inject(MessagesStore),
-      router = inject(Router),
-      events = inject(Events),
-    ) => ({
-      onGetMessagesData: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events.on(MessageEvents.getMessagesData).pipe(
-              tap((action) => {
-                patchState(store, addEntity({ ...createInitialState(action.payload.id) }));
-              }),
-            ),
+  withMethods((store, wsService = inject(WsService), events = inject(Events)) => ({
+    onGetMessagesData: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(MessagesEvents.getMessagesData).pipe(
+            tap((action) => {
+              patchState(store, addEntity({ ...createInitialState(action.payload.id) }));
+            }),
           ),
         ),
       ),
-      onGetMessagesDataSuccess: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events.on(MessageEvents.getMessagesDataSuccess).pipe(
-              tap((action) => {
-                const { id, messages } = action.payload;
+    ),
+    onGetMessagesDataSuccess: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(MessagesEvents.getMessagesDataSuccess).pipe(
+            tap((action) => {
+              const { id, messages } = action.payload;
 
-                patchState(
-                  store,
-                  updateEntity({
-                    id,
-                    changes: (state) => ({
-                      messageIds: [
-                        ...state.messageIds,
-                        ...messages.map((e) => e.id).sort((a, b) => a - b),
-                      ],
-                      hasNext: messages.length === 50,
-                      isLoaded: true,
-                      isLoading: false,
-                    }),
+              patchState(
+                store,
+                updateEntity({
+                  id,
+                  changes: (state) => ({
+                    messageIds: [
+                      ...state.messageIds,
+                      ...messages.map((e) => e.id).sort((a, b) => a - b),
+                    ],
+                    hasNext: messages.length === 50,
+                    isLoaded: true,
+                    isLoading: false,
                   }),
-                );
-              }),
-            ),
+                }),
+              );
+            }),
           ),
         ),
       ),
-      onGetMessagesDataError: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events.on(MessageEvents.getMessagesDataError).pipe(
-              tap((action) => {
-                const { id } = action.payload;
-                patchState(
-                  store,
-                  updateEntity({
-                    id,
-                    changes: {
-                      isLoaded: true,
-                      isLoading: false,
-                    },
-                  }),
-                );
-              }),
-            ),
+    ),
+    onGetMessagesDataError: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(MessagesEvents.getMessagesDataError).pipe(
+            tap((action) => {
+              const { id } = action.payload;
+              patchState(
+                store,
+                updateEntity({
+                  id,
+                  changes: {
+                    isLoaded: true,
+                    isLoading: false,
+                  },
+                }),
+              );
+            }),
           ),
         ),
       ),
-      onGetMessagesDataAdditionaly: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events.on(MessageEvents.getMessagesDataAdditionaly).pipe(
-              tap((action) =>
-                patchState(
-                  store,
-                  updateEntity({
-                    id: action.payload.id,
-                    changes: {
-                      isLoading: true,
-                    },
-                  }),
-                ),
+    ),
+    onGetMessagesDataAdditionaly: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(MessagesEvents.getMessagesDataAdditionaly).pipe(
+            tap((action) =>
+              patchState(
+                store,
+                updateEntity({
+                  id: action.payload.id,
+                  changes: {
+                    isLoading: true,
+                  },
+                }),
               ),
             ),
           ),
         ),
       ),
-      onGetMessagesDataAdditionalySuccess: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events.on(MessageEvents.getMessagesDataAdditionalySuccess).pipe(
-              tap((action) => {
-                const { id, messages } = action.payload;
-                patchState(
-                  store,
-                  updateEntity({
-                    id,
-                    changes: (state) => ({
-                      messageIds: [
-                        ...messages.map((e) => e.id).sort((a, b) => a - b),
-                        ...state.messageIds,
-                      ],
-                      hasNext: messages.length === 50,
-                      isLoading: false,
-                    }),
+    ),
+    onGetMessagesDataAdditionalySuccess: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(MessagesEvents.getMessagesDataAdditionalySuccess).pipe(
+            tap((action) => {
+              const { id, messages } = action.payload;
+              patchState(
+                store,
+                updateEntity({
+                  id,
+                  changes: (state) => ({
+                    messageIds: [
+                      ...messages.map((e) => e.id).sort((a, b) => a - b),
+                      ...state.messageIds,
+                    ],
+                    hasNext: messages.length === 50,
+                    isLoading: false,
                   }),
-                );
-              }),
-            ),
+                }),
+              );
+            }),
           ),
         ),
       ),
-      onGetMessagesDataAdditionallyError: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events.on(MessageEvents.getMessagesDataAdditionalyError).pipe(
-              tap((action) => {
-                const { id } = action.payload;
-                patchState(
-                  store,
-                  updateEntity({
-                    id,
-                    changes: {
-                      isLoading: false,
-                    },
-                  }),
-                );
-              }),
-            ),
+    ),
+    onGetMessagesDataAdditionallyError: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(MessagesEvents.getMessagesDataAdditionalyError).pipe(
+            tap((action) => {
+              const { id } = action.payload;
+              patchState(
+                store,
+                updateEntity({
+                  id,
+                  changes: {
+                    isLoading: false,
+                  },
+                }),
+              );
+            }),
           ),
         ),
       ),
-      onAddMessage: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events.on(MessageEvents.add).pipe(tap((action) => store.addMessage(action.payload))),
+    ),
+    onAddMessage: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(MessagesEvents.add).pipe(tap((action) => store.addMessage(action.payload))),
+        ),
+      ),
+    ),
+    onDeleteMessage: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events
+            .on(MessagesEvents.delete)
+            .pipe(tap((action) => store.deleteMessage(action.payload))),
+        ),
+      ),
+    ),
+    onDeleteWsContact: rxMethod<void>(
+      pipe(
+        switchMap(() => wsService.socket.fromEvent<number>(WsEvents.deleteContact)),
+        tap((id) => store.deleteState(id)),
+      ),
+    ),
+    onDeleteContact: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(ContactsEvents.delete).pipe(
+            tap(() => console.log('on delete contact')),
+            tap((action) => store.deleteState(action.payload.id)),
           ),
         ),
       ),
-      onDeleteMessage: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events
-              .on(MessageEvents.delete)
-              .pipe(tap((action) => store.deleteMessage(action.payload))),
+    ),
+    onUpdateReadStatusMessage: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events
+            .on(MessagesEvents.updateReadStatusMessage)
+            .pipe(tap((action) => store.addToProcessUpdateReadStatusMessages(action.payload))),
+        ),
+      ),
+    ),
+    onUpdateReadStatusMessageError: rxMethod<void>(
+      pipe(
+        switchMap(() =>
+          events.on(MessagesEvents.updateReadStatusMessageError).pipe(
+            tap((action) => store.deleteFromProcessUpdateReadStatusMessages(action.payload)),
+            tap((action) => store.addToUpdateReadStatusMessages(action.payload)),
           ),
         ),
       ),
-      onDeleteWsContact: rxMethod<void>(
-        pipe(
-          switchMap(() => wsService.socket.fromEvent<number>(WsEvents.deleteContact)),
-          tap((id) => {
-            const deletedState = store.entityMap()[id];
-            messagesStore.deleteMany(deletedState.messageIds);
-            patchState(store, removeEntity(id));
-            if (id === store.currentDialogId()) {
-              router.navigate(['/'], { replaceUrl: true });
-            }
-          }),
-        ),
-      ),
-      onUpdateReadStatusMessage: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events
-              .on(MessageEvents.updateReadStatusMessage)
-              .pipe(tap((action) => store.addToProcessUpdateReadStatusMessages(action.payload))),
-          ),
-        ),
-      ),
-      onUpdateReadStatusMessageError: rxMethod<void>(
-        pipe(
-          switchMap(() =>
-            events.on(MessageEvents.updateReadStatusMessageError).pipe(
-              tap((action) => store.deleteFromProcessUpdateReadStatusMessages(action.payload)),
-              tap((action) => store.addToUpdateReadStatusMessages(action.payload)),
-            ),
-          ),
-        ),
-      ),
-    }),
-  ),
+    ),
+  })),
   withMethods((store, messagesStore = inject(MessagesStore)) => ({
     updateReadStateMessagesObserve: rxMethod<Message[] | undefined>(
       pipe(
@@ -426,6 +440,7 @@ export const MessagesStateStore = signalStore(
   withHooks({
     onInit: (store) => {
       store.onDeleteWsContact();
+      store.onDeleteContact();
       store.updateReadStateMessagesObserve(store.currentUpdateReadState);
       store.onGetMessagesData();
       store.onGetMessagesDataSuccess();

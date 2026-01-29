@@ -2,7 +2,7 @@ import { type } from '@ngrx/signals';
 import { eventGroup } from '@ngrx/signals/events';
 import { Message, MessageDto } from './messages.interface';
 
-export const MessageEvents = eventGroup({
+export const MessagesEvents = eventGroup({
   source: 'Messages',
   events: {
     getMessagesData: type<{ id: number }>(),

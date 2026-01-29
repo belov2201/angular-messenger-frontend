@@ -1,16 +1,16 @@
 import { AfterViewChecked, Directive, effect, ElementRef, inject, untracked } from '@angular/core';
 import { ScrollStateStore } from '../../../data-access/scroll';
-import { MessagesStateStore } from '../../../data-access/messages-state';
+import { DialogsStateStore } from '../../../data-access/dialogs-state';
 
 @Directive({
   selector: '[appScrollBottom]',
 })
 export class ScrollBottomDirective implements AfterViewChecked {
   private readonly elementRef = inject<ElementRef<HTMLDivElement>>(ElementRef);
-  private readonly messagesStateStore = inject(MessagesStateStore);
+  private readonly dialogsStateStore = inject(DialogsStateStore);
   private readonly scrollStateStore = inject(ScrollStateStore);
 
-  private readonly currentMessagesState = this.messagesStateStore.currentState;
+  private readonly currentDialogState = this.dialogsStateStore.currentState;
 
   constructor() {
     effect((onCleanup) => {
@@ -27,7 +27,7 @@ export class ScrollBottomDirective implements AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    const currentMessagesState = this.currentMessagesState();
+    const currentMessagesState = this.currentDialogState();
     const currentScrollState = this.scrollStateStore.currentState();
 
     if (!currentMessagesState || !currentScrollState) return;
