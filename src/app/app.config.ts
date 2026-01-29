@@ -26,6 +26,9 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       theme: {
         preset: Preset,
+        options: {
+          darkModeSelector: false,
+        },
       },
     }),
     { provide: AppConfig, useValue: environment },
