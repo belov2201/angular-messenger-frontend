@@ -3,8 +3,8 @@ import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { AlertsComponent } from './core/alerts';
 import { LoaderComponent } from './shared/ui';
-import { AppService } from './app.service';
 import { ConfirmDialogComponent } from './shared/ui/confirm-dialog/confirm-dialog.component';
+import { AppStatusStore } from './core/store/app-status/app-status.store';
 
 @Component({
   selector: 'app-root',
@@ -13,11 +13,11 @@ import { ConfirmDialogComponent } from './shared/ui/confirm-dialog/confirm-dialo
     <app-confirm-dialog />
     <app-alerts />
 
-    @if (showLoader()) {
+    @if (appStatusStore.isLoading()) {
       <app-loader />
     }
 
-    @if (!showError()) {
+    @if (!appStatusStore.isError()) {
       <router-outlet />
     } @else {
       <div class="h-full flex justify-center items-center">
@@ -28,8 +28,5 @@ import { ConfirmDialogComponent } from './shared/ui/confirm-dialog/confirm-dialo
   host: { class: 'block h-full' },
 })
 export class AppComponent {
-  private readonly appService = inject(AppService);
-
-  protected readonly showLoader = this.appService.showLoader;
-  protected readonly showError = this.appService.showError;
+  protected readonly appStatusStore = inject(AppStatusStore);
 }

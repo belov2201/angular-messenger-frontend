@@ -12,12 +12,10 @@ import { withApiState } from '@app/shared/libs';
 
 interface UserState {
   user: UserEntity | null;
-  isUnauthorized: boolean;
 }
 
 const initialState: UserState = {
   user: null,
-  isUnauthorized: false,
 };
 
 export const UserStore = signalStore(
@@ -40,7 +38,7 @@ export const UserStore = signalStore(
                 next: (user) => patchState(store, { user }),
                 error: (err: HttpErrorResponse) => {
                   if (err.status === 401) {
-                    patchState(store, { isUnauthorized: true, isError: false });
+                    patchState(store, { isError: false });
                     return;
                   }
 
@@ -59,7 +57,7 @@ export const UserStore = signalStore(
               store._handlePendingAction(),
               tapResponse({
                 next: (user) => {
-                  patchState(store, { user, isLoaded: true, isUnauthorized: false });
+                  patchState(store, { user, isLoaded: true });
                   router.navigate(['/'], { replaceUrl: true });
                 },
                 error: () => alertService.showErrorAlert('Ошибка авторизации'),

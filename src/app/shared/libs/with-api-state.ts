@@ -1,4 +1,6 @@
-import { patchState, signalStoreFeature, withMethods, withState } from '@ngrx/signals';
+import { inject } from '@angular/core';
+import { AppStatusStore } from '@app/core/store/app-status/app-status.store';
+import { patchState, signalStoreFeature, withHooks, withMethods, withState } from '@ngrx/signals';
 import { finalize, Observable, tap } from 'rxjs';
 
 interface ApiState {
@@ -41,5 +43,22 @@ export const withApiState = () => {
         };
       },
     })),
+    withHooks((store, appStatusStore = inject(AppStatusStore)) => {
+      const unsubscribeFromLoading = appStatusStore.registerLoadingSignal(store.isLoading);
+
+      const unsubscribeFromPendingAction = appStatusStore.registerLoadingSignal(
+        store.isPendingAction,
+      );
+
+      const unsubscribeFromLoaded = appStatusStore.registerLoadedSignal(store.isLoaded);
+
+      return {
+        onDestroy() {
+          unsubscribeFromLoading();
+          unsubscribeFromPendingAction();
+          unsubscribeFromLoaded();
+        },
+      };
+    }),
   );
 };

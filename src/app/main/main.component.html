@@ -1,12 +1,12 @@
-@if (wsStatus() !== 'error') {
-  @if (isLoadedInitData() && user()) {
+@if (wsService.status() !== 'error') {
+  @if (appStatusStore.isLoadedInitData() && userStore.user()) {
     <app-sidebar />
     <div class="flex-auto">
       <router-outlet />
     </div>
   }
 } @else {
-  <div class="h-full flex-auto flex justify-center items-center">
+  <div class="h-full flex-auto flex justify-center items-center text-center">
     Ошибка подключения к серверу, дождитесь переподключения или перезагрузите приложение
   </div>
 }
