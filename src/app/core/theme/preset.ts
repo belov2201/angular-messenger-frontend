@@ -55,5 +55,13 @@ export const Preset = definePreset(Aura, {
     font-weight: bold;
     border-radius: 1rem;
   }
+
+  .base-p-card {
+    min-width: 300px;
+    max-width: 380px;
+    width: 30vw;
+    max-height: 70vh;
+    overflow:auto;
+  }
 `,
 });

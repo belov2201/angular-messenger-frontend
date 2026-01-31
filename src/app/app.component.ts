@@ -25,7 +25,7 @@ import { AppStatusStore } from './core/store/app-status/app-status.store';
       </div>
     }
   `,
-  host: { class: 'block h-full' },
+  host: { class: 'block h-full min-w-[375px]' },
 })
 export class AppComponent {
   protected readonly appStatusStore = inject(AppStatusStore);

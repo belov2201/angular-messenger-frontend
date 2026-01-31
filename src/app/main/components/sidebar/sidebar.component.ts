@@ -5,11 +5,12 @@ import { ContactsListComponent } from '../contacts-list/contacts-list.component'
 @Component({
   selector: 'app-sidebar',
   imports: [UserBarComponent, ContactsListComponent],
-  templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.css',
+  template: `
+    <app-user-bar />
+    <app-contacts-list />
+  `,
   host: {
-    class:
-      'h-full flex flex-col overflow-auto bg-surface-50 min-w-[250px] max-w-[320px] basis-3/10 border-r border-surface-300',
+    class: 'h-full flex flex-col overflow-auto bg-surface-50 md:border-r border-surface-300',
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

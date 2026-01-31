@@ -21,11 +21,11 @@ import {
 } from '@ngrx/signals/entities';
 import { WsService } from '@app/main/providers/ws/ws.service';
 import { WsEvents } from '@app/main/providers/ws/ws-events';
-import { MessageDto } from '@app/main/features/dialog/data-access/messages/messages.interface';
 import { withApiState } from '@app/shared/libs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { injectDispatch } from '@ngrx/signals/events';
 import { ContactsEvents } from './contacts.events';
+import { MessageDto } from '../messages/messages.interface';
 
 export const ContactsStore = signalStore(
   withApiState(),

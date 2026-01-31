@@ -1,10 +1,10 @@
-import { computed, inject } from '@angular/core';
+import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withHooks, withMethods } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap } from 'rxjs';
 import { addEntity, EntityChanges, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { Message } from '../messages/messages.interface';
-import { DialogsStateStore } from '../dialogs-state/dialogs-state.store';
+import { injectCurrentDialogId } from '@app/main/providers/current-dialog-id';
 
 interface InputMessageState {
   id: number;
@@ -25,9 +25,9 @@ const createInitialState = (id: number): InputMessageState => {
 
 export const InputMessagesStateStore = signalStore(
   withEntities<InputMessageState>(),
-  withComputed((store, dialogsStateStore = inject(DialogsStateStore)) => ({
+  withComputed((store, currentDialogId = injectCurrentDialogId()) => ({
     currentState: computed(() => {
-      const id = dialogsStateStore.currentDialogId();
+      const id = currentDialogId();
       return id !== null ? store.entityMap()[id] : null;
     }),
   })),
@@ -64,8 +64,8 @@ export const InputMessagesStateStore = signalStore(
     };
   }),
   withHooks({
-    onInit: (store, dialogsStateStore = inject(DialogsStateStore)) => {
-      store.createState(dialogsStateStore.currentDialogId);
+    onInit: (store, currentDialogId = injectCurrentDialogId()) => {
+      store.createState(currentDialogId);
     },
   }),
 );

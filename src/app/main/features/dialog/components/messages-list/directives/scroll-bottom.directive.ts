@@ -1,6 +1,10 @@
-import { AfterViewChecked, Directive, effect, ElementRef, inject, untracked } from '@angular/core';
-import { ScrollStateStore } from '../../../data-access/scroll';
-import { DialogsStateStore } from '../../../data-access/dialogs-state';
+import { AfterViewChecked, Directive, ElementRef, inject, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationStart, Router } from '@angular/router';
+import { DialogsStateStore } from '@app/main/data-access/dialogs-state';
+import { ScrollStateStore } from '@app/main/data-access/scroll';
+import { injectCurrentDialogId } from '@app/main/providers/current-dialog-id';
+import { filter, tap } from 'rxjs';
 
 @Directive({
   selector: '[appScrollBottom]',
@@ -9,25 +13,34 @@ export class ScrollBottomDirective implements AfterViewChecked {
   private readonly elementRef = inject<ElementRef<HTMLDivElement>>(ElementRef);
   private readonly dialogsStateStore = inject(DialogsStateStore);
   private readonly scrollStateStore = inject(ScrollStateStore);
-
-  private readonly currentDialogState = this.dialogsStateStore.currentState;
+  private readonly router = inject(Router);
+  private readonly currentDialogId = injectCurrentDialogId();
 
   constructor() {
-    effect((onCleanup) => {
-      const dialogId = this.scrollStateStore.currentDialogId();
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationStart),
+        tap(() => {
+          const dialogId = this.currentDialogId();
+          if (dialogId === null) return;
 
-      onCleanup(() => {
-        if (!dialogId) return;
-        this.scrollStateStore.setScrollPosition(dialogId, this.elementRef.nativeElement.scrollTop);
-        const state = untracked(() => this.scrollStateStore.getById(dialogId));
-        if (!state.isScrolled) return;
-        this.scrollStateStore.setIsRestoreScroll(dialogId, true);
-      });
-    });
+          this.scrollStateStore.setScrollPosition(
+            dialogId,
+            this.elementRef.nativeElement.scrollTop,
+          );
+
+          const state = untracked(() => this.scrollStateStore.getById(dialogId));
+
+          if (!state.isScrolled) return;
+          this.scrollStateStore.setIsRestoreScroll(dialogId, true);
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   ngAfterViewChecked(): void {
-    const currentMessagesState = this.currentDialogState();
+    const currentMessagesState = this.dialogsStateStore.currentState();
     const currentScrollState = this.scrollStateStore.currentState();
 
     if (!currentMessagesState || !currentScrollState) return;

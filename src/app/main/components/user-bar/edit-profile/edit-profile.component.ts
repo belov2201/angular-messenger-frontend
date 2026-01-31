@@ -32,7 +32,6 @@ import { FieldErrorValidationDirective } from '@app/core/form-validation';
     FieldErrorValidationDirective,
   ],
   templateUrl: './edit-profile.component.html',
-  styleUrl: './edit-profile.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditProfileComponent {

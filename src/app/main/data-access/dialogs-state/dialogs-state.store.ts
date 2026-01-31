@@ -15,7 +15,9 @@ import {
   from,
   fromEvent,
   map,
+  merge,
   mergeMap,
+  Observable,
   pipe,
   switchMap,
   tap,
@@ -23,7 +25,7 @@ import {
 } from 'rxjs';
 import { addEntity, removeEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { UserStore } from '@app/core/store/user';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { MessagesStore } from '../messages/messages.store';
 import { Message, MessageDto } from '../messages/messages.interface';
 import { ContactsStore } from '@app/main/data-access/contacts';
@@ -32,6 +34,7 @@ import { WsEvents } from '@app/main/providers/ws/ws-events';
 import { Events } from '@ngrx/signals/events';
 import { MessagesEvents } from '../messages/messages.events';
 import { ContactsEvents } from '@app/main/data-access/contacts/contacts.events';
+import { injectCurrentDialogId } from '@app/main/providers/current-dialog-id';
 
 interface DialogState {
   id: number;
@@ -60,162 +63,182 @@ const createInitialState = (id: number): DialogState => {
 };
 
 export const DialogsStateStore = signalStore(
-  withState<DialogsStateStore>(() => ({
-    currentDialogId: null,
-  })),
   withEntities<DialogState>(),
-  withComputed((store) => ({
-    currentState: computed(() => {
-      const id = store.currentDialogId();
-      return id !== null ? store.entityMap()[id] : null;
-    }),
-  })),
+  withState<{ updateMessageObservables: Observable<Event>[] }>({ updateMessageObservables: [] }),
   withComputed(
-    (
-      store,
-      messagesStore = inject(MessagesStore),
-      contactsStore = inject(ContactsStore),
-      userStore = inject(UserStore),
-    ) => ({
-      currentMessages: computed(() => {
-        const messages = messagesStore.entityMap();
-        return (store.currentState()?.messageIds ?? []).map((id) => messages[id]).filter(Boolean);
+    (store, currentDialogId = injectCurrentDialogId(), contactsStore = inject(ContactsStore)) => ({
+      currentState: computed(() => {
+        const id = currentDialogId();
+        return id !== null ? store.entityMap()[id] : null;
       }),
-      currentUpdateReadState: computed(() => {
-        return store.currentState()?.updateReadStatusMessages;
-      }),
-      currentTypingContact: computed(() => {
-        const currentId = store.currentDialogId();
+      currentContact: computed(() => {
+        const currentId = currentDialogId();
         if (currentId === null) return;
-        const contact = contactsStore.entityMap()[currentId];
-        const currentUser = userStore.user();
-        if (!contact?.isTyping || !currentUser) return;
-        return contact.participants.find((e) => e.id !== currentUser.id)?.firstName;
+        return contactsStore.entityMap()[currentId];
       }),
     }),
   ),
-  withMethods((store, messagesStore = inject(MessagesStore), router = inject(Router)) => {
-    return {
-      setCurrentDialogId(value: number | null) {
-        patchState(store, { currentDialogId: value });
-      },
-      addMessage(message: Message) {
-        patchState(
-          store,
-          updateEntity({
-            id: message.contact.id,
-            changes: (state) => ({
-              messageIds: [...state.messageIds, message.id],
+  withComputed((store, messagesStore = inject(MessagesStore), userStore = inject(UserStore)) => ({
+    currentMessages: computed(() => {
+      const messages = messagesStore.entityMap();
+      return (store.currentState()?.messageIds ?? []).map((id) => messages[id]).filter(Boolean);
+    }),
+    currentUpdateReadState: computed(() => {
+      return store.currentState()?.updateReadStatusMessages;
+    }),
+    currentParticipant: computed(() => {
+      const currentUser = userStore.user();
+      if (!currentUser) return;
+      return store.currentContact()?.participants.find((e) => e.id !== currentUser.id);
+    }),
+    currentTypingContact: computed(() => {
+      const contact = store.currentContact();
+      const currentUser = userStore.user();
+      if (!contact?.isTyping || !currentUser) return;
+      return contact.participants.find((e) => e.id !== currentUser.id)?.firstName;
+    }),
+  })),
+  withMethods(
+    (
+      store,
+      messagesStore = inject(MessagesStore),
+      router = inject(Router),
+      currentDialogId = injectCurrentDialogId(),
+    ) => {
+      return {
+        addMessage(message: Message) {
+          patchState(
+            store,
+            updateEntity({
+              id: message.contact.id,
+              changes: (state) => ({
+                messageIds: [...state.messageIds, message.id],
+              }),
             }),
-          }),
-        );
-      },
-      deleteMessage(message: MessageDto) {
-        patchState(
-          store,
-          updateEntity({
-            id: message.contact.id,
-            changes: (state) => ({
-              messageIds: state.messageIds.filter((e) => e !== message.id),
-              processUpdateReadStatusMessages: state.processUpdateReadStatusMessages.filter(
-                (e) => e.id !== message.id,
-              ),
-              updateReadStatusMessages: state.processUpdateReadStatusMessages.filter(
-                (e) => e.id !== message.id,
-              ),
+          );
+        },
+        deleteMessage(message: MessageDto) {
+          patchState(
+            store,
+            updateEntity({
+              id: message.contact.id,
+              changes: (state) => ({
+                messageIds: state.messageIds.filter((e) => e !== message.id),
+                processUpdateReadStatusMessages: state.processUpdateReadStatusMessages.filter(
+                  (e) => e.id !== message.id,
+                ),
+                updateReadStatusMessages: state.processUpdateReadStatusMessages.filter(
+                  (e) => e.id !== message.id,
+                ),
+              }),
             }),
-          }),
-        );
-      },
-      addToUpdateReadStatusMessages(message: Message) {
-        const processUpdateReadStatusMessages =
-          store.entityMap()[message.contact.id].processUpdateReadStatusMessages;
+          );
+        },
+        addToUpdateReadStatusMessages(message: Message) {
+          const processUpdateReadStatusMessages =
+            store.entityMap()[message.contact.id].processUpdateReadStatusMessages;
 
-        const updateReadStatusMessages =
-          store.entityMap()[message.contact.id].updateReadStatusMessages;
+          const updateReadStatusMessages =
+            store.entityMap()[message.contact.id].updateReadStatusMessages;
 
-        const isExist = [updateReadStatusMessages, processUpdateReadStatusMessages].some((list) =>
-          (list ?? []).some((e) => e.id === message.id),
-        );
+          const isExist = [updateReadStatusMessages, processUpdateReadStatusMessages].some((list) =>
+            (list ?? []).some((e) => e.id === message.id),
+          );
 
-        if (isExist) return;
+          if (isExist) return;
 
-        patchState(
-          store,
-          updateEntity({
-            id: message.contact.id,
-            changes: (state) => ({
-              updateReadStatusMessages: [...state.updateReadStatusMessages, message],
+          patchState(
+            store,
+            updateEntity({
+              id: message.contact.id,
+              changes: (state) => ({
+                updateReadStatusMessages: [...state.updateReadStatusMessages, message],
+              }),
             }),
-          }),
-        );
-      },
-      deleteFromUpdateReadStatusMessages(message: Message) {
-        patchState(
-          store,
-          updateEntity({
-            id: message.contact.id,
-            changes: (state) => ({
-              updateReadStatusMessages: state.updateReadStatusMessages.filter(
-                (e) => e.id !== message.id,
-              ),
+          );
+        },
+        deleteFromUpdateReadStatusMessages(message: Message) {
+          patchState(
+            store,
+            updateEntity({
+              id: message.contact.id,
+              changes: (state) => ({
+                updateReadStatusMessages: state.updateReadStatusMessages.filter(
+                  (e) => e.id !== message.id,
+                ),
+              }),
             }),
-          }),
-        );
-      },
-      resetUpdateReadStatusMessages() {
-        const currentDialogId = store.currentDialogId();
+          );
+        },
+        resetUpdateReadStatusMessages() {
+          const id = currentDialogId();
 
-        if (currentDialogId === null || !Number.isInteger(currentDialogId)) return;
+          if (id === null || !Number.isInteger(id)) return;
 
-        patchState(
-          store,
-          updateEntity({
-            id: currentDialogId,
-            changes: {
-              updateReadStatusMessages: [],
-            },
-          }),
-        );
-      },
-      addToProcessUpdateReadStatusMessages(message: Message) {
-        patchState(
-          store,
-          updateEntity({
-            id: message.contact.id,
-            changes: (state) => ({
-              processUpdateReadStatusMessages: [...state.processUpdateReadStatusMessages, message],
+          patchState(
+            store,
+            updateEntity({
+              id,
+              changes: {
+                updateReadStatusMessages: [],
+              },
             }),
-          }),
-        );
-      },
-      deleteFromProcessUpdateReadStatusMessages(message: Message) {
-        patchState(
-          store,
-          updateEntity({
-            id: message.contact.id,
-            changes: (state) => ({
-              processUpdateReadStatusMessages: state.processUpdateReadStatusMessages.filter(
-                (e) => e.id !== message.id,
-              ),
+          );
+        },
+        addToProcessUpdateReadStatusMessages(message: Message) {
+          patchState(
+            store,
+            updateEntity({
+              id: message.contact.id,
+              changes: (state) => ({
+                processUpdateReadStatusMessages: [
+                  ...state.processUpdateReadStatusMessages,
+                  message,
+                ],
+              }),
             }),
-          }),
-        );
-      },
-      deleteState(id: number) {
-        const deletedState = store.entityMap()[id];
+          );
+        },
+        deleteFromProcessUpdateReadStatusMessages(message: Message) {
+          patchState(
+            store,
+            updateEntity({
+              id: message.contact.id,
+              changes: (state) => ({
+                processUpdateReadStatusMessages: state.processUpdateReadStatusMessages.filter(
+                  (e) => e.id !== message.id,
+                ),
+              }),
+            }),
+          );
+        },
+        deleteState(id: number) {
+          const deletedState = store.entityMap()[id];
 
-        if (deletedState) {
-          messagesStore.deleteMany(deletedState.messageIds);
-          patchState(store, removeEntity(id));
-        }
+          if (deletedState) {
+            messagesStore.deleteMany(deletedState.messageIds);
+            patchState(store, removeEntity(id));
+          }
 
-        if (id === store.currentDialogId()) {
-          router.navigate(['/'], { replaceUrl: true });
-        }
-      },
-    };
-  }),
+          if (id === currentDialogId()) {
+            router.navigate(['/'], { replaceUrl: true });
+          }
+        },
+        addToUpdateMessageStatusObservables(observable: Observable<Event>) {
+          patchState(store, (state) => ({
+            updateMessageObservables: [...state.updateMessageObservables, observable],
+          }));
+        },
+        deleteFromUpdateMessageStatusObservables(observable: Observable<Event>) {
+          patchState(store, (state) => ({
+            updateMessageObservables: state.updateMessageObservables.filter(
+              (e) => e !== observable,
+            ),
+          }));
+        },
+      };
+    },
+  ),
   withMethods((store, wsService = inject(WsService), events = inject(Events)) => ({
     onGetMessagesData: rxMethod<void>(
       pipe(
@@ -365,10 +388,9 @@ export const DialogsStateStore = signalStore(
     onDeleteContact: rxMethod<void>(
       pipe(
         switchMap(() =>
-          events.on(ContactsEvents.delete).pipe(
-            tap(() => console.log('on delete contact')),
-            tap((action) => store.deleteState(action.payload.id)),
-          ),
+          events
+            .on(ContactsEvents.delete)
+            .pipe(tap((action) => store.deleteState(action.payload.id))),
         ),
       ),
     ),
@@ -399,7 +421,7 @@ export const DialogsStateStore = signalStore(
         distinctUntilChanged(),
         switchMap((hasMessages) => {
           if (hasMessages) {
-            return fromEvent(window, 'mousemove').pipe(
+            return merge(fromEvent(window, 'mousemove'), ...store.updateMessageObservables()).pipe(
               throttleTime(500),
               map(() => store.currentState()),
               filter((state) => !!state),
@@ -417,28 +439,22 @@ export const DialogsStateStore = signalStore(
       ),
     ),
   })),
-  withMethods((store, messagesStore = inject(MessagesStore), router = inject(ActivatedRoute)) => ({
-    loadMessages: rxMethod<void>(
+  withMethods((store, messagesStore = inject(MessagesStore)) => ({
+    loadMessages: rxMethod<number | null>(
       pipe(
-        switchMap(() => router.paramMap),
-        map((paramMap) => paramMap.get('dialogId')),
         map((id) => (id === null ? null : Number(id))),
         tap((id) => {
           if (id !== null && Number.isInteger(id)) {
             if (!store.entityMap()[id]) {
               messagesStore.getMessagesData(id);
             }
-
-            store.setCurrentDialogId(id);
-          } else {
-            store.setCurrentDialogId(null);
           }
         }),
       ),
     ),
   })),
   withHooks({
-    onInit: (store) => {
+    onInit: (store, currentDialogId = injectCurrentDialogId()) => {
       store.onDeleteWsContact();
       store.onDeleteContact();
       store.updateReadStateMessagesObserve(store.currentUpdateReadState);
@@ -452,7 +468,7 @@ export const DialogsStateStore = signalStore(
       store.onDeleteMessage();
       store.onUpdateReadStatusMessage();
       store.onUpdateReadStatusMessageError();
-      store.loadMessages();
+      store.loadMessages(currentDialogId);
     },
   }),
 );

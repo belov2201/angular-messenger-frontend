@@ -17,7 +17,6 @@ import { InvitesStore } from '@app/main/data-access/invites';
   selector: 'app-user-bar',
   imports: [AvatarComponent, Badge, MenuModule, ButtonModule, IconComponent],
   templateUrl: './user-bar.component.html',
-  styleUrl: './user-bar.component.css',
   host: {
     class: 'py-3 px-2 border-b border-surface-300',
   },

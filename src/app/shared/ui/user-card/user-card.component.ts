@@ -6,7 +6,6 @@ import { ParticipantDto } from '@app/core/store/user';
   selector: 'app-user-card',
   imports: [AvatarComponent],
   templateUrl: './user-card.component.html',
-  styleUrl: './user-card.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserCardComponent {

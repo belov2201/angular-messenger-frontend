@@ -1,7 +1,14 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  viewChild,
+} from '@angular/core';
 import { NgClass } from '@angular/common';
 import { AvatarComponent } from '@app/shared/ui';
-import { Message, MessagesStore } from '../../data-access/messages';
 import { ScrollBottomDirective } from './directives/scroll-bottom.directive';
 import { MessageCardComponent } from './message-card/message-card.component';
 import { IntersectionService } from './providers/intersection.service';
@@ -9,9 +16,11 @@ import { VisibilityDirective } from './directives/visibility.directive';
 import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { ConfirmModalService } from '@app/core/providers';
-import { InputMessagesStateStore } from '../../data-access/input-messages';
-import { ScrollStateStore } from '../../data-access/scroll';
-import { DialogsStateStore } from '../../data-access/dialogs-state';
+import { DialogsStateStore } from '@app/main/data-access/dialogs-state';
+import { InputMessagesStateStore } from '@app/main/data-access/input-messages';
+import { ScrollStateStore } from '@app/main/data-access/scroll';
+import { Message, MessagesStore } from '@app/main/data-access/messages';
+import { filter, fromEvent } from 'rxjs';
 
 @Component({
   selector: 'app-messages-list',
@@ -22,7 +31,7 @@ import { DialogsStateStore } from '../../data-access/dialogs-state';
   hostDirectives: [{ directive: ScrollBottomDirective }],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MessagesListComponent {
+export class MessagesListComponent implements OnInit, OnDestroy {
   private readonly dialogsStateStore = inject(DialogsStateStore);
   private readonly messagesStore = inject(MessagesStore);
   private readonly inputMessagesStateStore = inject(InputMessagesStateStore);
@@ -31,10 +40,23 @@ export class MessagesListComponent {
   private readonly confirmModalService = inject(ConfirmModalService);
 
   private readonly menu = viewChild<Menu>('menu');
-
   protected readonly messages = this.dialogsStateStore.currentMessages;
-
   protected activeMessage: Message | null = null;
+
+  private readonly scrollEvent = fromEvent(this.elementRef.nativeElement, 'scroll').pipe(
+    filter(() => {
+      const el = this.elementRef.nativeElement;
+      return el.scrollHeight - el.scrollTop - el.clientHeight > 1;
+    }),
+  );
+
+  ngOnInit(): void {
+    this.dialogsStateStore.addToUpdateMessageStatusObservables(this.scrollEvent);
+  }
+
+  ngOnDestroy(): void {
+    this.dialogsStateStore.deleteFromUpdateMessageStatusObservables(this.scrollEvent);
+  }
 
   protected readonly menuItems: MenuItem[] = [
     {

@@ -6,11 +6,11 @@ import { IconComponent } from '@app/shared/ui';
 import { Button } from 'primeng/button';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { tap } from 'rxjs';
-import { InputMessagesStateStore } from '../../data-access/input-messages';
-import { MessagesStore } from '../../data-access/messages';
 import { WsService } from '@app/main/providers/ws/ws.service';
 import { WsEvents } from '@app/main/providers/ws/ws-events';
-import { DialogsStateStore } from '../../data-access/dialogs-state';
+import { DialogsStateStore } from '@app/main/data-access/dialogs-state';
+import { MessagesStore } from '@app/main/data-access/messages';
+import { InputMessagesStateStore } from '@app/main/data-access/input-messages';
 
 @Component({
   selector: 'app-message-actions',

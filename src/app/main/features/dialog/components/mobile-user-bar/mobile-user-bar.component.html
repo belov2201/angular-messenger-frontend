@@ -1,0 +1,28 @@
+@let contact = currentContact();
+@let participant = currentParticipant();
+
+@if (participant) {
+  <div class="flex items-center *:mr-2">
+    <a [routerLink]="['/']">
+      <p-button [rounded]="true" [text]="true" size="small">
+        <app-icon size="l">keyboard_arrow_left</app-icon>
+      </p-button>
+    </a>
+    <div class="relative">
+      <app-avatar [params]="participant" size="large" />
+      @if (contact?.online) {
+        <p-badge
+          severity="success"
+          class="absolute bottom-0.5 right-0.5 border-white border rounded-2xl"
+          style="width: 0.4rem; height: 0.5rem"
+        />
+      }
+    </div>
+    <div class="flex-auto flex flex-col min-w-0">
+      <div class="title">{{ participant.firstName }} {{ participant.lastName }}</div>
+    </div>
+    @if (contact?.noReadCount) {
+      <div class="no-read-count">{{ contact?.noReadCount }}</div>
+    }
+  </div>
+}

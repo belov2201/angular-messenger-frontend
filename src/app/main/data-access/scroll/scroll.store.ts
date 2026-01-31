@@ -1,22 +1,11 @@
 import { computed, inject } from '@angular/core';
-import {
-  patchState,
-  signalStore,
-  withComputed,
-  withHooks,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
+import { patchState, signalStore, withComputed, withHooks, withMethods } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { filter, map, pipe, switchMap, tap } from 'rxjs';
 import { addEntity, updateEntity, withEntities } from '@ngrx/signals/entities';
-import { ActivatedRoute } from '@angular/router';
 import { Events } from '@ngrx/signals/events';
 import { MessagesEvents } from '../messages/messages.events';
-
-interface BaseScrollStateStore {
-  currentDialogId: number | null;
-}
+import { injectCurrentDialogId } from '@app/main/providers/current-dialog-id';
 
 interface ScrollState {
   id: number;
@@ -43,21 +32,15 @@ const createInitialState = (id: number): ScrollState => {
 };
 
 export const ScrollStateStore = signalStore(
-  withState<BaseScrollStateStore>(() => ({
-    currentDialogId: null,
-  })),
   withEntities<ScrollState>(),
-  withComputed((store) => ({
+  withComputed((store, currentDialogId = injectCurrentDialogId()) => ({
     currentState: computed(() => {
-      const id = store.currentDialogId();
+      const id = currentDialogId();
       return id !== null ? store.entityMap()[id] : null;
     }),
   })),
-  withMethods((store) => {
+  withMethods((store, currentDialogId = injectCurrentDialogId()) => {
     return {
-      setCurrentDialogId(value: number | null) {
-        patchState(store, { currentDialogId: value });
-      },
       setIsScrollAdditionaly(id: number, value: boolean) {
         patchState(store, updateEntity({ id, changes: { isScrollAdditionaly: value } }));
       },
@@ -83,11 +66,14 @@ export const ScrollStateStore = signalStore(
         patchState(store, updateEntity({ id, changes: { isRestoreScroll: value } }));
       },
       setIsViewLast(value: boolean) {
-        if (!Number.isInteger(store.currentDialogId())) return;
+        if (!Number.isInteger(currentDialogId())) return;
 
         patchState(
           store,
-          updateEntity({ id: store.currentDialogId()!, changes: { isViewLastMessage: value } }),
+          updateEntity({
+            id: currentDialogId()!,
+            changes: { isViewLastMessage: value },
+          }),
         );
       },
       getById(id: number) {
@@ -95,13 +81,10 @@ export const ScrollStateStore = signalStore(
       },
     };
   }),
-  withMethods((store, events = inject(Events), activateRoute = inject(ActivatedRoute)) => ({
-    createState: rxMethod<void>(
+  withMethods((store, events = inject(Events)) => ({
+    createState: rxMethod<number | null>(
       pipe(
-        switchMap(() => activateRoute.paramMap),
-        map((paramMap) => paramMap.get('dialogId')),
         map((id) => (id === null ? null : Number(id))),
-        tap((id) => store.setCurrentDialogId(id)),
         tap((id) => {
           if (id === null) return;
           patchState(store, addEntity(createInitialState(id)));
@@ -134,8 +117,8 @@ export const ScrollStateStore = signalStore(
     ),
   })),
   withHooks({
-    onInit: (store) => {
-      store.createState();
+    onInit: (store, currentDialogId = injectCurrentDialogId()) => {
+      store.createState(currentDialogId);
       store.onGetMessagesAdditionaly();
       store.onAddMessage();
     },

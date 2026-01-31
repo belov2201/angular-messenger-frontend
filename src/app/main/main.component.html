@@ -1,7 +1,12 @@
 @if (wsService.status() !== 'error') {
   @if (appStatusStore.isLoadedInitData() && userStore.user()) {
-    <app-sidebar />
-    <div class="flex-auto">
+    <div
+      class="w-full min-w-65 md:max-w-[320px] md:basis-3/10 md:block"
+      [class.hidden]="!!currentDialogId()"
+    >
+      <app-sidebar />
+    </div>
+    <div class="flex-auto md:block" [class.hidden]="!currentDialogId()">
       <router-outlet />
     </div>
   }

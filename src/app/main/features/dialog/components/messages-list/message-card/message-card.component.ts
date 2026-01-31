@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { Message } from '../../../data-access/messages/messages.interface';
+import { Message } from '@app/main/data-access/messages';
 import { DatePipe, NgClass } from '@angular/common';
 import { IconComponent } from '@app/shared/ui';
 import { ProgressSpinner } from 'primeng/progressspinner';
