@@ -1,54 +1,64 @@
 @let inputMessagesState = currentInputMessagesState();
 
-<form
-  [formGroup]="sendMessageForm"
-  (ngSubmit)="inputMessagesState?.edit ? editMessage() : sendMessage()"
-  class="flex justify-between items-center h-full"
-  #formDirective="ngForm"
->
-  <div class="overflow-auto flex-auto h-full">
-    <textarea
-      pTextarea
-      variant="filled"
-      placeholder="Введите сообщение"
-      style="border: none; resize: none"
-      formControlName="text"
-      (keydown.enter)="onEnterHandler($event)"
-      [autoResize]="true"
-      rows="1"
-      fluid
-    ></textarea>
-  </div>
-  @if (inputMessagesState?.edit) {
-    <div class="*:first:mr-2">
+@if (inputMessagesState) {
+  <form
+    [formGroup]="sendMessageForm"
+    (ngSubmit)="inputMessagesState?.edit ? editMessage() : sendMessage()"
+    class="flex justify-between items-center h-full"
+    #formDirective="ngForm"
+  >
+    <div class="overflow-auto flex-auto h-full">
+      <textarea
+        pTextarea
+        variant="filled"
+        placeholder="Введите сообщение"
+        style="border: none; resize: none"
+        formControlName="text"
+        (keydown.enter)="onEnterHandler($event)"
+        [autoResize]="true"
+        rows="1"
+        fluid
+      ></textarea>
+    </div>
+    @if (inputMessagesState?.edit) {
+      <div class="*:first:mr-2">
+        <p-button
+          [rounded]="true"
+          [text]="true"
+          size="small"
+          (click)="editMessage()"
+          [disabled]="
+            !sendMessageForm.valid ||
+            inputMessagesState?.edit?.value === inputMessagesState?.edit?.message?.text
+          "
+          data-testid="edit-message-btn"
+        >
+          <app-icon size="l">check</app-icon>
+        </p-button>
+        <p-button
+          [rounded]="true"
+          [text]="true"
+          size="small"
+          (click)="resetEditItem()"
+          data-testid="reset-edit-message-btn"
+        >
+          <app-icon size="l">close</app-icon>
+        </p-button>
+      </div>
+    } @else {
       <p-button
         [rounded]="true"
         [text]="true"
+        type="submit"
         size="small"
-        (click)="editMessage()"
-        [disabled]="
-          !sendMessageForm.valid ||
-          inputMessagesState?.edit?.value === inputMessagesState?.edit?.message?.text
-        "
+        [disabled]="!sendMessageForm.valid"
+        data-testid="send-message-btn"
       >
-        <app-icon size="l">check</app-icon>
+        <app-icon size="l">send</app-icon>
       </p-button>
-      <p-button [rounded]="true" [text]="true" size="small" (click)="resetEditItem()">
-        <app-icon size="l">close</app-icon>
-      </p-button>
-    </div>
-  } @else {
-    <p-button
-      [rounded]="true"
-      [text]="true"
-      type="submit"
-      size="small"
-      [disabled]="!sendMessageForm.valid"
-    >
-      <app-icon size="l">send</app-icon>
-    </p-button>
+    }
+  </form>
+  @if (currentTypingContact(); as contact) {
+    <div class="subtitle absolute left-5 -top-5">{{ contact }} печатает</div>
   }
-</form>
-@if (currentTypingContact(); as contact) {
-  <div class="subtitle absolute left-5 -top-5">{{ contact }} печатает</div>
 }

@@ -9,7 +9,10 @@ import { DialogsStateStore } from '@app/main/data-access/dialogs-state';
   selector: 'app-mobile-user-bar',
   imports: [IconComponent, Badge, AvatarComponent, ButtonModule, RouterModule],
   templateUrl: './mobile-user-bar.component.html',
-  host: { class: 'flex md:hidden px-4 py-3 items-center shadow-xl bg-surface-0' },
+  host: {
+    class: 'flex md:hidden px-4 py-3 items-center shadow-xl bg-surface-0',
+    'data-testid': 'mobile-user-bar',
+  },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MobileUserBarComponent {

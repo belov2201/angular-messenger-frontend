@@ -29,6 +29,7 @@
         (visible)="isFirst && firstVisibleHandler($event)"
         (visible)="!message.isRead && !message.isSender && handleUnreadMessage(message)($event)"
         (click)="onMessageClick($event, message)"
+        data-testid="message-card"
       />
     </div>
   </div>

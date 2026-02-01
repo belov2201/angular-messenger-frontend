@@ -6,6 +6,7 @@ export const createSocketMock = () => {
     'fromEvent',
     'connect',
     'disconnect',
+    'emit',
   ]);
 
   socketSpy.fromEvent.and.returnValue(new Subject());

@@ -10,8 +10,6 @@ describe('ContactCardComponent', () => {
       inputs: { contactEntity: contactsMock[0] },
     });
 
-    screen.debug(undefined, Infinity);
-
     expect(
       screen.getByText(participantsMock[1].firstName + ' ' + participantsMock[1].lastName),
     ).toBeInTheDocument();

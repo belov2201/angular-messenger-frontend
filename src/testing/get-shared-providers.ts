@@ -24,6 +24,8 @@ import { DialogsStateStore } from '@app/main/data-access/dialogs-state';
 import { CurrentDialogIdService } from '@app/main/providers/current-dialog-id';
 import { ScrollStateStore } from '@app/main/data-access/scroll';
 import { InputMessagesStateStore } from '@app/main/data-access/input-messages';
+import { DialogComponent } from '@app/main/features/dialog/dialog.component';
+import { MainComponent } from '@app/main/main.component';
 
 export const getSharedProviders = (
   extra: (Provider | EnvironmentProviders)[] = [],
@@ -44,7 +46,13 @@ export const getSharedProviders = (
     ModalService,
     WsService,
     AlertsService,
-    provideRouter([{ path: 'dialog/:dialogId', children: [] }]),
+    provideRouter([
+      {
+        path: '',
+        component: MainComponent,
+        children: [{ path: 'dialog/:dialogId', component: DialogComponent }],
+      },
+    ]),
     { provide: UserService, useValue: createUserServiceMock() },
     { provide: ContactsService, useValue: createContactsServiceMock() },
     { provide: InvitesService, useValue: createInvitesServiceMock() },

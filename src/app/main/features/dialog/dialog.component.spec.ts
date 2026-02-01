@@ -1,22 +1,20 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { renderWithProviders } from 'testing/render-with-providers';
 import { DialogComponent } from './dialog.component';
+import { screen } from '@testing-library/angular';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { messagesMockChunk } from 'testing/mocks/messages/messages.mock';
 
 describe('DialogComponent', () => {
-  let component: DialogComponent;
-  let fixture: ComponentFixture<DialogComponent>;
+  let harness: RouterTestingHarness;
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [DialogComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(DialogComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+    await renderWithProviders(DialogComponent);
+    harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/dialog/0');
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should create', async () => {
+    expect(screen.getAllByTestId('message-card').length).toBe(messagesMockChunk);
+    expect(screen.getByTestId('send-message-btn')).toBeInTheDocument();
   });
 });
