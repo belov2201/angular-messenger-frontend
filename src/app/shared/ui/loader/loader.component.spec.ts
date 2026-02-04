@@ -1,22 +1,10 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { screen } from '@testing-library/angular';
 import { LoaderComponent } from './loader.component';
+import { renderWithProviders } from 'testing/render-with-providers';
 
 describe('LoaderComponent', () => {
-  let component: LoaderComponent;
-  let fixture: ComponentFixture<LoaderComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [LoaderComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(LoaderComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should create', async () => {
+    await renderWithProviders(LoaderComponent);
+    expect(screen.getByTestId('loader')).toBeInTheDocument();
   });
 });

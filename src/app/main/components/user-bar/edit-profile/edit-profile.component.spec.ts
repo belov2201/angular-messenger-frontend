@@ -1,6 +1,6 @@
 import { renderWithProviders } from 'testing/render-with-providers';
 import { EditProfileComponent } from './edit-profile.component';
-import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/angular';
+import { fireEvent, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/angular';
 import { userMock } from 'testing/mocks/user/user.mock';
 import userEvent from '@testing-library/user-event';
 import { TestBed } from '@angular/core/testing';
@@ -40,7 +40,7 @@ describe('EditProfileComponent', () => {
 
   it('show error form', async () => {
     await userEvent.type(screen.getByLabelText('Имя'), '123');
-    await userEvent.tab();
+    fireEvent.blur(screen.getByLabelText('Имя'));
     expect(screen.getByRole('button', { name: 'Редактировать' })).toBeDisabled();
 
     expect(

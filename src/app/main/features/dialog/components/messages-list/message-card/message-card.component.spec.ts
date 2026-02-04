@@ -1,22 +1,25 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { MessageCardComponent } from './message-card.component';
+import { renderWithProviders } from 'testing/render-with-providers';
+import { screen } from '@testing-library/angular';
+import { messagesMock } from 'testing/mocks/messages/messages.mock';
+import { mapToMessageView } from '@app/main/data-access/messages/messages.mapper';
+import { userMock } from 'testing/mocks/user/user.mock';
 
 describe('MessageCardComponent', () => {
-  let component: MessageCardComponent;
-  let fixture: ComponentFixture<MessageCardComponent>;
+  it('should create', async () => {
+    const { rerender } = await renderWithProviders(MessageCardComponent, {
+      inputs: { message: mapToMessageView(messagesMock[0], userMock)! },
+    });
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [MessageCardComponent],
-    }).compileComponents();
+    expect(screen.getByText(messagesMock[0].text)).toBeInTheDocument();
 
-    fixture = TestBed.createComponent(MessageCardComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
+    rerender({
+      inputs: {
+        component: MessageCardComponent,
+        componentInputs: { message: mapToMessageView(messagesMock[1], userMock)! },
+      },
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(screen.getByText(messagesMock[1].text)).toBeInTheDocument();
   });
 });

@@ -16,7 +16,6 @@ import { createContactsServiceMock } from './mocks/contacts/create-contacts-serv
 import { createInvitesServiceMock } from './mocks/invites/create-invites-service.mock';
 import { createMessagesServiceMock } from './mocks/messages/create-messages-service.mock';
 import { createSocketMock } from './mocks/socket/create-socket-mock';
-import { provideRouter } from '@angular/router';
 import { AlertsService } from '@app/core/alerts';
 import { MessagesService } from '@app/main/data-access/messages/messages.service';
 import { MessagesStore } from '@app/main/data-access/messages';
@@ -24,8 +23,6 @@ import { DialogsStateStore } from '@app/main/data-access/dialogs-state';
 import { CurrentDialogIdService } from '@app/main/providers/current-dialog-id';
 import { ScrollStateStore } from '@app/main/data-access/scroll';
 import { InputMessagesStateStore } from '@app/main/data-access/input-messages';
-import { DialogComponent } from '@app/main/features/dialog/dialog.component';
-import { MainComponent } from '@app/main/main.component';
 
 export const getSharedProviders = (
   extra: (Provider | EnvironmentProviders)[] = [],
@@ -46,13 +43,6 @@ export const getSharedProviders = (
     ModalService,
     WsService,
     AlertsService,
-    provideRouter([
-      {
-        path: '',
-        component: MainComponent,
-        children: [{ path: 'dialog/:dialogId', component: DialogComponent }],
-      },
-    ]),
     { provide: UserService, useValue: createUserServiceMock() },
     { provide: ContactsService, useValue: createContactsServiceMock() },
     { provide: InvitesService, useValue: createInvitesServiceMock() },

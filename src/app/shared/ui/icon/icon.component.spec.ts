@@ -1,22 +1,13 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { render, screen } from '@testing-library/angular';
 import { IconComponent } from './icon.component';
 
 describe('IconComponent', () => {
-  let component: IconComponent;
-  let fixture: ComponentFixture<IconComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  it('should create', async () => {
+    await render('<app-icon data-testid="done-all-icon">done_all</app-icon>', {
       imports: [IconComponent],
-    }).compileComponents();
+    });
 
-    fixture = TestBed.createComponent(IconComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(screen.getByText('done_all')).toBeInTheDocument();
+    expect(screen.getByTestId('done-all-icon')).toBeInTheDocument();
   });
 });

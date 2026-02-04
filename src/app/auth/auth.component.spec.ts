@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/angular';
+import { fireEvent, screen } from '@testing-library/angular';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { AuthComponent } from './auth.component';
@@ -27,7 +27,10 @@ describe('AuthComponent', () => {
   it('form with incorrect values', async () => {
     await userEvent.type(screen.getByLabelText('Логин'), 'someverylongvalue');
     await userEvent.type(screen.getByLabelText('Пароль'), '1234');
-    await userEvent.tab();
+
+    fireEvent.blur(screen.getByLabelText('Логин'));
+    fireEvent.blur(screen.getByLabelText('Пароль'));
+
     expect(screen.getByRole('button', { name: 'Войти' })).toBeDisabled();
 
     expect(

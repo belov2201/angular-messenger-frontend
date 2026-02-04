@@ -1,12 +1,11 @@
-import { TestBed } from '@angular/core/testing';
 import { ConfirmModalService } from './confirm-modal.service';
+import { setupProviders } from 'testing/setup-providers';
 
 describe('ConfirmModalService', () => {
-  let service: ConfirmModalService;
+  let service: InstanceType<typeof ConfirmModalService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(ConfirmModalService);
+    service = setupProviders(ConfirmModalService);
   });
 
   it('should be created', () => {

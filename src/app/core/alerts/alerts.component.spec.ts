@@ -1,22 +1,20 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { render, screen } from '@testing-library/angular';
 import { AlertsComponent } from './alerts.component';
+import { TestBed } from '@angular/core/testing';
+import { AlertsService } from './alerts.service';
+import { waitFor } from '@testing-library/angular';
+import { MessageService } from 'primeng/api';
 
 describe('AlertsComponent', () => {
-  let component: AlertsComponent;
-  let fixture: ComponentFixture<AlertsComponent>;
-
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [AlertsComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(AlertsComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+    await render(AlertsComponent, {
+      providers: [AlertsService, MessageService],
+    });
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should create', async () => {
+    const alertsService = TestBed.inject(AlertsService);
+    alertsService.showSuccessAlert('Some success alert');
+    await waitFor(() => expect(screen.getByText('Some success alert')).toBeInTheDocument());
   });
 });

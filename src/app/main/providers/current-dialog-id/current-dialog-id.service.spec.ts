@@ -1,12 +1,11 @@
-import { TestBed } from '@angular/core/testing';
 import { CurrentDialogIdService } from './current-dialog-id.service';
+import { setupProviders } from 'testing/setup-providers';
 
 describe('CurrentDialogIdService', () => {
   let service: CurrentDialogIdService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(CurrentDialogIdService);
+    service = setupProviders(CurrentDialogIdService);
   });
 
   it('should be created', () => {

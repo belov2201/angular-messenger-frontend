@@ -1,12 +1,11 @@
-import { TestBed } from '@angular/core/testing';
 import { ModalService } from './modal.service';
+import { setupProviders } from 'testing/setup-providers';
 
 describe('ModalService', () => {
-  let service: ModalService;
+  let service: InstanceType<typeof ModalService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(ModalService);
+    service = setupProviders(ModalService);
   });
 
   it('should be created', () => {

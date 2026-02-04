@@ -1,22 +1,23 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { FloatLabelInputComponent } from './float-label-input.component';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { render, screen } from '@testing-library/angular';
 
 describe('FloatLabelInputComponent', () => {
-  let component: FloatLabelInputComponent;
-  let fixture: ComponentFixture<FloatLabelInputComponent>;
+  it('should create', async () => {
+    await render(
+      `<app-float-label-input 
+        [formControl]="control" 
+        fieldId="firstName" 
+        label="Имя">
+      </app-float-label-input>`,
+      {
+        imports: [ReactiveFormsModule, FloatLabelInputComponent],
+        componentProperties: {
+          control: new FormControl(''), // Создаем пустой контрол для теста
+        },
+      },
+    );
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [FloatLabelInputComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(FloatLabelInputComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(screen.getByLabelText('Имя')).toBeInTheDocument();
   });
 });

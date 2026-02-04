@@ -1,13 +1,11 @@
-import { TestBed } from '@angular/core/testing';
-
 import { WsService } from './ws.service';
+import { setupProviders } from 'testing/setup-providers';
 
 describe('WsService', () => {
   let service: WsService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(WsService);
+    service = setupProviders(WsService);
   });
 
   it('should be created', () => {

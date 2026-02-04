@@ -1,22 +1,35 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { AvatarComponent } from './avatar.component';
+import { renderWithProviders } from 'testing/render-with-providers';
+import { screen } from '@testing-library/angular';
+import { userMock } from 'testing/mocks/user/user.mock';
+import { participantsMock } from 'testing/mocks/participants/participants.mock';
 
 describe('AvatarComponent', () => {
-  let component: AvatarComponent;
-  let fixture: ComponentFixture<AvatarComponent>;
+  it('should create', async () => {
+    const { rerender } = await renderWithProviders(AvatarComponent, {
+      inputs: { params: userMock },
+    });
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [AvatarComponent],
-    }).compileComponents();
+    expect(
+      screen.getByText(
+        [userMock.firstName[0], userMock.lastName[0]].reduce((r, e) => (r += e.toUpperCase()), ''),
+      ),
+    ).toBeInTheDocument();
 
-    fixture = TestBed.createComponent(AvatarComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
+    rerender({
+      inputs: {
+        component: AvatarComponent,
+        componentInputs: { params: participantsMock[1] },
+      },
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(
+      screen.getByText(
+        [participantsMock[1].firstName[0], participantsMock[1].lastName[0]].reduce(
+          (r, e) => (r += e.toUpperCase()),
+          '',
+        ),
+      ),
+    ).toBeInTheDocument();
   });
 });

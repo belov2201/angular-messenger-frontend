@@ -1,5 +1,5 @@
 import { RegisterComponent } from './register.component';
-import { screen } from '@testing-library/angular';
+import { fireEvent, screen } from '@testing-library/angular';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { RegisterDto } from '@app/core/store/user';
@@ -36,7 +36,12 @@ describe('RegisterComponent', () => {
     await userEvent.type(screen.getByLabelText('Повторите пароль'), '12345678');
     await userEvent.type(screen.getByLabelText('Имя'), 'firstName123');
     await userEvent.type(screen.getByLabelText('Фамилия'), 'lastName');
+
+    fireEvent.blur(screen.getByLabelText('Повторите пароль'));
+    fireEvent.blur(screen.getByLabelText('Имя'));
+
     expect(screen.getByText('Введенные пароли не совпадают')).toBeInTheDocument();
+
     expect(
       screen.getByText('Введенное значение содержит недопустимые символы'),
     ).toBeInTheDocument();

@@ -1,13 +1,11 @@
-import { TestBed } from '@angular/core/testing';
-
 import { AlertsService } from './alerts.service';
+import { setupProviders } from 'testing/setup-providers';
 
 describe('AlertsService', () => {
-  let service: AlertsService;
+  let service: InstanceType<typeof AlertsService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(AlertsService);
+    service = setupProviders(AlertsService);
   });
 
   it('should be created', () => {
