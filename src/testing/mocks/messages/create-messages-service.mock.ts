@@ -3,6 +3,8 @@ import { messagesMock, messagesMockChunk } from './messages.mock';
 import { MessagesService } from '@app/main/data-access/messages/messages.service';
 import { participantsMock } from '../participants/participants.mock';
 
+let counter = 0;
+
 export const createMessagesServiceMock = () => {
   const messagesServiceSpy: jasmine.SpyObj<MessagesService> = jasmine.createSpyObj(
     'MessagesService',
@@ -13,9 +15,11 @@ export const createMessagesServiceMock = () => {
     return of(messagesMock.slice(start, (start || 0) + messagesMockChunk));
   });
 
-  messagesServiceSpy.create.and.callFake((createMessageDto) =>
-    of({
-      id: messagesMock[messagesMock.length - 1].id + 1,
+  messagesServiceSpy.create.and.callFake((createMessageDto) => {
+    counter++;
+
+    return of({
+      id: messagesMock[messagesMock.length - 1].id + counter,
       text: createMessageDto.text,
       date: new Date().toUTCString(),
       audio: null,
@@ -23,8 +27,8 @@ export const createMessagesServiceMock = () => {
       duration: null,
       sender: participantsMock[0],
       contact: { id: createMessageDto.contactId },
-    }),
-  );
+    });
+  });
 
   messagesServiceSpy.edit.and.returnValue(of(undefined));
   messagesServiceSpy.delete.and.returnValue(of({ prevMessage: null }));

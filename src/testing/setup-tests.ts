@@ -7,3 +7,8 @@ TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
 beforeAll(() => {
   jasmine.addMatchers(JasmineDOM);
 });
+
+afterEach(() => {
+  const popovers = document.querySelectorAll('.p-popover, .p-motion');
+  popovers.forEach((el) => el.remove());
+});

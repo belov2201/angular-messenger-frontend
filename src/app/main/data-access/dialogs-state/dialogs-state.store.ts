@@ -136,10 +136,10 @@ export const DialogsStateStore = signalStore(
         },
         addToUpdateReadStatusMessages(message: Message) {
           const processUpdateReadStatusMessages =
-            store.entityMap()[message.contact.id].processUpdateReadStatusMessages;
+            store.entityMap()[message.contact.id]?.processUpdateReadStatusMessages;
 
           const updateReadStatusMessages =
-            store.entityMap()[message.contact.id].updateReadStatusMessages;
+            store.entityMap()[message.contact.id]?.updateReadStatusMessages;
 
           const isExist = [updateReadStatusMessages, processUpdateReadStatusMessages].some((list) =>
             (list ?? []).some((e) => e.id === message.id),
