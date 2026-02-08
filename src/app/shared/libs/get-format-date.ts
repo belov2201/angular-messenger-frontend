@@ -17,18 +17,3 @@ export const getFormatTimeForSeconds = (seconds: number) => {
 
   return [m, additionDateData(s)].join(':');
 };
-
-export const getAudioCallDuration = (seconds: number) => {
-  const times = ['ч', 'мин', 'сек'];
-
-  return [3600, 60, 1]
-    .reduce((res: string[], val, i) => {
-      const result = Math.floor(seconds / val);
-      seconds %= val;
-
-      if (result) res.push(result + ' ' + times[i]);
-
-      return res;
-    }, [])
-    .join(' ');
-};

@@ -1,21 +1,38 @@
-import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/angular';
+import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/angular';
 import { MainComponent } from './main.component';
-import { renderWithProviders } from 'testing/render-with-providers';
 import { contactsMock } from 'testing/mocks/contacts/contacts.mock';
 import { userMock } from 'testing/mocks/user/user.mock';
-import { RouterTestingHarness } from '@angular/router/testing';
 import { messagesMock, messagesMockChunk } from 'testing/mocks/messages/messages.mock';
 import { TestBed } from '@angular/core/testing';
 import { MessagesService } from './data-access/messages/messages.service';
+import { getSharedProviders } from 'testing/get-shared-providers';
+import { provideRouter } from '@angular/router';
+import { mainRoutes } from './main.routes';
+import { ConfirmDialogComponent } from '@app/shared/ui/confirm-dialog/confirm-dialog.component';
 import userEvent from '@testing-library/user-event';
 
+type NavigateCb = (
+  elementOrPath: string | Element,
+  basePath?: string | undefined,
+) => Promise<boolean>;
+
 describe('MainComponent', () => {
-  let harness: RouterTestingHarness;
+  let navigateByUrl: NavigateCb;
 
   beforeEach(async () => {
-    await renderWithProviders(MainComponent);
-    harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('');
+    const { navigate } = await render(
+      `
+      <app-confirm-dialog />
+      <div class="h-230 overflow-hidden flex">
+        <app-main />
+      </div>`,
+      {
+        providers: [...getSharedProviders(), provideRouter(mainRoutes)],
+        imports: [MainComponent, ConfirmDialogComponent],
+      },
+    );
+
+    navigateByUrl = navigate;
   });
 
   it('should create', async () => {
@@ -24,14 +41,14 @@ describe('MainComponent', () => {
   });
 
   it('show messages list', async () => {
-    await harness.navigateByUrl('/dialog/0');
+    await navigateByUrl('/dialog/0');
     expect(screen.getAllByTestId('message-card').length).toBe(messagesMockChunk);
   });
 
   it('delete message', async () => {
     const messagesService = TestBed.inject(MessagesService);
 
-    await harness.navigateByUrl('/dialog/0');
+    await navigateByUrl('/dialog/0');
 
     const messageCards = screen.getAllByTestId('message-card');
 
@@ -65,12 +82,12 @@ describe('MainComponent', () => {
       id: messagesMock[messagesMockChunk - 2].id,
     });
 
-    expect(screen.getAllByTestId('message-card').length).toBe(messagesMock.length - 1);
+    expect(screen.getAllByTestId('message-card').length).toBe(messagesMockChunk - 1);
   });
 
   it('edit message', async () => {
     const messagesService = TestBed.inject(MessagesService);
-    await harness.navigateByUrl('/dialog/0');
+    await navigateByUrl('/dialog/0');
 
     expect(screen.getByTestId('send-message-btn').querySelector('button')).toHaveAttribute(
       'disabled',
@@ -139,7 +156,7 @@ describe('MainComponent', () => {
   it('save input message state change dialog id', async () => {
     const messagesService = TestBed.inject(MessagesService);
 
-    await harness.navigateByUrl('/dialog/0');
+    await navigateByUrl('/dialog/0');
 
     const messageCards = screen.getAllByTestId('message-card');
 
@@ -159,7 +176,7 @@ describe('MainComponent', () => {
       messagesMock[messagesMockChunk - 2].text + ' edit',
     );
 
-    await harness.navigateByUrl('/dialog/1');
+    await navigateByUrl('/dialog/1');
 
     expect(messagesService.getAll).toHaveBeenCalledWith(1);
 
@@ -171,13 +188,13 @@ describe('MainComponent', () => {
       'some send message',
     );
 
-    await harness.navigateByUrl('/dialog/0');
+    await navigateByUrl('/dialog/0');
 
     expect(screen.getByPlaceholderText<HTMLInputElement>('Введите сообщение').value).toBe(
       messagesMock[messagesMockChunk - 2].text + ' edit',
     );
 
-    await harness.navigateByUrl('/dialog/1');
+    await navigateByUrl('/dialog/1');
 
     expect(screen.getByPlaceholderText<HTMLInputElement>('Введите сообщение').value).toBe(
       'some send message',
