@@ -5,4 +5,10 @@ export const alertMessages = {
   declineInviteError: 'Ошибка удаления заявки',
   deleteContactSuccess: 'Контакт удален',
   deleteContactError: 'Ошибка удаления контакта',
+  editUserDataSuccess: 'Информация о пользователе отредактирована',
+  editUserDataError: 'Ошибка редактирования информации о пользователе',
+  messageEditSuccess: 'Сообщение отредактировано',
+  messageEditError: 'Ошибка редактирования сообщения',
+  messageDeleteSuccess: 'Сообщение удалено',
+  messageDeleteError: 'Ошибка удаления сообщения',
 } as const;

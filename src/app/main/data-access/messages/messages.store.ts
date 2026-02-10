@@ -30,6 +30,7 @@ import { createOptimisticMessage, getCreateMessageDto } from './lib';
 import { mapToMessageView } from './messages.mapper';
 import { Router } from '@angular/router';
 import { MessagesEvents } from './messages.events';
+import { alertMessages } from '@app/shared/constants/alert-messages';
 
 export const MessagesStore = signalStore(
   withEntities<Message>(),
@@ -53,11 +54,11 @@ export const MessagesStore = signalStore(
           }),
           mergeMap((id) => {
             return messagesService.getAll(id).pipe(
-              map((messages) =>
-                messages
+              map((messages) => {
+                return messages
                   .map((message) => mapToMessageView(message, userStore.user()))
-                  .filter((e) => !!e),
-              ),
+                  .filter((e) => !!e);
+              }),
               tapResponse({
                 next: (messages) => {
                   dispatchMessageEvent.getMessagesDataSuccess({ id, messages });
@@ -80,11 +81,11 @@ export const MessagesStore = signalStore(
           }),
           mergeMap(({ id, start }) => {
             return messagesService.getAll(id, start).pipe(
-              map((messages) =>
-                messages
+              map((messages) => {
+                return messages
                   .map((message) => mapToMessageView(message, userStore.user()))
-                  .filter((e) => !!e),
-              ),
+                  .filter((e) => !!e);
+              }),
               tapResponse({
                 next: (messages) => {
                   patchState(store, addEntities(messages));
@@ -176,7 +177,7 @@ export const MessagesStore = signalStore(
                     text,
                   });
 
-                  alertService.showSuccessAlert('Сообщение отредактировано');
+                  alertService.showSuccessAlert(alertMessages.messageEditSuccess);
                 },
                 error: () => {
                   patchState(
@@ -184,7 +185,7 @@ export const MessagesStore = signalStore(
                     updateEntity({ id: message.id, changes: { text: message.text } }),
                   );
 
-                  alertService.showErrorAlert('Ошибка редактирования сообщения');
+                  alertService.showErrorAlert(alertMessages.messageEditError);
                 },
                 finalize: () => {
                   patchState(store, updateEntity({ id: message.id, changes: { status: 'sent' } }));
@@ -209,10 +210,10 @@ export const MessagesStore = signalStore(
                     newMessage: deleteMessageResponse.prevMessage,
                   });
                   patchState(store, removeEntity(message.id));
-                  alertService.showSuccessAlert('Сообщение удалено');
+                  alertService.showSuccessAlert(alertMessages.messageDeleteSuccess);
                 },
                 error: () => {
-                  alertService.showErrorAlert('Ошибка удаления сообщения');
+                  alertService.showErrorAlert(alertMessages.messageDeleteError);
                   patchState(store, updateEntity({ id: message.id, changes: { status: 'sent' } }));
                 },
               }),

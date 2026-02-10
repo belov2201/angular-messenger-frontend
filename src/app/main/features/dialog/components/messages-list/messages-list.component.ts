@@ -27,7 +27,11 @@ import { filter, fromEvent } from 'rxjs';
   imports: [NgClass, AvatarComponent, MessageCardComponent, VisibilityDirective, Menu],
   templateUrl: './messages-list.component.html',
   providers: [IntersectionService],
-  host: { class: 'flex-auto p-4 overflow-auto', 'data-testid': 'messages-list' },
+  host: {
+    id: 'messages-list',
+    class: 'flex-auto p-4 overflow-auto',
+    'data-testid': 'messages-list',
+  },
   hostDirectives: [{ directive: ScrollBottomDirective }],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

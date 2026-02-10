@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { AuthDto, EditUserAvatarDto, EditUserDto, RegisterDto, UserEntity } from './user.interface';
 import { HttpErrorResponse } from '@angular/common/http';
 import { withApiState } from '@app/shared/libs';
+import { alertMessages } from '@app/shared/constants/alert-messages';
 
 interface UserState {
   user: UserEntity | null;
@@ -106,14 +107,20 @@ export const UserStore = signalStore(
               store._handlePendingAction(),
               tapResponse({
                 next: () => {
+                  patchState(store, (state) => {
+                    return {
+                      user: state?.user ? { ...state.user, ...editUserDto } : null,
+                    };
+                  });
+
                   patchState(store, (state) => ({
                     user: state?.user ? { ...state.user, ...editUserDto } : null,
                   }));
 
-                  alertService.showSuccessAlert('Информация о пользователе отредактирована');
+                  alertService.showSuccessAlert(alertMessages.editUserDataSuccess);
                 },
                 error: () => {
-                  alertService.showErrorAlert('Ошибка редактирования информации о пользователе');
+                  alertService.showErrorAlert(alertMessages.editUserDataError);
                 },
               }),
             );
