@@ -29,4 +29,11 @@ export const participantsMock: ParticipantDto[] = [
     lastName: 'lastNameFourth',
     avatar: null,
   },
+  {
+    id: 5,
+    username: 'test5',
+    firstName: 'NameFifth',
+    lastName: 'lastNameFifth',
+    avatar: null,
+  },
 ];

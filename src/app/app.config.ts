@@ -15,7 +15,7 @@ import { SocketIoConfig, provideSocketIo } from 'ngx-socket-io';
 
 const wsConfig: SocketIoConfig = {
   url: environment.apiUrl,
-  options: { autoConnect: false, withCredentials: true },
+  options: { autoConnect: false, withCredentials: true, transports: ['websocket'] },
 };
 
 export const appConfig: ApplicationConfig = {

@@ -109,7 +109,7 @@ export const InvitesStore = signalStore(
       pipe(
         switchMap(() => wsService.socket.fromEvent<InviteDto>(WsEvents.addInvite)),
         tap((invite) => {
-          alertService.showSuccessAlert('Получено новое приглашение на добавление в список друзей');
+          alertService.showSuccessAlert(alertMessages.addInvite);
           patchState(store, addEntity(invite));
         }),
       ),

@@ -3,6 +3,7 @@ export const alertMessages = {
   approveInviteError: 'Ошибка подтверждения заявки',
   declineInviteSuccess: 'Заявка отклонена',
   declineInviteError: 'Ошибка удаления заявки',
+  addInvite: 'Получено новое приглашение на добавление в список друзей',
   deleteContactSuccess: 'Контакт удален',
   deleteContactError: 'Ошибка удаления контакта',
   editUserDataSuccess: 'Информация о пользователе отредактирована',

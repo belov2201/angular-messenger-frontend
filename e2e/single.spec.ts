@@ -156,9 +156,7 @@ test('save dialog state switch edit message and change contact id', async ({ pag
   await expect(page.getByRole('menuitem', { name: 'Редактировать' })).toBeVisible();
   await page.getByRole('menuitem', { name: 'Редактировать' }).click();
 
-  await expect(page.getByPlaceholder('Введите сообщение')).toHaveValue(
-    'some new message for first contact',
-  );
+  await expect(page.getByPlaceholder('Введите сообщение')).toHaveValue('some test message 48');
 
   await page.getByRole('textbox', { name: 'Введите сообщение' }).fill('some new message edit');
   await expect(page.getByTestId('edit-message-btn').getByRole('button')).not.toHaveAttribute(

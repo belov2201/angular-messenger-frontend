@@ -14,7 +14,7 @@
     </div>
     <div class="flex items-center">
       @if (invitesStore.incomingInvitesCount() > 0) {
-        <div class="mr-2 no-read-count">
+        <div class="mr-2 no-read-count" data-testid="incoming-invites-count">
           {{ invitesStore.incomingInvitesCount() }}
         </div>
       }
