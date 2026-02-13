@@ -12,21 +12,25 @@
         }
       </div>
       <div class="flex-auto flex flex-col min-w-0">
-        <div class="title">{{ contact.user.firstName }} {{ contact.user.lastName }}</div>
-        <div class="subtitle overflow-hidden whitespace-nowrap text-ellipsis wrap-anywhere">
-          @if (contact.isTyping && !isActivatedRouteContact()) {
-            Печатает...
-          } @else {
-            {{ contact.lastMessage?.text || 'Сообщений нет' }}
+        <div class="flex justify-between">
+          <div class="title mr-2">{{ contact.user.firstName }} {{ contact.user.lastName }}</div>
+          @if (contact.lastMessage; as lastMessage) {
+            <div class="subtitle font-bold flex justify-end relative top-0.5">
+              {{ lastMessage.date | dateToStr }}
+            </div>
           }
         </div>
-      </div>
-      @if (contact.lastMessage; as lastMessage) {
-        <div class="flex flex-col *:flex-auto">
-          <div class="subtitle font-bold flex justify-end">{{ lastMessage.date | dateToStr }}</div>
-          <div class="flex justify-end items-center">
+        <div class="flex justify-between items-center">
+          <div class="subtitle overflow-hidden whitespace-nowrap text-ellipsis wrap-anywhere mr-2">
+            @if (contact.isTyping && !isActivatedRouteContact()) {
+              Печатает...
+            } @else {
+              {{ contact.lastMessage?.text || 'Сообщений нет' }}
+            }
+          </div>
+          @if (contact.lastMessage) {
             <div class="flex items-center">
-              @if (lastMessage.isRead) {
+              @if (contact.lastMessage.isRead) {
                 <app-icon>done_all</app-icon>
               } @else {
                 <app-icon>done</app-icon>
@@ -36,9 +40,9 @@
                 <div class="no-read-count ml-2">{{ noReadCount }}</div>
               }
             </div>
-          </div>
+          }
         </div>
-      }
+      </div>
     </div>
   </div>
 }

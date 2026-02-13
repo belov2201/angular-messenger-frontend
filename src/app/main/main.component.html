@@ -1,7 +1,7 @@
 @if (wsService.status() !== 'error') {
   @if (appStatusStore.isLoadedInitData() && userStore.user()) {
     <div
-      class="w-full min-w-65 md:max-w-[320px] md:basis-3/10 md:block"
+      class="w-full shrink-0 min-w-65 md:max-w-[320px] md:basis-3/10 md:block"
       [class.hidden]="!!currentDialogId()"
     >
       <app-sidebar />
