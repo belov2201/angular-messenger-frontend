@@ -63,5 +63,14 @@ export const Preset = definePreset(Aura, {
     max-height: 70vh;
     overflow:auto;
   }
+
+  .p-inputtext {
+    transition: none !important;
+  }
+
+  .p-inputtext:hover,
+  .p-inputtext:focus {
+      transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+  }
 `,
 });

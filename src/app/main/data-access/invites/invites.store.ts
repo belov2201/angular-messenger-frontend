@@ -25,10 +25,8 @@ export const InvitesStore = signalStore(
   withEntities<InviteEntity>(),
   withComputed((store, userStore = inject(UserStore)) => ({
     incomingInvitesCount: computed(() => {
-      return (
-        store.entities().filter((invite) => invite.recipient.id === userStore.user()?.id).length ||
-        0
-      );
+      return store.entities().filter((invite) => invite.recipient.id === userStore.user()?.id)
+        .length;
     }),
   })),
   withMethods(

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap } from 'rxjs';
+import { pipe, switchMap, tap } from 'rxjs';
 import { UserService } from './user.service';
 import { tapResponse } from '@ngrx/operators';
 import { AlertsService } from '../../alerts';
@@ -13,10 +13,12 @@ import { alertMessages } from '@app/shared/constants/alert-messages';
 
 interface UserState {
   user: UserEntity | null;
+  isUnauthorized: boolean;
 }
 
 const initialState: UserState = {
   user: null,
+  isUnauthorized: false,
 };
 
 export const UserStore = signalStore(
@@ -35,11 +37,12 @@ export const UserStore = signalStore(
           switchMap(() => {
             return userService.getUserData().pipe(
               store._handleLoading(),
+              tap(() => patchState(store, { isError: false, isUnauthorized: false })),
               tapResponse({
                 next: (user) => patchState(store, { user }),
                 error: (err: HttpErrorResponse) => {
                   if (err.status === 401) {
-                    patchState(store, { isError: false });
+                    patchState(store, { isError: false, isUnauthorized: true });
                     return;
                   }
 
@@ -90,7 +93,7 @@ export const UserStore = signalStore(
               store._handlePendingAction(),
               tapResponse({
                 next: () => {
-                  patchState(store, { ...initialState, isLoaded: true });
+                  patchState(store, { ...initialState, isLoaded: true, isUnauthorized: true });
                   router.navigate(['/auth'], { replaceUrl: true });
                   alertService.showSuccessAlert('Вы вышли из учетной записи');
                 },
@@ -107,12 +110,6 @@ export const UserStore = signalStore(
               store._handlePendingAction(),
               tapResponse({
                 next: () => {
-                  patchState(store, (state) => {
-                    return {
-                      user: state?.user ? { ...state.user, ...editUserDto } : null,
-                    };
-                  });
-
                   patchState(store, (state) => ({
                     user: state?.user ? { ...state.user, ...editUserDto } : null,
                   }));

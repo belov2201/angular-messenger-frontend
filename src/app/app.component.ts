@@ -5,6 +5,7 @@ import { AlertsComponent } from './core/alerts';
 import { LoaderComponent } from './shared/ui';
 import { ConfirmDialogComponent } from './shared/ui/confirm-dialog/confirm-dialog.component';
 import { AppStatusStore } from './core/store/app-status/app-status.store';
+import { UserStore } from './core/store/user';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,10 @@ import { AppStatusStore } from './core/store/app-status/app-status.store';
     <app-confirm-dialog />
     <app-alerts />
 
-    @if (appStatusStore.isLoading()) {
+    @if (
+      appStatusStore.isLoading() ||
+      (!appStatusStore.isLoadedInitData() && !userStore.isUnauthorized() && !userStore.isError())
+    ) {
       <app-loader />
     }
 
@@ -29,4 +33,5 @@ import { AppStatusStore } from './core/store/app-status/app-status.store';
 })
 export class AppComponent {
   protected readonly appStatusStore = inject(AppStatusStore);
+  protected readonly userStore = inject(UserStore);
 }

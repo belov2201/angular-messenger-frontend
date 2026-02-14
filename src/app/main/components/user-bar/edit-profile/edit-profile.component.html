@@ -13,7 +13,7 @@
               content: { padding: '0' },
             }"
           >
-            <p-menu [model]="menuItems()" appendTo="body" />
+            <p-menu [model]="menuItems()" appendTo="body" (click)="popover.hide()" />
           </p-popover>
           <app-avatar
             [params]="user"
