@@ -66,7 +66,7 @@ export const MessagesStore = signalStore(
                 },
                 error: () => {
                   dispatchMessageEvent.getMessagesDataError({ id });
-                  alertService.showErrorAlert('Ошибка получения сообщений');
+                  alertService.showErrorAlert(alertMessages.getMessagesError);
                   router.navigate(['/'], { replaceUrl: true });
                 },
               }),
@@ -99,7 +99,7 @@ export const MessagesStore = signalStore(
                     id,
                   });
 
-                  alertService.showErrorAlert('Ошибка получения сообщений');
+                  alertService.showErrorAlert(alertMessages.getMessagesError);
                   router.navigate(['/'], { replaceUrl: true });
                 },
               }),
@@ -149,7 +149,7 @@ export const MessagesStore = signalStore(
                   contactsStore.updateLastMessage(createdMessage.contact.id, updatedMessage);
                 },
                 error: () => {
-                  alertService.showErrorAlert('Ошибка отправки сообщения');
+                  alertService.showErrorAlert(alertMessages.sendMessageError);
                   patchState(
                     store,
                     updateEntity({ id: createdMessage.id, changes: { status: 'error' } }),

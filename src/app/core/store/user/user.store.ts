@@ -47,7 +47,7 @@ export const UserStore = signalStore(
                   }
 
                   patchState(store, { isError: true });
-                  alertService.showErrorAlert('Ошибка авторизации');
+                  alertService.showErrorAlert(alertMessages.authError);
                 },
               }),
             );
@@ -64,7 +64,7 @@ export const UserStore = signalStore(
                   patchState(store, { user, isLoaded: true });
                   router.navigate(['/'], { replaceUrl: true });
                 },
-                error: () => alertService.showErrorAlert('Ошибка авторизации'),
+                error: () => alertService.showErrorAlert(alertMessages.authError),
               }),
             );
           }),
@@ -78,9 +78,9 @@ export const UserStore = signalStore(
               tapResponse({
                 next: () => {
                   router.navigate(['auth'], { replaceUrl: true });
-                  alertService.showSuccessAlert('Вы успешно зарегистрированы');
+                  alertService.showSuccessAlert(alertMessages.registerSuccess);
                 },
-                error: () => alertService.showErrorAlert('Ошибка регистрации'),
+                error: () => alertService.showErrorAlert(alertMessages.registerError),
               }),
             );
           }),
@@ -95,9 +95,9 @@ export const UserStore = signalStore(
                 next: () => {
                   patchState(store, { ...initialState, isLoaded: true, isUnauthorized: true });
                   router.navigate(['/auth'], { replaceUrl: true });
-                  alertService.showSuccessAlert('Вы вышли из учетной записи');
+                  alertService.showSuccessAlert(alertMessages.logoutSuccess);
                 },
-                error: () => alertService.showErrorAlert('Ошибка выхода из учетной записи'),
+                error: () => alertService.showErrorAlert(alertMessages.logoutError),
               }),
             );
           }),
@@ -135,10 +135,10 @@ export const UserStore = signalStore(
                     user: state?.user ? { ...state.user, avatar: fileName } : null,
                   }));
 
-                  alertService.showSuccessAlert('Аватар успешно изменен');
+                  alertService.showSuccessAlert(alertMessages.editUserAvatarSuccess);
                 },
                 error: () => {
-                  alertService.showErrorAlert('Ошибка изменения аватара');
+                  alertService.showErrorAlert(alertMessages.editUserAvatarError);
                 },
               }),
             );
@@ -156,10 +156,10 @@ export const UserStore = signalStore(
                     user: state?.user ? { ...state.user, avatar: null } : null,
                   }));
 
-                  alertService.showSuccessAlert('Аватар удален');
+                  alertService.showSuccessAlert(alertMessages.deleteUserAvatarSuccess);
                 },
                 error: () => {
-                  alertService.showErrorAlert('Ошибка удаления аватара');
+                  alertService.showErrorAlert(alertMessages.deleteUserAvatarError);
                 },
               }),
             );

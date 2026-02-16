@@ -163,7 +163,7 @@ export const ContactsStore = signalStore(
       pipe(
         switchMap(() => wsService.socket.fromEvent<ContactDto>(WsEvents.addContact)),
         tap((contact) => {
-          alertService.showSuccessAlert('Пользователь добавил вас в список контактов');
+          alertService.showSuccessAlert(alertMessages.addContactSuccess);
           patchState(store, addEntity(contact));
         }),
       ),

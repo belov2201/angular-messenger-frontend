@@ -57,10 +57,10 @@ export const InvitesStore = signalStore(
                 store._handlePendingAction(),
                 tapResponse({
                   next: (invite) => {
-                    alertService.showSuccessAlert('Запрос на добавление отправлен');
+                    alertService.showSuccessAlert(alertMessages.sendInviteSuccess);
                     patchState(store, addEntity(invite));
                   },
-                  error: () => alertService.showErrorAlert('Ошибка отправки запроса'),
+                  error: () => alertService.showErrorAlert(alertMessages.sendInviteError),
                 }),
               );
             }),
