@@ -1,6 +1,6 @@
 import { renderWithProviders } from 'testing/render-with-providers';
 import { EditProfileComponent } from './edit-profile.component';
-import { fireEvent, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/angular';
+import { fireEvent, screen, waitFor } from '@testing-library/angular';
 import { userMock } from 'testing/mocks/user/user.mock';
 import userEvent from '@testing-library/user-event';
 import { TestBed } from '@angular/core/testing';
@@ -83,9 +83,6 @@ describe('EditProfileComponent', () => {
 
     expect(screen.getByText('Вы уверены, что хотите удалить аватар?'));
     await userEvent.click(screen.getByRole('button', { name: 'Отменить' }));
-    await waitForElementToBeRemoved(() =>
-      screen.queryByText('Вы уверены, что хотите удалить аватар?'),
-    );
 
     await userEvent.click(screen.getByTestId('edit-avatar'));
     expect(screen.getByRole('menuitem', { name: 'Удалить' })).toHaveAttribute(

@@ -90,6 +90,19 @@ describe('UserStore', () => {
     expect(store.user()?.lastName).toBe(editUserDto.lastName);
   });
 
+  it('edit user with null value', () => {
+    const editUserDto: EditUserDto = {
+      firstName: 'some edit firstname',
+      lastName: 'some edit lastname',
+    };
+
+    store.logout();
+    expect(store.user()).toBeNull();
+    store.editUser(editUserDto);
+    expect(userService.editUserData).toHaveBeenCalledOnceWith(editUserDto);
+    expect(store.user()).toBeNull();
+  });
+
   it('edit user error', () => {
     userService.editUserData.and.returnValue(throwError(() => new Error()));
 
@@ -117,6 +130,19 @@ describe('UserStore', () => {
     expect(store.user()?.avatar).toBe('some-test-file.jpg');
   });
 
+  it('edit avatar with null value', () => {
+    store.logout();
+    expect(store.user()).toBeNull();
+
+    const editUserAvatarDto: EditUserAvatarDto = {
+      avatar: new File([], 'some filename'),
+    };
+
+    store.editAvatar(editUserAvatarDto);
+    expect(userService.editUserAvatar).toHaveBeenCalledOnceWith(editUserAvatarDto);
+    expect(store.user()).toBeNull();
+  });
+
   it('edit avatar error', () => {
     userService.editUserAvatar.and.returnValue(throwError(() => new Error()));
     expect(store.user()?.avatar).toBeNull();
@@ -131,6 +157,22 @@ describe('UserStore', () => {
   });
 
   it('delete avatar', async () => {
+    store.logout();
+    expect(store.user()).toBeNull();
+
+    const editUserAvatarDto: EditUserAvatarDto = {
+      avatar: new File([], 'some filename'),
+    };
+
+    store.editAvatar(editUserAvatarDto);
+    expect(userService.editUserAvatar).toHaveBeenCalledOnceWith(editUserAvatarDto);
+
+    store.deleteAvatar();
+    expect(userService.deleteUserAvatar).toHaveBeenCalled();
+    expect(store.user()).toBeNull();
+  });
+
+  it('delete avatar with null value', async () => {
     expect(store.user()?.avatar).toBeNull();
 
     const editUserAvatarDto: EditUserAvatarDto = {

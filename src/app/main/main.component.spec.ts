@@ -1,4 +1,4 @@
-import { render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/angular';
+import { render, screen, waitFor, within } from '@testing-library/angular';
 import { MainComponent } from './main.component';
 import { contactsMock } from 'testing/mocks/contacts/contacts.mock';
 import { userMock } from 'testing/mocks/user/user.mock';
@@ -9,12 +9,8 @@ import { getSharedProviders } from 'testing/get-shared-providers';
 import { provideRouter } from '@angular/router';
 import { mainRoutes } from './main.routes';
 import { ConfirmDialogComponent } from '@app/shared/ui/confirm-dialog/confirm-dialog.component';
+import { NavigateCb } from 'testing/types/navigate-cb';
 import userEvent from '@testing-library/user-event';
-
-type NavigateCb = (
-  elementOrPath: string | Element,
-  basePath?: string | undefined,
-) => Promise<boolean>;
 
 describe('MainComponent', () => {
   let navigateByUrl: NavigateCb;
@@ -56,8 +52,6 @@ describe('MainComponent', () => {
     expect(screen.getByText('Удалить')).toBeInTheDocument();
     await userEvent.click(screen.getByText('Удалить'));
 
-    await waitForElementToBeRemoved(() => screen.queryByText('Удалить'));
-
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Отменить' })).toBeInTheDocument(),
     );
@@ -69,8 +63,6 @@ describe('MainComponent', () => {
 
     await userEvent.click(messageCards[messagesMockChunk - 2]);
     await userEvent.click(screen.getByText('Удалить'));
-
-    await waitForElementToBeRemoved(() => screen.queryByText('Удалить'));
 
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Подтвердить' })).toBeInTheDocument(),
@@ -99,7 +91,6 @@ describe('MainComponent', () => {
     expect(screen.getByText('Редактировать')).toBeInTheDocument();
 
     await userEvent.click(screen.getByText('Редактировать'));
-    await waitForElementToBeRemoved(() => screen.queryByText('Редактировать'));
 
     expect(screen.getByPlaceholderText<HTMLInputElement>('Введите сообщение').value).toBe(
       messagesMock[messagesMockChunk - 2].text,
@@ -120,7 +111,6 @@ describe('MainComponent', () => {
     expect(screen.getByText('Редактировать')).toBeInTheDocument();
 
     await userEvent.click(screen.getByText('Редактировать'));
-    await waitForElementToBeRemoved(() => screen.queryByText('Редактировать'));
 
     expect(screen.getByPlaceholderText<HTMLInputElement>('Введите сообщение').value).toBe(
       messagesMock[messagesMockChunk - 2].text,
@@ -147,7 +137,9 @@ describe('MainComponent', () => {
     });
 
     expect(
-      screen.getByText(messagesMock[messagesMockChunk - 2].text + ' edit'),
+      within(screen.getByTestId('messages-list')).getByText(
+        messagesMock[messagesMockChunk - 2].text + ' edit',
+      ),
     ).toBeInTheDocument();
 
     expect(screen.queryByTestId('edit-message-btn')).not.toBeInTheDocument();

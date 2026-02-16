@@ -1,4 +1,3 @@
-import { RouterTestingHarness } from '@angular/router/testing';
 import { MessageActionsComponent } from './message-actions.component';
 import { renderWithProviders } from 'testing/render-with-providers';
 import { screen } from '@testing-library/angular';
@@ -6,15 +5,16 @@ import userEvent from '@testing-library/user-event';
 import { TestBed } from '@angular/core/testing';
 import { Socket } from 'ngx-socket-io';
 import { WsEvents } from '@app/main/providers/ws/ws-events';
+import { CurrentDialogIdService } from '@app/main/providers/current-dialog-id';
+import { signal } from '@angular/core';
 
 describe('MessageActionsComponent', () => {
   const testDialogId = 1;
-  let harness: RouterTestingHarness;
 
   beforeEach(async () => {
-    await renderWithProviders(MessageActionsComponent);
-    harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl(`/dialog/${testDialogId}`);
+    await renderWithProviders(MessageActionsComponent, {
+      providers: [{ provide: CurrentDialogIdService, useValue: { value: signal(testDialogId) } }],
+    });
   });
 
   it('should create', async () => {

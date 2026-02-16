@@ -1,16 +1,15 @@
 import { renderWithProviders } from 'testing/render-with-providers';
 import { DialogComponent } from './dialog.component';
 import { screen } from '@testing-library/angular';
-import { RouterTestingHarness } from '@angular/router/testing';
 import { messagesMockChunk } from 'testing/mocks/messages/messages.mock';
+import { CurrentDialogIdService } from '@app/main/providers/current-dialog-id';
+import { signal } from '@angular/core';
 
 describe('DialogComponent', () => {
-  let harness: RouterTestingHarness;
-
   beforeEach(async () => {
-    await renderWithProviders(DialogComponent);
-    harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/dialog/0');
+    await renderWithProviders(DialogComponent, {
+      providers: [{ provide: CurrentDialogIdService, useValue: { value: signal(0) } }],
+    });
   });
 
   it('should create', async () => {

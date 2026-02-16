@@ -1,20 +1,23 @@
 import { setupProviders } from 'testing/setup-providers';
-import { RouterTestingHarness } from '@angular/router/testing';
 import { InputMessagesStateStore } from './input-messages.store';
 import { messagesMock } from 'testing/mocks/messages/messages.mock';
 import { mapToMessageView } from '../messages/messages.mapper';
 import { userMock } from 'testing/mocks/user/user.mock';
+import { signal } from '@angular/core';
+import { CurrentDialogIdService } from '@app/main/providers/current-dialog-id';
+import { TestBed } from '@angular/core/testing';
 
 describe('InputMessagesStateStore', () => {
   const testDialogId = 0;
 
-  let harness: RouterTestingHarness;
   let store: InstanceType<typeof InputMessagesStateStore>;
 
   beforeEach(async () => {
-    store = setupProviders(InputMessagesStateStore);
-    harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl(`/dialog/${testDialogId}`);
+    store = setupProviders(InputMessagesStateStore, [
+      { provide: CurrentDialogIdService, useValue: { value: signal(testDialogId) } },
+    ]);
+
+    TestBed.tick();
   });
 
   it('should create', async () => {

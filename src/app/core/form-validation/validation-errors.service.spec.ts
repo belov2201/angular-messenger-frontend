@@ -13,4 +13,12 @@ describe('ValidationErrorsService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  it('with exist error message', () => {
+    expect(service.getTextError('required', {})).toBe('Поле обязательно для заполнения');
+  });
+
+  it('with no exist error message', () => {
+    expect(service.getTextError('some no exist field', {})).toBeNull();
+  });
 });

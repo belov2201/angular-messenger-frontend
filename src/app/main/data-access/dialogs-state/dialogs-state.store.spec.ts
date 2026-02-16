@@ -1,21 +1,30 @@
 import { setupProviders } from 'testing/setup-providers';
 import { DialogsStateStore } from './dialogs-state.store';
-import { RouterTestingHarness } from '@angular/router/testing';
 import { TestBed } from '@angular/core/testing';
 import { MessagesService } from '../messages/messages.service';
 import { messagesMock, messagesMockChunk } from 'testing/mocks/messages/messages.mock';
 import { Message } from '../messages';
 import { mapToMessageView } from '../messages/messages.mapper';
 import { userMock } from 'testing/mocks/user/user.mock';
+import { CurrentDialogIdService } from '@app/main/providers/current-dialog-id';
+import { signal, WritableSignal } from '@angular/core';
+import { waitFor } from '@testing-library/angular';
+import { contactsMock } from 'testing/mocks/contacts/contacts.mock';
+import { UserStore } from '@app/core/store/user';
+import { ContactsStore } from '../contacts';
 
 describe('DialogsStateStore', () => {
-  let harness: RouterTestingHarness;
   let store: InstanceType<typeof DialogsStateStore>;
+  let mockDialogIdSignal: WritableSignal<number | null>;
 
   beforeEach(async () => {
-    store = setupProviders(DialogsStateStore);
-    harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/dialog/1');
+    mockDialogIdSignal = signal<number | null>(1);
+
+    store = setupProviders(DialogsStateStore, [
+      { provide: CurrentDialogIdService, useValue: { value: mockDialogIdSignal } },
+    ]);
+
+    TestBed.tick();
   });
 
   it('should create', () => {
@@ -25,11 +34,13 @@ describe('DialogsStateStore', () => {
   it('load messages change dialog id', async () => {
     const messagesService = TestBed.inject(MessagesService) as jasmine.SpyObj<MessagesService>;
     expect(messagesService.getAll).toHaveBeenCalledOnceWith(1);
+    await waitFor(() => expect(messagesService.getAll).toHaveBeenCalledOnceWith(1));
     const dialogState = store.entityMap()[1];
     expect(dialogState).toBeTruthy();
     expect(dialogState.messageIds.length).toBe(messagesMockChunk);
-    await harness.navigateByUrl('/dialog/2');
-    expect(messagesService.getAll).toHaveBeenCalledWith(2);
+    mockDialogIdSignal.set(2);
+    TestBed.tick();
+    await waitFor(() => expect(messagesService.getAll).toHaveBeenCalledWith(2));
     expect(messagesService.getAll).toHaveBeenCalledTimes(2);
     const dialogState2 = store.entityMap()[2];
     expect(dialogState2).toBeTruthy();
@@ -154,5 +165,33 @@ describe('DialogsStateStore', () => {
     expect(store.entityMap()[1]).toBeTruthy();
     store.deleteState(1);
     expect(store.entityMap()[1]).toBeFalsy();
+  });
+
+  it('get current contact', async () => {
+    expect(store.currentContact()).toBe(contactsMock.find((e) => e.id === mockDialogIdSignal()));
+    mockDialogIdSignal.set(null);
+    TestBed.tick();
+    expect(store.currentContact()).toBeUndefined();
+  });
+
+  it('get current participant', async () => {
+    expect(store.currentParticipant()).toBe(
+      store.currentContact()?.participants.find((e) => e.id !== userMock.id),
+    );
+
+    const userStore = TestBed.inject(UserStore);
+    userStore.logout();
+    TestBed.tick();
+    expect(store.currentParticipant()).toBeUndefined();
+  });
+
+  it('get current typing contact', async () => {
+    expect(store.currentTypingContact()).toBeUndefined();
+
+    const contactsStore = TestBed.inject(ContactsStore);
+
+    contactsStore.updateTypingStatus(1, true);
+    TestBed.tick();
+    expect(store.currentTypingContact()).toBe(store.currentParticipant()?.firstName);
   });
 });

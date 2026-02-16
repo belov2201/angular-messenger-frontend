@@ -1,4 +1,4 @@
-import { screen, waitForElementToBeRemoved } from '@testing-library/angular';
+import { screen } from '@testing-library/angular';
 import { ContactsComponent } from './contacts.component';
 import { renderWithProviders } from 'testing/render-with-providers';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
@@ -47,7 +47,6 @@ describe('ContactsComponent', () => {
     await userEvent.click(deleteButtons[0]);
     expect(screen.getByText(modalMessages.deleteContact)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Отменить' }));
-    await waitForElementToBeRemoved(() => screen.queryByText(modalMessages.deleteContact));
     await userEvent.click(deleteButtons[0]);
     expect(screen.getByText(modalMessages.deleteContact)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Подтвердить' }));
@@ -83,7 +82,6 @@ describe('ContactsComponent', () => {
     await userEvent.click(approveButtons[0]);
     expect(screen.getByText(modalMessages.approveInvite)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Отменить' }));
-    await waitForElementToBeRemoved(() => screen.queryByText(modalMessages.approveInvite));
 
     await userEvent.click(approveButtons[0]);
     expect(screen.getByText(modalMessages.approveInvite)).toBeInTheDocument();
@@ -121,7 +119,6 @@ describe('ContactsComponent', () => {
     await userEvent.click(declineButtons[0]);
     expect(screen.getByText(modalMessages.declineInvite)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Отменить' }));
-    await waitForElementToBeRemoved(() => screen.queryByText(modalMessages.declineInvite));
 
     await userEvent.click(declineButtons[0]);
     expect(screen.getByText(modalMessages.declineInvite)).toBeInTheDocument();

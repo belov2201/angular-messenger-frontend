@@ -1,17 +1,23 @@
 import { setupProviders } from 'testing/setup-providers';
 import { ScrollStateStore } from './scroll.store';
-import { RouterTestingHarness } from '@angular/router/testing';
+import { CurrentDialogIdService } from '@app/main/providers/current-dialog-id';
+import { signal, WritableSignal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 
 describe('ScrollStateStore', () => {
   const testDialogId = 1;
+  let mockDialogIdSignal: WritableSignal<number | null>;
 
-  let harness: RouterTestingHarness;
   let store: InstanceType<typeof ScrollStateStore>;
 
   beforeEach(async () => {
-    store = setupProviders(ScrollStateStore);
-    harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl(`/dialog/${testDialogId}`);
+    mockDialogIdSignal = signal<number | null>(testDialogId);
+
+    store = setupProviders(ScrollStateStore, [
+      { provide: CurrentDialogIdService, useValue: { value: mockDialogIdSignal } },
+    ]);
+
+    TestBed.tick();
   });
 
   it('should create', async () => {
@@ -63,6 +69,13 @@ describe('ScrollStateStore', () => {
     store.setIsViewLast(true);
     expect(store.entityMap()[testDialogId].isViewLastMessage).toBeTrue();
     store.setIsViewLast(false);
+    expect(store.entityMap()[testDialogId].isViewLastMessage).toBeFalse();
+  });
+
+  it('set is view last with current null', async () => {
+    mockDialogIdSignal.set(null);
+    TestBed.tick();
+    store.setIsViewLast(true);
     expect(store.entityMap()[testDialogId].isViewLastMessage).toBeFalse();
   });
 

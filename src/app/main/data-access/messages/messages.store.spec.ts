@@ -8,6 +8,7 @@ import { SendMessageParam } from './messages.interface';
 import { userMock } from 'testing/mocks/user/user.mock';
 import { ContactsStore } from '../contacts';
 import { throwError } from 'rxjs';
+import { UserStore } from '@app/core/store/user';
 
 describe('MessagesStore', () => {
   let store: InstanceType<typeof MessagesStore>;
@@ -54,6 +55,30 @@ describe('MessagesStore', () => {
 
     expect(contactsStore.entityMap()[contactsMock[0].id].lastMessage?.text).toBe(
       createMessageDto.text,
+    );
+  });
+
+  it('send message with null user', () => {
+    const userStore = TestBed.inject(UserStore);
+    const messagesService = TestBed.inject(MessagesService);
+    const contactsStore = TestBed.inject(ContactsStore);
+
+    userStore.logout();
+
+    const contactId = contactsMock[0].id;
+    const createMessageDto: SendMessageParam = { contactId, text: 'some create message' };
+
+    store.sendMessage(createMessageDto);
+
+    expect(messagesService.create).not.toHaveBeenCalledOnceWith({
+      text: createMessageDto.text,
+      contactId,
+      sender: userMock,
+      senderId: userMock.id,
+    });
+
+    expect(contactsStore.entityMap()[contactsMock[0].id].lastMessage?.text).toBe(
+      contactsMock[0].lastMessage?.text,
     );
   });
 

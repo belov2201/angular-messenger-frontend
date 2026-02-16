@@ -1,40 +1,56 @@
 import { AppComponent } from './app.component';
 import { renderWithProviders } from 'testing/render-with-providers';
-import { RouterTestingHarness } from '@angular/router/testing';
 import { screen } from '@testing-library/angular';
-import { TestBed } from '@angular/core/testing';
 import { UserService } from './core/store/user/user.service';
 import { throwError } from 'rxjs';
+import { createUserServiceMock } from 'testing/mocks/user/create-user-service.mock';
+import { NavigateCb } from 'testing/types/navigate-cb';
 
 describe('AppComponent', () => {
-  let harness: RouterTestingHarness;
+  let navigateByUrl: NavigateCb;
 
-  beforeEach(async () => {
-    await renderWithProviders(AppComponent);
-    harness = await RouterTestingHarness.create();
+  describe('with user data response', () => {
+    beforeEach(async () => {
+      const { navigate } = await renderWithProviders(AppComponent);
+      navigateByUrl = navigate;
+    });
+
+    it('should create main component', async () => {
+      await navigateByUrl('');
+      expect(screen.getByTestId('open-userbar-menu-button')).toBeInTheDocument();
+    });
+
+    it('should create main component from auth route', async () => {
+      await navigateByUrl('/auth');
+      expect(screen.getByTestId('open-userbar-menu-button')).toBeInTheDocument();
+    });
   });
 
-  it('should create main component', async () => {
-    await harness.navigateByUrl('');
-    expect(screen.getByTestId('open-userbar-menu-button')).toBeInTheDocument();
-  });
+  describe('with error user data response', () => {
+    beforeEach(async () => {
+      const userServiceMock = createUserServiceMock();
+      userServiceMock.getUserData.and.returnValue(throwError(() => new Error('Unauthorized')));
 
-  it('should create main component from auth route', async () => {
-    await harness.navigateByUrl('/auth');
-    expect(screen.getByTestId('open-userbar-menu-button')).toBeInTheDocument();
-  });
+      const { navigate } = await renderWithProviders(AppComponent, {
+        providers: [
+          {
+            provide: UserService,
+            useValue: userServiceMock,
+          },
+        ],
+      });
 
-  it('should create auth component', async () => {
-    const userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
-    userService.getUserData.and.returnValue(throwError(() => new Error('Unauthorized')));
-    await harness.navigateByUrl('');
-    expect(screen.getByText('Авторизация')).toBeInTheDocument();
-  });
+      navigateByUrl = navigate;
+    });
 
-  it('should create register component', async () => {
-    const userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
-    userService.getUserData.and.returnValue(throwError(() => new Error('Unauthorized')));
-    await harness.navigateByUrl('/register');
-    expect(screen.getByText('Регистрация')).toBeInTheDocument();
+    it('should create auth component', async () => {
+      await navigateByUrl('');
+      expect(screen.getByText('Авторизация')).toBeInTheDocument();
+    });
+
+    it('should create register component', async () => {
+      await navigateByUrl('/register');
+      expect(screen.getByText('Регистрация')).toBeInTheDocument();
+    });
   });
 });
