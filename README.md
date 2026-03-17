@@ -1,59 +1,73 @@
-# AngularMessengerFeatureBased
+## Демонстрация работы приложения
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.19.
+Главная страница приложения:
 
-## Development server
+<img src="public/demo/1.png" width="1152" height="901" />
 
-To start a local development server, run:
+Адаптивная верстка для мобильных устройств:
 
-```bash
-ng serve
+<img src="public/demo/2.png" width="459" height="724" />
+<img src="public/demo/3.png" width="459" height="724" />
+
+Видеодемонстрацию работы приложения можно посмотреть на rutube:
+https://rutube.ru/video/private/a4c16fc3fcb3d84fb2f8466a21af9b18/?p=q_noo8z-gY-ksajCtaq38g
+
+#### Временные затраты на разработку frontend части составили примерно 250 часов
+
+## Функциональные требования
+
+Требуется разработать приложение мессенджер, реализующее следующий функционал:
+
+1. Регистрация, авторизация, выход из учетной записи пользователя
+2. Редактирование информации о пользователе
+3. Добавление в список контактов по уникальному коду приглашения
+4. Удаление пользователей из списка контактов
+5. Возможность отправки, редактирования, удаления сообщений
+6. Отображение и изменение статуса «прочитано» у сообщений
+7. Группировка по датам и вывод сообщений в список
+8. Автоматическая подгрузка сообщений при прокрутке списка вверх
+9. Сохранение состояния ввода при переключении диалогов
+10. Отображение и изменение статуса онлайн у пользователей
+11. Отображение оповещений пользователя об успехе или ошибке при выполнении действий
+12. Покрытие кода тестами (unit, integration, e2e)
+
+## Технологический стек
+
+- Angular 21
+- Nest js
+- ngrx/signals
+- PrimeNg, Tailwind
+- ngx-socket-io
+- Jasmine + Karma + Angular testing library
+- Playwright
+
+## Тестирование приложения
+
+Код приложения покрыт unit, integration и e2e тестами.
+
+### e2e тесты
+
+Для разработки e2e тестов использовался фреймворк playwright.
+
+Всего разработано 2 вида e2e тестов
+
+1. Тестирование основных функций приложения для одного пользователя: авторизация, редактирование информации о пользователе, работа с сообщениями.
+2. Тестирование функций взаимодействия с веб-сокетом.
+
+Для их запуска требуется ввести команду
+
+```js
+npm run e2e
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Unit и integration тесты
 
-## Code scaffolding
+Для запуска этого вида тестов необходимо выполнить команду
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```js
+npm run test
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Coverage:
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+<img src="public/demo/coverage.png" width="665" height="236" />
